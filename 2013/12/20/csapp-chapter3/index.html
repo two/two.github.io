@@ -1,0 +1,544 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>csapp chapter3:程序的机器级表示 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="《深入理解计算机操作系统》英文名Computer Systems A programmer&#39;s Perspective的读书笔记">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="csapp chapter3:程序的机器级表示">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>csapp chapter3:程序的机器级表示</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/20/csapp-chapter3/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-19T16:00:00.000Z">
+          2013-12-20
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>*本章是理解程序如何运行的关键所在，这一章将学到：  </p>
+<ol>
+<li>程序时如何从高级代码变为汇编代码;   </li>
+<li>程序编译后运行时在内存中是如何分布的;<br>3…*</li>
+</ol>
+</blockquote>
+<h2 id="程序代码"><a href="#程序代码" class="headerlink" title="程序代码"></a>程序代码</h2><p>首先介绍各种单片机、处理器，不同的处理器所使用的能够识别的汇编语言也是不一样的，如何根据不同处理器把同一段高级语言转换成对应的汇编语言，这个是编译器的事儿，本文所有的汇编语言我的机器就跟他不同，导致我学习的时候也为此很头疼,严重影响了我对本来就一知半解的汇编语言的理解。</p>
+<h3 id="程序编码"><a href="#程序编码" class="headerlink" title="程序编码"></a>程序编码</h3><p>在深入了解程序代码之前需要简单的了解一下GCC编译器的使用方法。</p>
+<p>首先编写一个简单的C文件:code.c<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> //code.c</span><br><span class="line">int accum = 0;</span><br><span class="line">  </span><br><span class="line">int sum(int x, int y)</span><br><span class="line">&#123;</span><br><span class="line">    int t = x + y;</span><br><span class="line">    accum += t;</span><br><span class="line">    return t;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后利用gcc命令加上<code>-S</code>参数生产一个汇编代码文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -S code.c</span><br><span class="line">ll</span><br><span class="line">code.c</span><br><span class="line">code.s</span><br></pre></td></tr></table></figure><br>可见生成了一个.s文件,打开这个汇编文件，内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">        .file&quot;code.c&quot;</span><br><span class="line">        .text</span><br><span class="line">.globl sum</span><br><span class="line">        .type   sum, @function</span><br><span class="line">sum:</span><br><span class="line">.LFB0:</span><br><span class="line">        .cfi_startproc</span><br><span class="line">        leal    (%rsi,%rdi), %eax</span><br><span class="line">        addl    %eax, accum(%rip)</span><br><span class="line">        ret</span><br><span class="line">        .cfi_endproc</span><br><span class="line">.LFE0:</span><br><span class="line">        .size   sum, .-sum</span><br><span class="line">.globl accum</span><br><span class="line">        .bss</span><br><span class="line">        .align 4                    </span><br><span class="line">        .type   accum, @object</span><br><span class="line">        .size   accum, 4</span><br><span class="line">accum:</span><br><span class="line">        .zero4</span><br><span class="line">        .ident  &quot;GCC: (GNU) 4.4.6 20110731 (Red Hat 4.4.6-3)&quot;</span><br><span class="line">        .section    .note.GNU-stack,&quot;&quot;,@progbits</span><br></pre></td></tr></table></figure><br>但是书中给出的生成的代码却是这样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sum:</span><br><span class="line">    pushl   %ebp</span><br><span class="line">    movl    %esp, %ebp</span><br><span class="line">    movl    12(%ebp), %eax</span><br><span class="line">    addl    8(%ebp), %eax</span><br><span class="line">    addl    %eax, accum</span><br><span class="line">    popl    %ebp</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure><br>可以看到这两段代码差别很大，这是因为所在的处理器环境不同，所以汇编命令格式会有差别；而且gcc的版本也不同，会导致优化的程度也不同。为了能够更好的理解课本，以后就按照书上的来理解。<br>如果在使用gcc的时候加<code>-C</code>参数，则汇编器会把汇编文件编译成二进制文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -c code.c</span><br></pre></td></tr></table></figure><br>这是生产了code.o文件，但是它的内容是二进制的，直接看不到。用vi打开文件，然后在normal模式下输入：<code>:%!xxd</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0000000: 7f45 4c46 0201 0100 0000 0000 0000 0000  .ELF............</span><br><span class="line">0000010: 0100 3e00 0100 0000 0000 0000 0000 0000  ..&gt;.............</span><br><span class="line">0000020: 0000 0000 0000 0000 1001 0000 0000 0000  ................</span><br><span class="line">0000030: 0000 0000 4000 0000 0000 4000 0c00 0900  ....@.....@.....</span><br><span class="line">0000040: 8d04 3e01 0500 0000 00c3 0000 0047 4343  ..&gt;..........GCC</span><br><span class="line">0000050: 3a20 2847 4e55 2920 342e 342e 3620 3230  : (GNU) 4.4.6 20</span><br><span class="line">0000060: 3131 3037 3331 2028 5265 6420 4861 7420  110731 (Red Hat</span><br><span class="line">0000070: 342e 342e 362d 3329 0000 0000 0000 0000  4.4.6-3)........</span><br><span class="line">0000080: 1400 0000 0000 0000 017a 5200 0178 1001  .........zR..x..</span><br><span class="line">0000090: 1b0c 0708 9001 0000 1400 0000 1c00 0000  ................</span><br><span class="line">......</span><br></pre></td></tr></table></figure><br>还可以通过gdb这个调试工具进行查看二进制文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$gbd code.o</span><br><span class="line">(gdb) x/17xb sum</span><br><span class="line">0x0 &lt;sum&gt;:0x8d0x040x3e0x010x050x000x000x                                00</span><br><span class="line">0x8 &lt;sum+8&gt;:0x000xc3Cannot access memory at address 0xa         </span><br></pre></td></tr></table></figure><br>但是要查看目标代码文件的内容，最有价值的还是反汇编器（disassembler)，这玩意儿听上去就很NB有木有？使用方法入下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -d code.o</span><br><span class="line">code.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;sum&gt;:</span><br><span class="line">   0:8d 04 3e             lea    (%r        si,%rdi,1),%eax</span><br><span class="line">   3:01 05 00 00 00 00    add    %eax,0x0(%rip)               # 9 &lt;sum+0x9&gt;</span><br><span class="line">   9:c3                   retq      </span><br></pre></td></tr></table></figure><br>这个是我电脑上的结果，跟书上的有不一样，书上的是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of funciton sum in binary file code.o</span><br><span class="line">00000000 &lt;sum&gt;</span><br><span class="line">Offset  Bytes                   Equivalent assembly language</span><br><span class="line">    0:  55                      push    %ebp</span><br><span class="line">    1:  89  e5                  mov %esp,%ebp</span><br><span class="line">    3:  8b  45  0c              mov 0xc(%ebp),%eax</span><br><span class="line">    6:  03  45  08              add 0x8(%ebp), %eax</span><br><span class="line">    9:  01  05  00  00  00  00  add %eax,0x0</span><br><span class="line">    f:  5d                      pop %ebp</span><br><span class="line">   10:  c3                      ret</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>生成实际可执行的代码需要对一组目标代码文件运行链接器，而这一组目标代码文件中必须含有一个main函数，假设文件main.c中有下面这样一个函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    return sum(1,3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>然后用下面的方法生成可执行文件prog:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -o prog code.o main.c</span><br></pre></td></tr></table></figure><br>看到生成了一个prog可执行文件，对其进行反编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d prog</span><br></pre></td></tr></table></figure><br>可看到一大坨的汇编代码，但是其中有一段跟上面的代码一样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -d code.o</span><br><span class="line">code.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;sum&gt;:</span><br><span class="line">   0:8d 04 3e             lea    (%rsi,%rdi,1),%eax</span><br><span class="line">   3:01 05 00 00 00 00    add    %eax,0x0(%rip)               # 9 &lt;sum+0x9&gt;</span><br><span class="line">   9:c3                   retq      </span><br></pre></td></tr></table></figure>
+<p>这个是我电脑上的结果，跟书上的有不一样，书上的是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of funciton sum in binary file code.o</span><br><span class="line">00000000 &lt;sum&gt;</span><br><span class="line">Offset  Bytes                   Equivalent assembly language</span><br><span class="line">    0:  55                      push    %ebp</span><br><span class="line">    1:  89  e5                  mov %esp,%ebp</span><br><span class="line">    3:  8b  45  0c              mov 0xc(%ebp),%eax</span><br><span class="line">    6:  03  45  08              add 0x8(%ebp), %eax</span><br><span class="line">    9:  01  05  00  00  00  00  add %eax,0x0</span><br><span class="line">    f:  5d                      pop %ebp</span><br><span class="line">   10:  c3                      ret</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>生成实际可执行的代码需要对一组目标代码文件运行链接器，而这一组目标代码文件中必须含有一个main函数，假设文件main.c中有下面这样一个函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    return sum(1,3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>然后用下面的方法生成可执行文件prog:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -o prog code.o main.c</span><br></pre></td></tr></table></figure><br>看到生成了一个prog可执行文件，对其进行反编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d prog</span><br></pre></td></tr></table></figure><br>可看到一大坨的汇编代码，但是其中有一段跟上面的代码一样<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0000000000400474 &lt;sum&gt;:</span><br><span class="line">  400474:   8d 04 3e             lea    (%rsi,%rdi,1),%eax</span><br><span class="line">  400477:   01 05 d3 03 20 00    add    %eax,0x2003d3(%rip)        # 600850 &lt;accum&gt;</span><br><span class="line">  40047d:   c3                   retq</span><br><span class="line">  40047e:   90                   nop</span><br><span class="line">  40047f:   90                   nop               </span><br></pre></td></tr></table></figure><br>与前面的代码对比差不多，但是其地址有明显的改变，应为第二段代码编译后说有的地址都是相对程序的地址指定了的。</p>
+<h3 id="访问信息"><a href="#访问信息" class="headerlink" title="访问信息"></a>访问信息</h3><p>访问信息分为：操作数指示符、数据传送指令等操作。通过一个练习题来巩固一下操作数指示符：</p>
+<blockquote>
+<p><em>例题3.1 假设下面的值存放在指明的存储器地址和寄存器中：</em></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">地址</th>
+<th style="text-align:right">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0x100</td>
+<td style="text-align:right">0xFF</td>
+</tr>
+<tr>
+<td style="text-align:left">0x104</td>
+<td style="text-align:right">0xAB</td>
+</tr>
+<tr>
+<td style="text-align:left">0x108</td>
+<td style="text-align:right">0x13</td>
+</tr>
+<tr>
+<td style="text-align:left">0x10C</td>
+<td style="text-align:right">0x11</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">寄存器</th>
+<th style="text-align:right">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">%eax</td>
+<td style="text-align:right">0x100</td>
+</tr>
+<tr>
+<td style="text-align:left">%ecx</td>
+<td style="text-align:right">0x1</td>
+</tr>
+<tr>
+<td style="text-align:left">%edx</td>
+<td style="text-align:right">0x3</td>
+</tr>
+</tbody>
+</table>
+<p>填写下表，给出所示操作数的值。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">操作数</th>
+<th style="text-align:right">值</th>
+<th>思路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">%eax</td>
+<td style="text-align:right">0x100</td>
+<td><em>直接从上面获取寄存器的初始值</em></td>
+</tr>
+<tr>
+<td style="text-align:left">0x104</td>
+<td style="text-align:right">0xAB</td>
+<td><em>从上面表中获取0x104地址的值</em></td>
+</tr>
+<tr>
+<td style="text-align:left">$0x108</td>
+<td style="text-align:right">0x108</td>
+<td><em>立即数</em></td>
+</tr>
+<tr>
+<td style="text-align:left">(%eax)</td>
+<td style="text-align:right">0xFF</td>
+<td><em>先获取寄存器%eax的值0x100,然后在获取地址0x100对应的值，间接寻址</em></td>
+</tr>
+<tr>
+<td style="text-align:left">4(%eax)</td>
+<td style="text-align:right">0xAB</td>
+<td>(基址＋偏移量)寻址：(4 + 0x100) = (0x104) = 0xAB</td>
+</tr>
+<tr>
+<td style="text-align:left">9(%eax, %edx)</td>
+<td style="text-align:right">0x11</td>
+<td>变址寻址：(9 + %eax + %edx) = (0x10C) = 0x11</td>
+</tr>
+<tr>
+<td style="text-align:left">260(%ecx, %edx)</td>
+<td style="text-align:right">0x13</td>
+<td>变址寻址：(260 + %ecx + %edx) = (0x108) = 0x13</td>
+</tr>
+<tr>
+<td style="text-align:left">0xFC(, %ecx, 4)</td>
+<td style="text-align:right">0xFF</td>
+<td>比例变址寻址：(0xFC + 0 + %ecx * 4) = (0xFC+0x4) = (0x100)=0xFF</td>
+</tr>
+<tr>
+<td style="text-align:left">(%eax, %edx, 4)</td>
+<td style="text-align:right">0x11</td>
+<td>比例变址寻址:(%eax + %edx * 4)=(0x10C)=0x11</td>
+</tr>
+</tbody>
+</table>
+<p>栈操作说明:</p>
+<img src="http://www.plantuml.com/plantuml/svg/IybCBqeio51mLwZcKW22lFoKr9B4p1o5wEACn89KsuBypBoIM0MuN6vcIafEAamsBpylLI4dCIarnrRfwPmDJ-SsnEGzNJJlwPBbIXXwZ62QYbAJyujIODggdoteUDGmv-ckgOyQvjRenUI1K0r4yEN2RK31McIpCb8JKr3TXkfiNJjaPq9vO4qAqOb5HVdb85MsIddvHRc9EKeAO26GD4WeBrL98IMpo5OfAJ4vMocM2snoSMaI98IA3A51L5sKc9TjMvoOcsgDi0g9QMHT2rPNorKB0000">
+<p>通过书中图3.5可知，当push一个数值时，栈指针减小，向下移动；当pop一个数据时栈指针向上移动。一般用 <code>%esp</code>来存储栈指针的地址。</p>
+<p>下面通过一个例子说明C语言中指针使用的方式，函数exchange代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int exchange(int *xp, int y)</span><br><span class="line">&#123;</span><br><span class="line">    int x = *xp;</span><br><span class="line">    *xp = y;</span><br><span class="line">    return x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int a = 4;</span><br><span class="line">int b = exchange(&amp;a, 3);</span><br><span class="line">printf(&quot;a = %d, b = %d\n&quot;, a, b);</span><br></pre></td></tr></table></figure><br>这段代码会打印出：<br><code>a = 3, b = 4</code><br>关键部分的汇编代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># xp地址的值存储在8(%ebp), y的值存储在12(%ebp)</span><br><span class="line">movl 8(%ebp) %edx #获取xp地址的值，存储在%edx</span><br><span class="line">movl (%edx), %eax #获取xp地址所指向的值赋予变量x,函数结束时返回这个值</span><br><span class="line">movl 12(%ebp), %ecx #获取y的值，存储在%ecx</span><br><span class="line">movl %ecx, (%edx) #%ecx的值存储在%edx所指向的值, 这时候*xp的值为y,xp地址的值没有变化</span><br></pre></td></tr></table></figure><br>局部变量比如x，通常时保存在寄存器中。</p>
+<h3 id="算术和逻辑操作"><a href="#算术和逻辑操作" class="headerlink" title="算术和逻辑操作"></a>算术和逻辑操作</h3><h4 id="加载有效地址"><a href="#加载有效地址" class="headerlink" title="加载有效地址"></a>加载有效地址</h4><p><em>加载有效地址(load effective address)</em>指令<code>leal</code>实际上是movl指令的变形。通过下面一个例子来说明它的含义：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 假设%edx的值为x</span><br><span class="line">movl 7(%edx, %edx, 4), %eax #计算7 + x + 4*x = 5x +7 那么%eax的值就是地址5x+7地址处所存储的值.</span><br><span class="line">leal 7(%edx, %edx, 4), %eax #计算7 + x + 4*x = 5x +7 那么%eax的值就是地址的值5x+7，而不是这个地址存储的值.</span><br></pre></td></tr></table></figure></p>
+<h4 id="一元操作和二元操作"><a href="#一元操作和二元操作" class="headerlink" title="一元操作和二元操作"></a>一元操作和二元操作</h4><p>如果一个操作只有一个操作数，既是源又是目的，这个操作就是一元操作。<br>如果一个操作有两个操作数，第二个操作数既是源又是目的,这个操作就是二元操作。<br>如下：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>效果</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INC D</td>
+<td>D &lt;- D + 1</td>
+<td>一元操作</td>
+</tr>
+<tr>
+<td>ADD S, D</td>
+<td>D &lt;- D + S</td>
+<td>二元操作</td>
+</tr>
+</tbody>
+</table>
+<h4 id="移位操作"><a href="#移位操作" class="headerlink" title="移位操作"></a>移位操作</h4><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>操作</th>
+<th>命令</th>
+<th>示意图</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>非循环移位</td>
+<td>逻辑左移/算术左移</td>
+<td>SHL/SAL</td>
+<td><img src="/assets/img/csapp/fig3.1.gif" alt></td>
+</tr>
+<tr>
+<td>非循环移位</td>
+<td>逻辑右移</td>
+<td>SHR</td>
+<td><img src="/assets/img/csapp/fig3.2.gif" alt></td>
+</tr>
+<tr>
+<td>非循环移位</td>
+<td>算术右移</td>
+<td>SAR</td>
+<td><img src="/assets/img/csapp/fig3.3.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>不含进位位的循环左移</td>
+<td>ROL</td>
+<td><img src="/assets/img/csapp/fig3.4.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>不含进位位的循环右移</td>
+<td>ROR</td>
+<td><img src="/assets/img/csapp/fig3.5.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>含进位位的循环左移</td>
+<td>RCL</td>
+<td><img src="/assets/img/csapp/fig3.6.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>含进位位的循环右移</td>
+<td>RCR</td>
+<td><img src="/assets/img/csapp/fig3.7.gif" alt></td>
+</tr>
+</tbody>
+</table>
+<h3 id="控制"><a href="#控制" class="headerlink" title="控制"></a>控制</h3><h4 id="条件码"><a href="#条件码" class="headerlink" title="条件码"></a>条件码</h4><p>除了整数寄存器，CPU还维护着一组单个位的<em>条件码(codition code)</em>寄存器，最常用的条件码有：  </p>
+<ul>
+<li><strong>CF</strong>:进位标志。最近的操作使最高位产生了进位。可以用来检测无符号操作数的溢出。</li>
+<li><strong>ZF</strong>:零标志。最近的操作得出的结果为0。</li>
+<li><strong>SF</strong>:符号标志。最近的操作得到的结果为负。</li>
+<li><strong>OF</strong>:溢出标志。最近的操作导致一个补码溢出——正溢出或负溢出。</li>
+</ul>
+<h4 id="访问条件码"><a href="#访问条件码" class="headerlink" title="访问条件码"></a>访问条件码</h4><p>条件码通常不会直接读取常用的使用方法有三种：</p>
+<ol>
+<li>可以根据条件码的某个组合，将一个字节设置为0或者1；</li>
+<li>可以条件跳转到程序的某个其它部分;</li>
+<li>可以有条件地传送数据.</li>
+</ol>
+<p>对于第一种情况，举例说明一下：  </p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>同义名</th>
+<th>效果</th>
+<th>设置条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sete D</td>
+<td>setz</td>
+<td>D&lt;-ZF</td>
+<td>相等/零</td>
+</tr>
+<tr>
+<td>setne D</td>
+<td>setnz</td>
+<td>D&lt;-~ZF</td>
+<td>不等/非零</td>
+</tr>
+<tr>
+<td>sets D</td>
+<td></td>
+<td>D&lt;-SF</td>
+<td>负数</td>
+</tr>
+<tr>
+<td>setns D</td>
+<td></td>
+<td>D&lt;-~SF</td>
+<td>非负数</td>
+</tr>
+<tr>
+<td>setg D</td>
+<td>setnle</td>
+<td>D&lt;-~(SF ^ DF)&amp;~ZF</td>
+<td>大于(有符号>)</td>
+</tr>
+</tbody>
+</table>
+<p>SET指令。每条指令根据条件码的某个组合将一个字节设置为0或者1,而不是直接访问条件码寄存器。</p>
+<h4 id="跳转指令及其编码"><a href="#跳转指令及其编码" class="headerlink" title="跳转指令及其编码"></a>跳转指令及其编码</h4><p>正常情况下，指令按照它们出现的顺序一条一条地执行。<em>跳转(jump)</em>指令会导致执行切换到程序中一个全新的位置。在汇编代码中，这些跳转的目的地通常用一个<em>标号(label)</em>指明。当执行与PC(程序计数器)相关的寻址时，程序计数器的值是跳转指令后面的那条指令的地址，而不是跳转指令本身的地址。例如一段汇编代码及其反汇编代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">    jle .L2                         #if &lt;=, goto dest2</span><br><span class="line">.l5:                                #dest1:</span><br><span class="line">    movl    %edx, %eax      </span><br><span class="line">    sar1    %eax</span><br><span class="line">    subl    %eax, %edx</span><br><span class="line">    leal    (%edx, %edx, 2), %edx</span><br><span class="line">    testl   %edx, %edx              </span><br><span class="line">    jg      .L5                     #if &gt;, goto dest1</span><br><span class="line">.L2:                                #dest2</span><br><span class="line">    movl    %edx, %eax</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">8:   7e 0d        jle     17 &lt;silly+0x17&gt;</span><br><span class="line">a:   89 d0        mov     %edx, %eax</span><br><span class="line">c:   d1 f8        sar     %eax</span><br><span class="line">e:   29 c2        sub     %eax, %edx</span><br><span class="line">10:  8d 14 52     lea     (%edx, %edx, 2), %edx</span><br><span class="line">13:  85 d2        test    %edx, %edx</span><br><span class="line">15:  7f f3        jg      a &lt;silly+0xa&gt;</span><br><span class="line">17:  89 d0        mov     %edx, %eax</span><br></pre></td></tr></table></figure><br>我们看到在反汇编代码里的第一行，前面地址为<code>0x8</code>的地方，<code>0x7e</code>代表<code>jle</code>, <code>0xd</code>代表要跳转的地址，但是对应的汇编地址却是<code>0x17</code>, 其实<code>0x17</code>是通过<code>0x8</code>处的<code>0xd</code>与下一行<code>0xa</code>的地址（正是PC程序计数器的值)相加得出的。</p>
+<h4 id="翻译条件分支"><a href="#翻译条件分支" class="headerlink" title="翻译条件分支"></a>翻译条件分支</h4><p>如何将条件表达式和语句从C语言翻译成机器代码，最常用的方式是结合有条件和无条件跳转。通过一个例子来说明：<br>a) 原始的C语言代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    if (x &lt; y)</span><br><span class="line">        return y - x;</span><br><span class="line">    else</span><br><span class="line">        return x - y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>b) 与之等价的goto版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    int result;</span><br><span class="line">    if (x &gt;= y)</span><br><span class="line">        goto x_ge_y;</span><br><span class="line">    result = y - x;</span><br><span class="line">    goto done;</span><br><span class="line">    x_ge_y:</span><br><span class="line">        result = x - y;</span><br><span class="line">    done:</span><br><span class="line">        return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># x at %ebp + 8, y at %ebp + 12</span><br><span class="line">  movl 8(%ebp), %edx    #get x</span><br><span class="line">  movl 12(%ebp), %eax   #get y</span><br><span class="line">  cmpl %eax, %edx       #compare y:x 即用x-y的值更新标记位</span><br><span class="line">  jge  .L2              # x &gt; y </span><br><span class="line">  subl %edx, %eax       # y = y - x</span><br><span class="line">  jmp  .L3              #goto L3</span><br><span class="line">.L2:</span><br><span class="line">  subl %eax, %edx       #x = x - y</span><br><span class="line">  movl %edx, %eax       #y = x</span><br><span class="line">.L3:                    #done return x</span><br></pre></td></tr></table></figure>
+<h4 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h4><p>其实循环和条件分支所利用的都是jump指令和标记寄存器的值，这里就不再说明了。</p>
+<h4 id="条件传送指令"><a href="#条件传送指令" class="headerlink" title="条件传送指令"></a>条件传送指令</h4><p>实现条件操作的传统方法是利用<em>控制</em>的条件转移。但是在现代处理器上，它可能会非常的低效率。<em>数据</em>的条件转移是一种替代的策略。这种方法先计算一个条件操作的两种结果，然后再根据条件是否满足选取一个。通过一个例子来说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    return x &lt; y ? y-x:x-y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>产生的汇编代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># x at %ebp + 8, y at %ebp + 12</span><br><span class="line">movl    8(%ebp), %ecx   #get x</span><br><span class="line">movl    12(%ebp), %edx  #get y</span><br><span class="line">movl    %edx, %ebx      #copy y</span><br><span class="line">subl    %ecx, %ebx      #compute y - x</span><br><span class="line">movl    %ecx, %eax      #copy x</span><br><span class="line">subl    %edx, %eax      #compute x - y, set as return value</span><br><span class="line">cmpl    %edx, %ecx      #compare x:y</span><br><span class="line">cmovl   %ebx, %eax      #if &lt;, replace return value with y - x</span><br></pre></td></tr></table></figure><br>注意这个与上面的<em>翻译条件分支</em>一节的汇编做比较。这种方式效率会更好。原因是跟第4章和第5章讲的处理器的结构有关系，处理器通过<em>流水线(pipelining)</em>来获得高性能。第二种方式可以把所有的指令都放入到流水线中，而第一种方式则需要根据条件判断哪个指令放入到流水线，从这点可以看出第二种方式总是能把指令都放入流水线中，保证了执行的效率。</p>
+<h4 id="switch语句"><a href="#switch语句" class="headerlink" title="switch语句"></a>switch语句</h4><p>switch(开关)语句可以根据一个整数索引值进行多重分支(multi-way branching)。处理具有多种可能结果的测试时。这种语句特别有用。它们不仅提高了C代码的可读性，而且通过使用<em>跳转表(jump table)</em>这种数据结构使得实现更加高效。</p>
+<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>一个过程调用包括将数据（以过程参数和返回值的形式）和控制从代码的一部分传递到另一部分。另外，它还必须在进入时为过程的局部变量分配空间，并在退出时释放这些空间。数据传递、局部变量的分配和释放通过操纵程序栈来实现。</p>
+<h4 id="栈桢结构"><a href="#栈桢结构" class="headerlink" title="栈桢结构"></a>栈桢结构</h4><p>为单个过程分配的那部分栈称为<em>栈帧(stack frame)</em>。寄存器%ebp为<em>帧指针</em>,而寄存器%esp为<em>栈指针</em>。栈帧结构（栈用来传递参数、存储返回信息、保存寄存器，以及本地存储）<br><img src="/assets/img/csapp/fig3.21.png" alt></p>
+<h4 id="转移控制"><a href="#转移控制" class="headerlink" title="转移控制"></a>转移控制</h4><p>支持过程调用和返回的指令：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>call Label</td>
+<td>过程调用</td>
+</tr>
+<tr>
+<td>call *Operand</td>
+<td>过程调用</td>
+</tr>
+<tr>
+<td>leave</td>
+<td>为返回准备栈</td>
+</tr>
+<tr>
+<td>ret</td>
+<td>从过程调用中返回</td>
+</tr>
+</tbody>
+</table>
+<p>call指令的效果是将返回地址入栈，并跳转到被调用过程的起始处。返回地址是在程序中紧跟在call后面的那条指令地址。<br>例如：<br><img src="/assets/img/csapp/fig3.22.png" alt><br>执行call的之后栈顶入栈的地址为call命令后那条命令的地址，然后ret执行后把这个地址弹出到%eip，开始执行%eip处的命令。%eip应该是程序计数器。还有一个要注意的是<em>保存的%ebp</em>,这个起始是上一个帧的起始地址，当前过程执行完后，这个保存的%ebp就会返回到%ebp中，更新当前帧的开始地址为上一帧的地址。</p>
+<h4 id="寄存器使用惯例"><a href="#寄存器使用惯例" class="headerlink" title="寄存器使用惯例"></a>寄存器使用惯例</h4><p>程序寄存器组是唯一能被所有过程共享的资源。虽然在给定时刻只能有一个过程是活动的，但是我们必须保证当一个过程(<em>调用者</em>)调用另一个过程(<em>被调用者</em>)时，被调用者不会覆盖某个调用者稍后会使用的寄存器的值。根据惯例，寄存器%eax、%edx和%ecx被划分为<em>调用者保存</em>寄存器。当过程P调用Q时，Q可以覆盖这些寄存器，而不会破任何P所需要的数据。另一方面，寄存器%ebx、%esi和%edi被划分为<em>被调用者保存</em>寄存器。这意味着Q必须在覆盖这些寄存器之前，先把它们保存到栈中，并在返回前恢复它们。</p>
+<h4 id="过程示例"><a href="#过程示例" class="headerlink" title="过程示例"></a>过程示例</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int swap_add(int *xp, int *yp)</span><br><span class="line">&#123;</span><br><span class="line">    int x = *xp;</span><br><span class="line">    int y = *yp;</span><br><span class="line">    </span><br><span class="line">    *xp = y;</span><br><span class="line">    *yp = x;</span><br><span class="line">    return x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int caller()</span><br><span class="line">&#123;</span><br><span class="line">    int arg1 = 534;</span><br><span class="line">    int arg2 = 1057;</span><br><span class="line">    int sum = swap_add(&amp;arg1, &amp;arg2);</span><br><span class="line">    int diff = arg1 - arg2;</span><br><span class="line">    </span><br><span class="line">    return sum * diff;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/assets/img/csapp/fig3.24.png" alt><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">caller:</span><br><span class="line">    pushl   %ebp    #save old %ebp, 保存上一个帧的开始地址</span><br><span class="line">    movl    %esp, %ebp  #set %ebp as frame pointer，更新%ebp地址为当前帧的地址</span><br><span class="line">    subl    $24, %esp   #alllocate 24 bytes on stack, 申请栈空间，指针头向下移动</span><br><span class="line">    movl    $534, -4(%ebp)  #set arg1 to 534</span><br><span class="line">    movl    $1057, -8(%ebp) #set arg2 to 1057</span><br><span class="line">    leal    -8(%ebp), %eax  #compute &amp;arg2</span><br><span class="line">    movl    %eax, 4(%esp)   #store on stack</span><br><span class="line">    leal    -4(%ebp), %eax  #compute &amp;arg1</span><br><span class="line">    movl    %eax, (%esp)    #store to stack</span><br><span class="line">    call    swap_add    #call the swap_add function</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>ps:为什么GCC分配从不使用的空间<br>GCC为caller分配了24个字节，但是却只是用了16个字节，这是因为GCC坚持一个x86编程指导方针，也就是一个函数使用的所有栈空间必须是16字节的整数倍。包括%ebp值的4个字节和返回值的4个字节，caller一共使用了32个字节。采用这个规则是为了保证访问数据的严格对齐(alignment)。</p>
+</blockquote>
+<p>swap_add开始代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">swap_add:</span><br><span class="line">    pushl   %ebp</span><br><span class="line">    movl    %esp, %ebp</span><br><span class="line">    pushl   %ebx #需要寄存器%ebp做为临时存储。因为这是一个被调用者保存的寄存器。</span><br></pre></td></tr></table></figure><br>swap_add主体代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">movl    8(%ebp), %edx   #get xp</span><br><span class="line">movl    12(%ebp), %ecx  #get yp</span><br><span class="line">movl    (%edx), %ebx    #get x</span><br><span class="line">movl    (%ecx), %eax    #get y</span><br><span class="line">movl    %eax, (%edx)    #store y at xp</span><br><span class="line">movl    %ebx, (%ecx)    #store x at yp</span><br><span class="line">addl    %ebx, %eax      #return value = x+y</span><br></pre></td></tr></table></figure><br>这段代码从caller的栈帧中取出它的参数,这点需要注意。<br>swap_add结束代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">popl    %ebx    #restore %ebx, 从栈帧中弹出之前存储的%ebx的值到%ebx，恢复%ebx的值</span><br><span class="line">popl    %ebp    #restore %ebp, 从栈帧中弹出之前存储的%ebp的值到%ebp，恢复%ebp的值</span><br><span class="line">ret             #return, 弹出地址到%eip， 并且从上个帧调用call下一行的地址开始执行。</span><br></pre></td></tr></table></figure></p>
+<h4 id="递归过程"><a href="#递归过程" class="headerlink" title="递归过程"></a>递归过程</h4><p>上面描述的栈链接惯例使得过程能够递归地调用它们自身。因为每个调用过程都有它自己的私有空间，多个未完成调用的局部变量不会相互影响。</p>
+<ul>
+<li><p>递归的阶乘程序的C代码:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int rfact(int n)</span><br><span class="line">&#123;</span><br><span class="line">    int result;</span><br><span class="line">    if (n &lt;= 1)</span><br><span class="line">        result = 1;</span><br><span class="line">    else </span><br><span class="line">        result = n * rfact(n-1);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对应的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># argument: n at %ebp + 8</span><br><span class="line"># registes: n in %ebx, result in %eax</span><br><span class="line">rfact:</span><br><span class="line">    pushl   %ebp    #save old %ebp</span><br><span class="line">    movl    %esp, %ebp  #set %ebp as frame pointer</span><br><span class="line">    pushl   %ebx    #save callee save register %ebx</span><br><span class="line">    subl    $4, %esp    #allocate 4 byte on stack</span><br><span class="line">    movl    8(%ebp), %ebx   #get n</span><br><span class="line">    movl    $1, %eax #result = 1</span><br><span class="line">    cmpl    $1, $ebx    # 比较参数 n 与 1</span><br><span class="line">    jle     .L53    #if n &lt;= 1， 跳到L53</span><br><span class="line">    leal    -1(%ebx), %eax  #%eax &lt;- n-1</span><br><span class="line">    movl    %eax, (%esp) #n-1保存到栈顶</span><br><span class="line">    call    rfact   #调用rfact(n-1)</span><br><span class="line">    imull   %ebx, $eax #result = return value * n</span><br><span class="line">.L53:</span><br><span class="line">    addl    $4, %esp</span><br><span class="line">    popl    %ebx</span><br><span class="line">    popl    %ebp</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+<p>当n=1时，调用L53，被调用过程返回，然后继续执行imull指令 %eax 值 1</p>
+<p><img src="/assets/img/csapp/fig3.27.png" alt><br>递归的阶乘函数的栈帧,这是递归调用之前的帧状态。</p>
+<h2 id="数组分配和访问"><a href="#数组分配和访问" class="headerlink" title="数组分配和访问"></a>数组分配和访问</h2><p>C语言中数组是一种将标量数据聚集成为更大数据类型的方式。</p>
+<h3 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h3><p>对于数据类型T和整型常数N，声明如下：<br>T A[N]<br>它有两个效果：  </p>
+<ol>
+<li>它在存储器中分配一个\( L \bullet N \)字节的连续区域；这里L是数据类型T的大小(单位为字节), 用<strong> \( x_{A} \) </strong> 来表示起始位置。  </li>
+<li>它引入了标符A;可以用A作为指向数组开头的指针,这个指针的值就是<strong> \(x_{A}\) </strong>。数组元素i被存放在地址为 \(x_{A} + L \bullet i\)的地方。<br>通过例子加深理解：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char    A[12];</span><br><span class="line">char    *B[8]; //指针数组，数组的值是(char *)类型，指针的地址是int型的。</span><br><span class="line">double  C[6];</span><br><span class="line">double  *D[5];</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>数组</th>
+<th>元素大小</th>
+<th>总的大小</th>
+<th>起始地址</th>
+<th>元素i</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>1</td>
+<td>12</td>
+<td>\(x_{A}\)</td>
+<td>\(x_{A} + i\)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>4</td>
+<td>32</td>
+<td>\(x_{B}\)</td>
+<td>\(x_{B} + 4i\)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>8</td>
+<td>48</td>
+<td>\(x_{C}\)</td>
+<td>\(x_{C} + 8i\)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>4</td>
+<td>20</td>
+<td>\(x_{D}\)</td>
+<td>\(x_{D} + 4i\)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="异质的数据结构"><a href="#异质的数据结构" class="headerlink" title="异质的数据结构"></a>异质的数据结构</h2><p>C语言提供了两种结合不同类型的对象来创建数据类型的机制：<em>结构(structure)</em>，用关键字struct声明， 将多个对象集合到一个单位中；<em>联合(union)</em>, 用关键字union声明，允许用集中不同的类型来引用一个对象。</p>
+<h3 id="数据对齐"><a href="#数据对齐" class="headerlink" title="数据对齐"></a>数据对齐</h3><p>许多计算机系统对基本数据类型合法地址做出了一些限制，要求某种类型对象的地址必须是某个值k(通常是2，4或8)的倍数。这种<em>对齐限制</em>简化了形成处理器和存储器系统之间接口的硬件设计。<br>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct S1 &#123;</span><br><span class="line">    int i;</span><br><span class="line">    char c;</span><br><span class="line">    int j;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>按照最小字节分配应该是这样的：<br><img src="/assets/img/csapp/fig3.28.png" alt><br>但是要遵循字节对齐，真实的分配情况是这样的：<br><img src="/assets/img/csapp/fig3.29.png" alt>  </p>
+<h2 id="综合：理解指针"><a href="#综合：理解指针" class="headerlink" title="综合：理解指针"></a>综合：理解指针</h2><p>指针和它们映射到机器代码的关键原则:  </p>
+<ul>
+<li>每个指针都对应一个类型。void * 类型代表通用指针。</li>
+<li>每个指针都有一个值。这个值是某个指定类型对象的地址。</li>
+<li>指针用&amp;运算符创建。常用<code>leal</code>指令来计算表达式的值。<code>int * p = &amp;x</code></li>
+<li>操作符用于指针的间接引用。</li>
+<li>数组与指针紧密联系。</li>
+<li>将指针从一种类型强制转换为另一种类型，只改变它的类型，而不改变它的值。</li>
+<li>指针也可以指向函数。</li>
+</ul>
+<h2 id="存储器的越界引用和缓冲区溢出"><a href="#存储器的越界引用和缓冲区溢出" class="headerlink" title="存储器的越界引用和缓冲区溢出"></a>存储器的越界引用和缓冲区溢出</h2><p>C对于数组引用不进行任何边界检查，而且局部变量和状态信息(例如保存的寄存器值和返回地址),都存放在栈中。这两种情况结合到一起就可能导致严重的程序错误，对越界的数组元素的写操作会破坏存储在栈中的状态信息。一种常见的状态破坏称为<em>缓冲区溢出(buffer overflow)</em>。入下图所示:<br><img src="/assets/img/csapp/fig3.31.png" alt><br>为buf分配的空间只有8个字节元素，上面地址保存的是%ebx, %ebp和返回地址的值，如果buf的长度超过分配的长度，就会把多出来的元素写入到保存这些寄存器地址的值，破坏%ebx，%ebp和返回地址的值，这样程序就不能正确的返回%ebx的值，不能正确的返回上以栈帧的地址，不能正确返回下一条要执行的命令地址。如果这些输入的元素包含一些可执行代码的字节编码，称为<em>攻击代码(exploit code)</em>, 比如串改返回地址的值，使程序返回到恶意程序的代码地址进行执行，就会成为我们所说的<em>蠕虫和病毒</em>。<br>对抗缓冲区溢出攻击的方法：(详细的原理不再赘述，可以自己google)  </p>
+<ol>
+<li>栈随机化。</li>
+<li>栈破坏检测。</li>
+<li>限制可执行代码区域。</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/CSAPP/">CSAPP</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

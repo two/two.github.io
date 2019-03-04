@@ -1,0 +1,1158 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Page 2 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/01/23/gc-base/"><span>垃圾回收基本算法</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/01/23/gc-base/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-01-23T06:24:36.000Z">
+          2017-01-23
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>本章介绍GC的基本算法:GC标记-清除法，引用计数法, GC复制算法。这三种我认为是GC的三个方向的基本思维。其他方法都是围绕这个些基本方法展开的。</p>
+</blockquote>
+<h2 id="GC标记-清除法"><a href="#GC标记-清除法" class="headerlink" title="GC标记-清除法"></a>GC标记-清除法</h2><h3 id="基本方法"><a href="#基本方法" class="headerlink" title="基本方法"></a>基本方法</h3><p>所谓的标记-清除法，依据其字面意思就是，先做标记，然后在清除。这个过程分为两个阶段，标记阶段就是把所有活动对象坐上标记，清除阶段就是把那些没有做标记的对象，也就是非活动对象回收的阶段。利用伪代码表示就是:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mark_sweep() &#123;</span><br><span class="line">    mark_phase()</span><br><span class="line">    sweep_phase()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>标记阶段: 这个阶段从<code>根</code>出发，利用深度优先遍历(不用广度优先是因为深度优先搜索比广度优先搜索更能压低内存使用量。), 对每个能到达的活动对象都做上标记(用一个位来表示)。这个阶段所花费的时间与”活动对象的总数”成正比。标记阶段伪代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mark_phase() &#123;</span><br><span class="line">    <span class="comment">#遍历根节点, 进行标记</span></span><br><span class="line">    <span class="keyword">for</span>(r: $roots)</span><br><span class="line">        mark(*r)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#标记函数</span></span><br><span class="line">mark(obj) &#123;</span><br><span class="line">    <span class="keyword">if</span>(obj.mark == FALSE)</span><br><span class="line">        obj.mark = TRUE</span><br><span class="line">        <span class="comment">#深度优先遍历</span></span><br><span class="line">        <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">            mark(*child)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>清除阶段: 清除阶段主要工作是通过遍历整个堆，把未被标记的对象(非活动对象)回收再利用。回收对象就是把对象作为分块，连接到被称为”空闲链表”的单向链表。之后进行分配时遍历空闲链表就可以找到分块了。两个相邻的分块如果地址是连续的，就会对其进行<strong>合并</strong>, 合并操作可以减少碎片的发生。清除阶段的伪代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sweep_phase() &#123;</span><br><span class="line">    sweeping = $heap_start</span><br><span class="line">    <span class="comment">#遍历堆</span></span><br><span class="line">    <span class="keyword">while</span>(sweeping &lt; $head_end)</span><br><span class="line">        <span class="keyword">if</span>(sweeping.mark == TRUE)</span><br><span class="line">            sweeping.mark == FALSE</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">#放入空闲链表</span></span><br><span class="line">            <span class="keyword">if</span>(sweeping.mark == $free_list + $free_list.size)</span><br><span class="line">                <span class="comment">#合并</span></span><br><span class="line">                $free_list.size += sweeping.size</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                sweeping.next = $free_list</span><br><span class="line">                $free_list = sweeping</span><br><span class="line">            sweeping += sweeping.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>分配: 进行mutator申请分块时，搜索空闲链表并找到合适大小的分块，这个过程就叫做分配。找到合适的分块大小有三种策略:</p>
+<ol>
+<li>First-fit: 找到最初发现大于等于size的分块就立刻返回。考虑到分配所需的时间，标记清除法选择的就是这种方法。</li>
+<li>Best-fit: 遍历空闲链表，找到大于等于size的最小分块返回。</li>
+<li>Worst-fit: 找出最大的分块，把分块分割成size大小和剩余分块。<br>分配阶段的伪代码:<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">new_obj(size) &#123;</span><br><span class="line">    chunk = pickup_chunk(size, $free_list)</span><br><span class="line">    <span class="keyword">if</span>(chunk != NULL)</span><br><span class="line">        <span class="keyword">return</span> chunk</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        allocation_fail()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="优点-缺点"><a href="#优点-缺点" class="headerlink" title="优点/缺点"></a>优点/缺点</h3><ul>
+<li>优点:<ol>
+<li>实现简单</li>
+<li>与保守式GC算法兼容: 保守式算法就是不知道对象是否是指针，所以移动对象会造成错误(后面会讲到), 而标记清除算法是不会移动对象的，所以是兼容的。</li>
+</ol>
+</li>
+<li>缺点:<ol>
+<li>碎片化: 由于非活动对象分布不均匀，容易照成堆内的内存空间碎片化，不利于mutator的执行。</li>
+<li>分配速度: 由于分配时需要遍历空闲链表，查找速度取决于要分配的块和空闲链表的分布。后面要讲到的复制算法和标记-压缩算法由于分块是连续内存分布的，所以速度要快。</li>
+<li>与写时复制技术不兼容： 因为每次GC都要修改活动对象的标记位，导致写操作的发生，从而产生复制。</li>
+</ol>
+</li>
+</ul>
+<h3 id="多个空闲链表"><a href="#多个空闲链表" class="headerlink" title="多个空闲链表"></a>多个空闲链表</h3><p>为了提高<strong>分配速度</strong>，一个改进就是把分块按照大小分为多个空闲链表，这样在分配的时候就可以根据要分配的空间的大小去对应的空闲链表中寻找，大大减少了查找分块的时间。<br>下面是利用多个空闲链表的new_obj()函数<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">new_obj(size)&#123;</span><br><span class="line">    <span class="comment">#index 是一个要分配的字的大小</span></span><br><span class="line">    index = size / (WORD_LENGTH / BYTE_LENGTH)</span><br><span class="line">    <span class="comment">#空闲链表一共有101个，0-100都是按照字精确分配到对应的$free_list[index]中，</span></span><br><span class="line">    <span class="comment">#大于100的字都分配到$free_list[101]中</span></span><br><span class="line">    <span class="keyword">if</span>(index &lt;= <span class="number">100</span>)</span><br><span class="line">        <span class="keyword">if</span>($free_list[index] != NULL)</span><br><span class="line">            <span class="comment">#直接找到对应的空闲链表</span></span><br><span class="line">            chunk = $free_list[index]</span><br><span class="line">            $free_list[index] = $free_list[index].next</span><br><span class="line">            <span class="keyword">return</span> chunk</span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">        <span class="comment">#大于100的需要遍历$free_list[101]找到合适大小的块</span></span><br><span class="line">        chunk = pickup_chunk(size, $free_list[<span class="number">101</span>])</span><br><span class="line">        <span class="keyword">if</span>(chunk != NULL)</span><br><span class="line">            <span class="keyword">return</span> chunk</span><br><span class="line"></span><br><span class="line">    allocation_fail()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="BiBOP法"><a href="#BiBOP法" class="headerlink" title="BiBOP法"></a>BiBOP法</h3><p>针对标记-清除算法的<strong>碎片化</strong>问题, 可以把堆先分割成大小固定的块，让每个块只能配置同样大小的对象，这就是BiBOP法。如果某个大小字的活动对象很少，其他的字活动对象很多的话，这种情况也不能提高堆的利用率，无法解决碎片化的问题。</p>
+<h3 id="位图标记法"><a href="#位图标记法" class="headerlink" title="位图标记法"></a>位图标记法</h3><p>上面还说道标记-清除法不能够与写时复制技术兼容是因为修改标记位会引起复制发生，为了解决这个问题，位图标记法采用只收集各个对象的标志位并表格化，不跟对象一起管理。也就是把对象和标记位进行了分离。这样做有两个好处:</p>
+<ol>
+<li>与写时复制技术兼容: 因为GC的时候改变了标记位也不会引起对象的复制, 而位图表格非常小，所以即使被复制也不会有什么大的影响。</li>
+<li>清除操作更高效: 在遍历堆的时候不需要取消标志位，可以最后在位图表格中设置。</li>
+</ol>
+<h3 id="延迟清除法"><a href="#延迟清除法" class="headerlink" title="延迟清除法"></a>延迟清除法</h3><p>延迟清除法(Lazy Sweep)是缩减因清除操作而导致的mutator最大暂停时间的方法。这个方法的伪代码如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">new_obj(size)&#123;</span><br><span class="line">    <span class="comment">#用延迟清除法找到对应的块</span></span><br><span class="line">    chunk = lazy_sweep(size)</span><br><span class="line">    <span class="keyword">if</span>(chunk != NULL)</span><br><span class="line">        <span class="keyword">return</span> chunk</span><br><span class="line">    <span class="comment">#没有找到合适的，进行一次标记操作</span></span><br><span class="line">    mark_phase()</span><br><span class="line">    <span class="comment">#再用延迟清除法找到对应的块 </span></span><br><span class="line">    chunk = lazy_sweep(size)</span><br><span class="line">    <span class="keyword">if</span>(chunk != NULL)</span><br><span class="line">        <span class="keyword">return</span> chunk</span><br><span class="line">     </span><br><span class="line">    allocation_fail()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">lazy_sweep(size)&#123;</span><br><span class="line">    <span class="keyword">while</span>($sweeping &lt; $head_end)</span><br><span class="line">        <span class="keyword">if</span>($sweeping.mark == TRUE)</span><br><span class="line">            $sweeping.mark == FALSE</span><br><span class="line">        <span class="comment">#找到和大小合适的块</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>($sweeping.size &gt; size)</span><br><span class="line">            chunk = $sweeping</span><br><span class="line">            $sweeping += $sweeping + $sweeping.size</span><br><span class="line">            <span class="keyword">return</span> chunk</span><br><span class="line">        <span class="comment">#没找到继续往下找</span></span><br><span class="line">        $sweeping += $sweeping + $sweeping.size</span><br><span class="line">    <span class="comment">#遍历完了也没找到，$sweeping置为从头开始</span></span><br><span class="line">    $sweeping = $heap_start</span><br><span class="line">    <span class="keyword">return</span> NULL</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里跟之前不同的是$sweeping是一个全局变量，每次执行lazy_sweep的时候都会从当前$sweeping的位置往后查找。如果第一次没有找到，第二次就会从头开始查找，如果第二次也没有查到，那就是没有可以分配的块了。一般情况下第一次查找范围变小了，mutator的执行时间就短了。但是有一个问题是就是当数据分配不均，比如说后面的都是活动对象，前面的都是空的，反而会增加mutator的时间。如何改善这个问题，后面会再说到。</p>
+<h2 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h2><p>GC的目的是为了释放无法被引用的对象，自然就会想到让每个对象记录下自己被引用的个数，如果个数为0表示无法被引用，那就可以对其进行回收。这种思路就是引用计数法(Reference Counting)。</p>
+<h3 id="基本方法-1"><a href="#基本方法-1" class="headerlink" title="基本方法"></a>基本方法</h3><p>引用计数法最重要的就是引入了一个计数器，用来记录被引用的个数。首先先看一下引用计数法的伪代码实现:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#生成新对象</span></span><br><span class="line">new_obj(size)&#123;</span><br><span class="line">    <span class="comment">#从空闲链表中找到合适的块</span></span><br><span class="line">    obj = pickup_chunk(size, $free_list)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(obj == NULL)</span><br><span class="line">        allocation_fail()</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">#对象有一个计数器，成功生成后计数器值是1</span></span><br><span class="line">        obj.ref_cnt = <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> obj</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#更新ptr指针，使其指向新对象obj</span></span><br><span class="line">update_ptr(ptr, obj)&#123;</span><br><span class="line">    <span class="comment">#被指向的对象计数器+1</span></span><br><span class="line">    inc_ref_cnt(obj)</span><br><span class="line">    <span class="comment">#原来指向的对象计数器-1</span></span><br><span class="line">    dec_ref_cnt(*ptr)</span><br><span class="line">    <span class="comment">#指向新对象</span></span><br><span class="line">    *ptr = obj</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#计数器+1</span></span><br><span class="line">inc_ref_cnt(obj)&#123;</span><br><span class="line">    obj.ref_cnt++</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#计数器-1</span></span><br><span class="line">dec_ref_cnt(obj)&#123;</span><br><span class="line">    <span class="comment">#obj计数器-1</span></span><br><span class="line">    obj.ref_cnt--</span><br><span class="line">    <span class="comment">#obj计数器为0，说明对象变成了"垃圾", 需要对其子对象计数器都-1， 因为这个对象不存在了。</span></span><br><span class="line">    <span class="keyword">if</span>(obj.ref_cnt == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">            dec_ref_cnt(*child)</span><br><span class="line">        <span class="comment">#将obj连接到空闲链表中</span></span><br><span class="line">        reclaim(obj)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面需要注意的一点是执行<code>update_ptr</code>的时候先执行了<code>inc_ref_cnt</code>后执行了<code>dec_ref_cnt</code>, 这是因为当<code>update_ptr</code>的前后两个对象是同一个时，如果先指向了<code>dec_ref_cnt</code>就会把这个对象删除，再执行<code>inc_ref_cnt</code>时就会出错，而顺序反过来就不会存在这个问题了。还有一点是引用计数法和标记清除法不一样的地方:引用计数法会在指针变动时发现是否是垃圾，从而立即回收，而标记清除法则即使发现了也不会立即回收，而是标记完后一起回收。</p>
+<h3 id="优点-缺点-1"><a href="#优点-缺点-1" class="headerlink" title="优点/缺点"></a>优点/缺点</h3><ul>
+<li><p>优点</p>
+<ol>
+<li>可以即刻进行垃圾回收</li>
+<li>最大暂停时间短: 只在发生引用关系变化时立即回收。</li>
+<li>没有必要沿指针查找: 根据每个变量的引用计数来回收，不需要进行遍历。</li>
+</ol>
+</li>
+<li><p>缺点</p>
+<ol>
+<li>计数器值的增减处理繁重</li>
+<li>计数器需要占用很多位: 计数器需要记录被引用的个数，这个记录位会占用不少的内存空间。</li>
+<li>实现繁琐复杂</li>
+<li>循环引用无法回收:<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    string name</span><br><span class="line">    Person lover</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">taro = <span class="keyword">new</span> Person(<span class="string">"太郎"</span>) <span class="comment">//执行后taro的引用计数为1</span></span><br><span class="line">hanako = <span class="keyword">new</span> Person(<span class="string">"花子"</span>) <span class="comment">//执行后hanako的引用计数为1</span></span><br><span class="line">taro.lover = hanako <span class="comment">//执行后hanako的引用计数为2</span></span><br><span class="line">hanako.lover = taro <span class="comment">//执行后taro的引用计数为2</span></span><br><span class="line">taro = <span class="keyword">null</span> <span class="comment">//taro指向null, hanako引用计数-1，变为1</span></span><br><span class="line">hanako = <span class="keyword">null</span> <span class="comment">//hanako指向null, taro引用计数-1， 变为1</span></span><br><span class="line"><span class="comment">//全部执行完后taro与hanako的引用计数都为1，不能被回收，但是又无法被引用, 照成了内存泄露的情况</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<p>用图来说请其中的过程如下：<br><img src="/assets/img/gc/rc_cr.png" alt="循环引用图解"></p>
+<h3 id="延迟引用计数法"><a href="#延迟引用计数法" class="headerlink" title="延迟引用计数法"></a>延迟引用计数法</h3><p>上面说到引用计数法的计数器值得<strong>增减处理很繁重</strong>，为了改善这个缺点，引入了延迟引用计数法(Deferred Reference Counting)。延迟引用计数法利用ZCT(Zero Count Table)来记录计时器值在dec_ref_cnt()作用下变为0的对象, zct表内的值是指向这些对象的指针。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#update_ptr($ptr, obj)调用不变，只是dec_ref_cnt不会递每次都递归处理子节点的引用计数</span></span><br><span class="line">dec_ref_cnt(obj)&#123;</span><br><span class="line">    obj.ref_cnt--</span><br><span class="line">    <span class="keyword">if</span>(obj.ref_cnt == <span class="number">0</span>)</span><br><span class="line">        <span class="comment">#$zct满了就执行一次扫描</span></span><br><span class="line">        <span class="keyword">if</span>(is_full($zct) == TRUE)</span><br><span class="line">            scan_zct()</span><br><span class="line">        push($zct, obj)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">new_obj(size)&#123;</span><br><span class="line">    obj = pickup_chunk(size, $free_list)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(obj == NULL)</span><br><span class="line">        <span class="comment">#空间不够执行一次扫描, 释放空间</span></span><br><span class="line">        scan_zct()</span><br><span class="line">        obj = pickup_chunk(size, $free_list)</span><br><span class="line">        <span class="keyword">if</span>(obj == NULL)</span><br><span class="line">            allocation_fail()</span><br><span class="line"></span><br><span class="line">    obj.ref_cnt = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#扫描zct</span></span><br><span class="line">scan_zct()&#123;</span><br><span class="line">    <span class="comment">#对根直接引用的对象都进行增量， 把根引用反映到计数器的值上</span></span><br><span class="line">    <span class="keyword">for</span>(r : $roots)</span><br><span class="line">        (*r).ref_cnt++</span><br><span class="line">    <span class="comment">#对子对象的计数器进行减量操作，回收 </span></span><br><span class="line">    <span class="keyword">for</span>(obj : $zct)</span><br><span class="line">        <span class="keyword">if</span>(obj.ref_cnt == <span class="number">0</span>)</span><br><span class="line">            remove($zct, obj)</span><br><span class="line">            delete(obj)</span><br><span class="line">    <span class="comment">#恢复根节点直接引用的对象计数器的值</span></span><br><span class="line">    <span class="keyword">for</span>(r : $roots)</span><br><span class="line">        (*r).ref_cnt--</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#减量操作和回收</span></span><br><span class="line">delete(obj)&#123;</span><br><span class="line">    <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">        (*child).ref_cnt--</span><br><span class="line">        <span class="keyword">if</span>((*child).ref_cnt == <span class="number">0</span>)</span><br><span class="line">            delete(*child)</span><br><span class="line"></span><br><span class="line">    reclaim(obj)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>书举例说<code>update_ptr($ptr, obj)</code>改写成<code>*$ptr = obj</code>, 我理解这只是举了一个例子说明不需要增减计数器。实际后面的代码中可以看出，还是使用的<code>update_ptr($ptr, obj)</code>,否则就没有对<code>dec_ref_cnt(obj)</code>的调用了。变化比较大的是<code>dec_ref_cnt(obj</code>函数，它不再递归调用子节点的计数器减量，而是直接把它放到zct结构中，在必要时调用scan_zct, 这就大大减少了计数器值得增减。</p>
+<ul>
+<li>优点: 延迟了根引用的技术，将垃圾一并回收，减轻了因根引用频发发生的变化导致计数器增减所带来的额外负担。</li>
+<li>缺点: 失去了引用计数法的一大优点–可即可回收垃圾。另外scan_zct()导致最大暂停时间延长了。</li>
+</ul>
+<h3 id="Sticky引用计数法"><a href="#Sticky引用计数法" class="headerlink" title="Sticky引用计数法"></a>Sticky引用计数法</h3><p>引用计数法有一个问题就是计数器要设置多大的位宽。如果设置的小了，有可能会出现存不下而溢出的情况；如果设置的大了，又会占用过多的空间。Sticky的思想就是设置一个固定大小的位数，这个位数要比较小，对于溢出的情况下面两种处理方式:</p>
+<ul>
+<li>什么都不做<br>当计数器出现溢出时，不对其进行任何操作，其值就是能存储的最大值，一般情况下这个值很难达到，如果达到了这个值，证明其非常重要，其成为垃圾的可能性也非常小，对其计数不增也不减，不会存在什么大的问题。</li>
+<li>使用GC标记-清除算法进行管理<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">mark_sweep_for_counter_overflow()&#123;</span><br><span class="line">    <span class="comment">#所有计数器清零</span></span><br><span class="line">    reset_all_ref_cnt()</span><br><span class="line">    mark_phase()</span><br><span class="line">    sweep_phase()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#对所有可以达到的节点进行标记，每个节点及其子节点只会进栈一次，所以引用计数的值最多为2， 不会出现溢出的情况</span></span><br><span class="line">mark_phase()&#123;</span><br><span class="line">    <span class="keyword">for</span>(r : $roots)</span><br><span class="line">        <span class="comment">#所有根节点放到标记栈中</span></span><br><span class="line">        push(*r, $mark_stack)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(is_empty($mark_stack) == FALSE)</span><br><span class="line">        obj = pop($mark_stack)</span><br><span class="line">        <span class="comment">#弹出栈，引用计数+1</span></span><br><span class="line">        obj.ref_cnt++</span><br><span class="line">        <span class="comment">#只有引用计数为1才让其子节点进栈，已经进过的不会再进</span></span><br><span class="line">        <span class="keyword">if</span>(obj.ref_cnt == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">                push(*child, $mark_stack)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#清除节点遍历堆，所有标记位为0的节点进行回收</span></span><br><span class="line">sweep_phase()&#123;</span><br><span class="line">    sweeping = $heap_top</span><br><span class="line">    <span class="keyword">while</span>(sweeping &lt; $head_end)</span><br><span class="line">        <span class="keyword">if</span>(sweeping.ref_cnt == <span class="number">0</span>)</span><br><span class="line">            reclaim(sweeping)</span><br><span class="line">        sweeping += sweeping.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这么做可以在溢出后依然回收，而且没有对循环引用页适用，但是需要重置计数器。查找对象时没有设置标记位，而只是增量计数器，会出现多次查找活动对象的问题。比起一般的GC标记-清除算法需要更多的时间，吞吐量也会变小。</p>
+<h3 id="1位引用计数法"><a href="#1位引用计数法" class="headerlink" title="1位引用计数法"></a>1位引用计数法</h3><p>1位引用计数法(1 bit Reference Counting)是Sticky引用计数法的极端例子，计数器只有1位大小。这里的计数器不在表示引用的个数，而是表示有一个引用还是多个引用。</p>
+<ol>
+<li>当计数器值为0，表示对象引用数为1，这种状态称为<strong>UNIQUE</strong></li>
+<li>当计数器值为1， 表示引用数为复数, 这种状态称为<strong>MULTIPLE</strong></li>
+</ol>
+<p>相关伪代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#指针复制 </span></span><br><span class="line"><span class="comment">#dest_ptr: 目的指针 </span></span><br><span class="line"><span class="comment">#src_ptr: 源指针 </span></span><br><span class="line">copy_ptr(dest_ptr, src_ptr)&#123;</span><br><span class="line">    <span class="comment">#由于目的指针原来指向的内容不再指向，需要对目的指针指向删除操作 </span></span><br><span class="line">    delete_ptr(dest_ptr)</span><br><span class="line">    <span class="comment">#执行复制 </span></span><br><span class="line">    *dest_ptr = *src_ptr</span><br><span class="line">    <span class="comment">#目的指针由于和源指针指向了同一个对象，目的指针需要设置为MULTIPLE </span></span><br><span class="line">    set_multiple_tag(dest_ptr)</span><br><span class="line">    <span class="comment">#源指针如果原来是UNIQUE, 现在多了一个目的指针，需要设置为MULTIPLE </span></span><br><span class="line">    <span class="keyword">if</span>(tag(src_ptr) == UNIQUE)</span><br><span class="line">        set_multiple_tag(src_ptr)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除目的指针原来的指向对象 </span></span><br><span class="line">delete_ptr(ptr)&#123;</span><br><span class="line">    <span class="comment">#如果原来是UNIQUE，说明对象只有一个指针，删除后需要回收 </span></span><br><span class="line">    <span class="keyword">if</span>(tag(ptr) == UNIQUE)</span><br><span class="line">        <span class="comment">#回收 </span></span><br><span class="line">        reclaim(ptr)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其过程可以参考下图:<br><img src="/assets/img/gc/1bit_rc.png" alt="1bit_rc"></p>
+<ul>
+<li>优点: <ol>
+<li>不容易出现高速缓存缺失， 如上图所示，在更新计数器的时候不需要读取元素的值到内存中（C,D完全没有读), 只需要更新指针的计数器，所以不会出现内存中离得远找出缓存缺失。</li>
+<li>计数器所占空间很小，节省内存。</li>
+</ol>
+</li>
+<li>缺点: 1位引用计数器是在大量计数器都不足2的前提下来做的，当出现大量大于2的计数器时，1位引用计数器方法就无法回收这些对象，给堆带来巨大负担。</li>
+</ul>
+<h3 id="部分标记-清除算法"><a href="#部分标记-清除算法" class="headerlink" title="部分标记-清除算法"></a>部分标记-清除算法</h3><p>部分标记清除法主要是针对之前的无法回收循环引用的缺点而产生的。之前讲的<strong>延迟引用计数法</strong>可以处理循环引用的情况，但是效率太低。部分-标记清除算法只针对有可能是循环引用的对象上执行，在一般的对象上还是执行引用计数法。下面结合代码图图示说明一下部分标记-清除算法的过程。</p>
+<p>部分标记-清除算法中，对象被涂成四种颜色来管理。每个颜色的含义如下：</p>
+<ol>
+<li>黑(BLACK): 绝对不是垃圾的对象(对象产生时的初始颜色)</li>
+<li>白(WHITE): 绝对是垃圾的对象</li>
+<li>灰(GRAY): 搜索完毕的对象</li>
+<li>阴影(HATCH): 可能是循环垃圾的对象</li>
+</ol>
+<p>首先我们假设有一个循环引用对象群，<strong>初始状态</strong>如下：<br><img src="/assets/img/gc/pms_rc_1.png" alt="初始状态"><br>图中A和D是由根引用。所有对象在初始状态下都为黑色。<br>对应的初始代码如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">new_obj(size)&#123;</span><br><span class="line">    obj = pickup_chunk(size)</span><br><span class="line">    <span class="keyword">if</span>(obj != NULL)</span><br><span class="line">        <span class="comment">#初始颜色会BLACK</span></span><br><span class="line">        obj.color = BLACK</span><br><span class="line">        obj.ref_cnt = <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> obj</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(is_empty($hatch_queue) == FALSE)</span><br><span class="line">        <span class="comment">#当空间不够用时扫描可能是循环引用的对象，然后释放出新的空间, 再次调用new_obj</span></span><br><span class="line">        scan_hatch_queue()</span><br><span class="line">        <span class="keyword">return</span> new_obj(size)</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        allocation_fail()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当执行<code>dec_ref_cnt()</code>时, 引用计数为0， 则回收。不为0时都认为是<strong>可能存在循环引用</strong>的对象, 都标记成HATCH, 并且把这个对象放到<code>$hatch_queue</code>当中。代码如下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">dec_ref_cnt(obj)&#123;</span><br><span class="line">    obj.ref_cnt--</span><br><span class="line">    <span class="comment">#ref_cnt == 0, 回收对象</span></span><br><span class="line">    <span class="keyword">if</span>(obj.ref_cnt == <span class="number">0</span>)</span><br><span class="line">        delete(obj)</span><br><span class="line">    <span class="comment">#ref_cnt != 0 认为是可能存在循环引用的对象</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(obj.color != HATCH)</span><br><span class="line">        obj.color = HATCH</span><br><span class="line">    enqueue(obj, $hatch_queue)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>针对上面的图，如果A的引用被删除了，则执行<code>dec_ref_cnt()</code>之后的状态如下图:</p>
+<p><img src="/assets/img/gc/pms_rc_2.png" alt="执行dec_ref_cnt"></p>
+<p>这是对象群在调用<code>new_obj()</code>时已经没有心的内存空间可以使用，所以会触发<code>scan_hatch_queue()</code>函数的调用。对应代码如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">scan_hatch_queue()&#123;</span><br><span class="line">    <span class="comment">#可能是循环引用的对象出队列</span></span><br><span class="line">    obj = dequeue($hatch_queue)</span><br><span class="line">    <span class="comment">#如果颜色为HATCH, 依次调用下面的函数</span></span><br><span class="line">    <span class="keyword">if</span>(obj.color == HATCH)</span><br><span class="line">        paint_gray(obj)</span><br><span class="line">        scan_gray(obj)</span><br><span class="line">        collect_white(obj)</span><br><span class="line">    <span class="comment">##如果颜色不为HATCH, 证明不是循环引用对象，继续下一个元素</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(is_empty($hatch_queue) == FALSE)</span><br><span class="line">        scan_hatch_queue()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面需要调用的<code>paint_gray(obj)</code>函数主要作用是深度遍历对象，搜索过的对象标记位GRAY:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">paint_gray()&#123;</span><br><span class="line">    <span class="comment">#对原来是BLACK或HATCH的对象标记为GRAY</span></span><br><span class="line">    <span class="keyword">if</span>(obj.color == (BLACK | HATCH))</span><br><span class="line">        obj.color = GRAY</span><br><span class="line">    <span class="comment">#深度遍历子节点，引用计数减量, 递归调用paint_gray记性标记</span></span><br><span class="line">    <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">        (*child).ref_cnt--</span><br><span class="line">        paint_gray(*child)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行完上面的函数后，对象的状态如下图:<br><img src="/assets/img/gc/pms_rc_3.png" alt="执行dec_ref_cnt"><br>下面<code>scan_gray(obj)</code>的目的是扫描刚才的GRAY节点，把其中的垃圾对象找出来，标记成WHITE:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">scan_gray(obj)&#123;</span><br><span class="line">    <span class="keyword">if</span>(obj.color == GRAY)</span><br><span class="line">        <span class="keyword">if</span>(obj.ref_cnt &gt; <span class="number">0</span>)</span><br><span class="line">            <span class="comment">#ref_cnt&gt;0, 不是垃圾，需要标记成BLACK</span></span><br><span class="line">            paint_black(obj)</span><br><span class="line">            <span class="comment">#ref_cnt == 0, 是垃圾对象，标记成WHITE</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            obj.color = WHITE</span><br><span class="line">            <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">                scan_gray(*child)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">paint_black(obj)&#123;</span><br><span class="line">    obj.color = BLACK</span><br><span class="line">    <span class="keyword">for</span>(child : chidren(obj))</span><br><span class="line">        <span class="comment">#由于执行paint_gray的时候ref_cnt--, 这里要恢复ref_cnt</span></span><br><span class="line">        (*child).ref_cnt++</span><br><span class="line">        <span class="keyword">if</span>((*child).color != BLACK)</span><br><span class="line">            paint_black(*child)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>标记后的对象如下:<br><img src="/assets/img/gc/pms_rc_4.png" alt="执行dec_ref_cnt"><br>到上面的步骤后，可以看出已经知道那些颜色为WHITE的对象就是垃圾对象，这些对象需要回收，回收代码入下:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">collect_white()&#123;</span><br><span class="line">    <span class="keyword">if</span>(obj.color == WHITE)</span><br><span class="line">        obj.color = BLACK</span><br><span class="line">        <span class="keyword">for</span>(child : children(obj))</span><br><span class="line">            collect_white(*child)</span><br><span class="line">        reclaim(obj)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>回收后的图如下:<br><img src="/assets/img/gc/pms_rc_5.png" alt="执行dec_ref_cnt"><br>上面就是部分标记-清除算法的过程。这个算法的优点就是，只搜索可能是循环垃圾的对象群，就是阴影部分，如何确定这个范围呢？首先产生垃圾循环的条件有两个:</p>
+<ol>
+<li>产生循环引用。</li>
+<li>删除从外部到循环引用的引用。</li>
+</ol>
+<p>部分标记-清除算法就利用<code>dec_ref_cnt()</code>函数来判断，如果引用计数减值后不为0， 那这个对象有可能就是循环对象的一份子。<br>这个算法的缺点就是需要三次查找对象，而每次查找的数量不少，所以付出的成本比较大。</p>
+<h2 id="GC复制算法"><a href="#GC复制算法" class="headerlink" title="GC复制算法"></a>GC复制算法</h2><p>GC复制算法把原来的内存空间分为两部分(From空间和To空间), 当From空间不够分配时，就会执行GC复制算法，把From空间的活动对象复制到To空间，复制完成后交换From和To空间，GC结束，分配时去心的From空间查找。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">copying()&#123;</span><br><span class="line">    <span class="comment">#$to_start To空间的起始地址</span></span><br><span class="line">    <span class="comment">#$free 要copy到的起始地址</span></span><br><span class="line">    $free = $to_start</span><br><span class="line">    <span class="keyword">for</span>(r : $roots)</span><br><span class="line">        *r = copy(*r)</span><br><span class="line">    <span class="comment">#交换From 和 To 空间</span></span><br><span class="line">    swap($from_start, $to_start)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#执行From 到 To 的 copy</span></span><br><span class="line">copy(obj)&#123;</span><br><span class="line">    <span class="comment"># 如果obj.tag != COPIED, 此对象还没有被执行过COPY, 对其执行COPY</span></span><br><span class="line">    <span class="keyword">if</span>(obj.tag != COPIED)</span><br><span class="line">        copy_data($free, obj, obj.size)</span><br><span class="line">        <span class="comment">#执行完后改变tag值，下次不再对其执行COPY</span></span><br><span class="line">        obj.tag = COPIED</span><br><span class="line">        <span class="comment">#forwarding是原来对象指向复制后的对象的指针，便于新老节点对应起来，下面递归查询的时候好查找</span></span><br><span class="line">        obj.forwarding = $free</span><br><span class="line">        <span class="comment">#free是要复制到的起始地址，当复制完一个对象后，需要前进size, 到达新的地址(To空间空闲的起始地址)</span></span><br><span class="line">        $free += obj.size</span><br><span class="line">        </span><br><span class="line">        <span class="comment">#对执行过的对象执行深度遍历，全部活动子节点都COPY到TO空间</span></span><br><span class="line">        <span class="keyword">for</span>(child : children(obj.forwarding))</span><br><span class="line">            *child = copy(*child)</span><br><span class="line">    <span class="comment">#注意，当对根节点的元素执行时，返回的是根节点执行的obj.forwarding, </span></span><br><span class="line">    <span class="comment">#所以全部执行完后，根节点结合就是原来的根节点集合的forwarding指针指向的元素</span></span><br><span class="line">    <span class="keyword">return</span> obj.forwarding</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">new_obj()&#123;</span><br><span class="line">    <span class="comment">#这里FROM和TO等分，如果空间不够，执行GC</span></span><br><span class="line">    <span class="keyword">if</span>($free + size &gt; $from_start + HEAP_SIZE/<span class="number">2</span>)</span><br><span class="line">        copying()</span><br><span class="line">        <span class="comment">#执行完GC后空间还不够，返回失败</span></span><br><span class="line">        <span class="keyword">if</span>($free + size &gt; $from_start + HEAM_SIZE/<span class="number">2</span>)</span><br><span class="line">            allocation_fail()</span><br><span class="line"></span><br><span class="line">    obj = $free</span><br><span class="line">    obj.size = size</span><br><span class="line">    $free += size</span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>GC复制算法过程参考下面的图:<br><img src="/assets/img/gc/copy_1.png" alt="GC复制算法"><br><img src="/assets/img/gc/copy_2.png" alt="GC复制算法"><br><img src="/assets/img/gc/copy_3.png" alt="GC复制算法"><br><img src="/assets/img/gc/copy_4.png" alt="GC复制算法"></p>
+<ul>
+<li>优点:</li>
+</ul>
+<ol>
+<li>优秀的吞吐量: 只需要搜索活动对象，不需要其他的搜索。</li>
+<li>可实现高速分配: 不需要空闲链表，只移动$free指针，快速分配。</li>
+<li>不会发生碎片化: 因为分配的都是连续的，GC之后也是连续的，对象都放在了堆的一端(叫做压缩)。</li>
+<li>与缓存兼容: 深度优先遍历，关联的节点都被放到了相邻的位置。</li>
+</ol>
+<ul>
+<li>缺点:</li>
+</ul>
+<ol>
+<li>堆使用效率低下: GC复制算法通常把堆分为二等分，只有一半可以来安排对象。</li>
+<li>不兼容保守式GC算法: 会发生对象的移动。</li>
+<li>递归调动函数: 递归复制，每次调用都会消耗栈，会有栈溢出的可能。</li>
+</ol>
+<h3 id="Cheney的GC复制算法"><a href="#Cheney的GC复制算法" class="headerlink" title="Cheney的GC复制算法"></a>Cheney的GC复制算法</h3><p>上面提到GC复制算法用递归复制，会有栈溢出的可能。Cheney的GC复制算法则采用广度优先的方式，用循环代替递归，解决栈溢出的问题。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">copying()&#123;</span><br><span class="line">    scan = $free = $to_start</span><br><span class="line">    <span class="keyword">for</span>(r : $roots)</span><br><span class="line">        *r = copy(r)</span><br><span class="line">    <span class="comment">#广度优先遍历需要一个队列保，scan 到 $free 就是这个隐藏的队列</span></span><br><span class="line">    <span class="keyword">while</span>(scan != $free)</span><br><span class="line">        <span class="keyword">for</span>(child : children(scan))</span><br><span class="line">            *child = copy(*child)</span><br><span class="line">        scan += scan.size</span><br><span class="line">        </span><br><span class="line">    swap($from_start, $to_start)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">copy()&#123;</span><br><span class="line">    <span class="comment">#如果obj.forwarding是指向To空间指针则返回TRUE, 如果不是则返回FALSE</span></span><br><span class="line">    <span class="keyword">if</span>(is_pointer_to_heap(obj.forwarding, $to_start) == FALSE)</span><br><span class="line">        copy_data($free, obj, obj.size)</span><br><span class="line">        obj.forwarding = $free</span><br><span class="line">        $free += obj.size</span><br><span class="line">    <span class="keyword">return</span> obj.forwarding</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><img src="/assets/img/gc/gc_copy_cheney_1.png" alt="Cheney复制算法"><br><img src="/assets/img/gc/gc_copy_cheney_2.png" alt="Cheney复制算法"><br><img src="/assets/img/gc/gc_copy_cheney_3.png" alt="Cheney复制算法"><br><img src="/assets/img/gc/gc_copy_cheney_4.png" alt="Cheney复制算法"></p>
+<p>这个算法的缺点是不能利用局部缓存，因为有关系的节点不是相邻的。</p>
+<h3 id="近似深度优先搜索方法"><a href="#近似深度优先搜索方法" class="headerlink" title="近似深度优先搜索方法"></a>近似深度优先搜索方法</h3><p>为了解决Cheney算法不能利用局部缓存，这里进行了一个改进，对于每个“页面”内部都是广度优先搜索。下面通过一个例子，看一下Cheney与近似深度优先搜索的方法对比:<br>图1，原始的引用关系:<br><img src="/assets/img/gc/gc_cp_df_1.png" alt="近似深度优先搜索方法"><br>图2，假设每三个节点占用一个”页面”的空间，下面就是Cheney方法，广度优先遍历后的ji结果:<br><img src="/assets/img/gc/gc_cp_df_2.png" alt="近似深度优先搜索方法"><br>可以看出，上图中相互引用的节点之间存储的比较分散，不容里利用局部缓存。<br>图3是利用近似深度优先搜索方法后的结果，可以看出分布比较集中，可以很好利用局部缓存。<br><img src="/assets/img/gc/gc_cp_df_3.png" alt="近似深度优先搜索方法"></p>
+<h3 id="多空间复制算法"><a href="#多空间复制算法" class="headerlink" title="多空间复制算法"></a>多空间复制算法</h3><p>上面降到复制算法的一个明显的特征就是堆的利用率低。为了改善这个问题，多空间复制的算法的思想就是把一个堆N等分，只对其中2块空间执行GC复制算法，对剩下的(N-2)块空间执行GC标记-清除算法，也就是把这两种算法组合起来使用。具体细节不再展开。这个方法的优点是可以更有效的利用堆，但是缺点也很明显，就是标记-清除算法的缺点:分配耗费时间，分块碎片化等。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基本算法是进行GC的基本思想，每个算法都有其缺点和优点，没有算法能够完美解决所有问题。所以后面的算法利用这几种基本算法的组合和变形，更好的提高GC的性能。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/gc/">gc</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/01/22/gc/"><span>垃圾回收算法总结</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/01/22/gc/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-01-22T06:56:28.000Z">
+          2017-01-22
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近研读了《垃圾回收的算法与实现》这本书， 对来垃圾回收(<code>GC</code>)的来龙去脉及理论和实践有了一个概括性，深入性的了解，这里分多篇进行总结。首先本文先对GC的理论来一个总览性的回顾.</p>
+</blockquote>
+<h2 id="什么是垃圾回收"><a href="#什么是垃圾回收" class="headerlink" title="什么是垃圾回收"></a>什么是垃圾回收</h2><p>我们知道一台服务器的内存是有限的，而程序的运行需要占用内存空间，一个程序内部可能有些内存空间使用后不再使用，这部分不再使用的内从空间就被视为<code>垃圾</code>。而GC就是要</p>
+<ol>
+<li>找到内存空间里的垃圾</li>
+<li>回收垃圾，让程序员能够再次利用这部分空间</li>
+</ol>
+<p>如果没有GC的情况下需要程序员自己手动管理内存，例如C/C++等程序。这个过程将会非常麻烦，如果管理不当就会照成内存泄露引起系统崩溃，引发各种恶性bug和安全问题。有了GC就会省去很大一部分精力，降低了开发的难度。</p>
+<h2 id="垃圾回收基本概念"><a href="#垃圾回收基本概念" class="headerlink" title="垃圾回收基本概念"></a>垃圾回收基本概念</h2><p>要深入了解垃圾回收的理论知识，下面这些关键件信息比必要掌握:</p>
+<ul>
+<li>对象/头/域: 这里对象是由头(heder)和域(field)构成的。头是指保持对象本身信息的部分，主要包括<strong>对象的大小</strong>和<strong>对象的种类</strong>;域是对象使用者可以访问的部分，域的数据类型主要分为指针和非指针两种。</li>
+<li>指针: GC根据对象的指针指向去搜寻其他对象，对于非指针不进行任何操作。</li>
+<li>mutator: 程序运行过程中关系的改变，主要包括<strong>生成对象</strong>和<strong>更新指针</strong>等操作。</li>
+<li>堆: 用于动态存放对象的内存空间。当mutator申请存放对象时，所需的内从空间就是从这个堆中被分配给mutator的。</li>
+<li>活动对象/非活动对象: 内存空间中可以通过mutator引用的对象是”活动对象”, 不能通过程序引用的称为”非活动对象”。非活动对象无法重新被引用，所以就是”垃圾”。</li>
+<li>分配: 内存空间中分配(allocatio)对象。当mutator需要新对象时，就会向分配器(allocator)申请一个大小合适的空间。</li>
+<li>分块: 未利用对象而事先准备的空间。初始状态堆就是一个大分块，根据mutator的需求而分割成合适的大小。</li>
+<li>根: 跟是指向对象的指针的起点，通过mutator可以直接调用的调用栈(call stack),寄存器和全局变量都是根。但是调用栈和寄存器中的值是不是指针，需要再做判断。</li>
+<li>评价标准: GC算法的性能评价标准主要有<ol>
+<li>吞吐量: 单位时间内的处理能力。</li>
+<li>最大暂停时间: 因执行GC和停止mutator的最长时间。</li>
+<li>堆使用效率</li>
+<li>访问的局部性: 局部性原理，数据离得越近越好处理。</li>
+</ol>
+</li>
+</ul>
+<h2 id="垃圾回收算法总览"><a href="#垃圾回收算法总览" class="headerlink" title="垃圾回收算法总览"></a>垃圾回收算法总览</h2><p>首先先上一张垃圾回收算法的总概括图:<br><img src="/assets/img/gc/GC.png" alt="垃圾回收算法总览"><br>上面列举和好多算法及对应的细节。其实GC最基本的思想就是三种算法(GC标记-清除法, 引用计数法, GC复制算法), 其他算法都算是这几个算法的延伸和组合。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/gc/">gc</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2016/08/23/phpenv-configuration-options/"><span>phpenv安装自定义配置</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2016/08/23/phpenv-configuration-options/" rel="bookmark">
+        <time class="entry-date published" datetime="2016-08-23T08:45:47.000Z">
+          2016-08-23
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="自定义配置"><a href="#自定义配置" class="headerlink" title="自定义配置"></a>自定义配置</h2><p>在使用phpenv安装php是，有时候需要对内置扩展进行自定义控制是否开启，比如我要开启<code>zts</code>模块, 源码安装我么可以用<code>./configure --enable-maintainer-zts</code>来安装，但是phpenv不支持直接这么写，这时候就要phpenv自己的方式来安装了。可以在phpenv安装的路径里找到下面这个文件：<code>~/.phpenv/plugins/php-build/bin/php-build</code>, 这个文件就是phpenv install时运行的脚本，可以找到如下内容:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">CONFIGURE_OPTIONS=$(cat <span class="string">"$PHP_BUILD_ROOT/share/php-build/default_configure_options"</span>)</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> [ -n <span class="string">"$PHP_BUILD_CONFIGURE_OPTS"</span> ]; then</span><br><span class="line">    CONFIGURE_OPTIONS=<span class="string">"$CONFIGURE_OPTIONS $PHP_BUILD_CONFIGURE_OPTS"</span></span><br><span class="line">fi</span><br><span class="line">...</span><br><span class="line">local append_default_libdir=<span class="string">'yes'</span></span><br><span class="line"><span class="keyword">for</span> option in $CONFIGURE_OPTIONS; <span class="keyword">do</span></span><br><span class="line">  <span class="keyword">case</span> <span class="string">"$option"</span> in</span><br><span class="line">    <span class="string">"--with-libdir"</span>*) append_default_libdir=<span class="string">'no'</span> ;;</span><br><span class="line">  esac</span><br><span class="line">done</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"$(uname -p)"</span> = <span class="string">"x86_64"</span> ] &amp;&amp; [ <span class="string">"$&#123;append_default_libdir&#125;"</span> = <span class="string">'yes'</span> ]; then</span><br><span class="line">    argv=<span class="string">"$argv --with-libdir=lib64"</span></span><br><span class="line">fi</span><br><span class="line">...</span><br><span class="line">./configure $argv &gt; /dev/<span class="keyword">null</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>可见，默认会读取<code>~/.phpenv/plugins/php-build/share/php-build/default_configure_options</code>里面的配置加到<code>./configure</code>的参数里，当存在变量<code>$PHP_BUILD_CONFIGURE_OPTS</code>时，会把这个变量的值也加到<code>./configure</code>的参数里。<br>所以就存在两种方式实现上面的安装方法：</p>
+<ol>
+<li><code>~/.phpenv/plugins/php-build/share/php-build/default_configure_options</code>文件末尾加上<code>--enable-maintainer-zts</code></li>
+<li>运行<code>PHP_BUILD_CONFIGURE_OPTS=--enable-maintainer-zts phpenv install 5.6.2</code></li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/10/14/InnoDB-Key-Features/"><span>InnoDB关键特性</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/10/14/InnoDB-Key-Features/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-10-14T14:10:14.000Z">
+          2015-10-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>本篇博客是《Mysql技术内幕 InnoDB存储引擎(第二版)》的阅读总结.</p>
+</blockquote>
+<h2 id="工作方式"><a href="#工作方式" class="headerlink" title="工作方式"></a>工作方式</h2><p>首先Mysql进程模型是单进程多线程的。所以我们通过ps查找mysqld进程是只有一个。</p>
+<h3 id="体系架构"><a href="#体系架构" class="headerlink" title="体系架构"></a>体系架构</h3><p>InnoDB存储引擎的架构如下图所以，是由多个内存块组成的内存池，同时又多个后台线程进行工作，文件是存储磁盘上的数据。</p>
+<img src="http://www.plantuml.com/plantuml/svg/Kr3WAafDBadCIyz9LNWshVt9xcqArLmAG92IM9AOb5YSgg044JPKWeZNOfKrmYkR1vUjHRBkQLlhqxKpeDOXX9MUJkXxsh_X-QxzprTqAq6bDNmJYqjIYnH2CefI4rCq8MAU_gZyWjAYz5HKeO14e8XpJcfY7fhcMdHRFVFoybsSW0vwshJYwPwfpoRtGTptREC29Q2peM5Zesi7TJS0">  
+<h4 id="后台线程"><a href="#后台线程" class="headerlink" title="后台线程"></a>后台线程</h4><p>上面看到一共有四种后台线程，每种线程都在不停地做自己的工作，他们的分工如下:</p>
+<ul>
+<li><code>Master Thread</code>: 是最核心的线程，主要负责将缓冲池中的数据异步刷新的磁盘，保证数据的一致性，包括脏页的刷新、合并插入缓冲(INSERT BUFFER),UNDO页的回收等。下面几个线程其实是为了分担主线程的压力而在最新的版本中添加的。</li>
+<li><code>IO Thread</code>: InnoDB使用大量的异步IO来处理请求。IO Thread的主要工作就是负责IO请求的回调(call back)处理。异步IO可以分为4个，分别是:write, read, insert buffer 和 log IO thread。</li>
+<li><code>Purge Thread</code>: undo log是用来保证事务的，当一个事务正常提交后，这个undo log可能就不再使用了。purge thread就是用来清除这部分log已经分配的undo页的。 </li>
+<li><code>Page Cleaner Thread</code>: 主要是把脏页的刷新从主线程中拿到单独的线程，减轻主线程的压力，减少用户查询线程的阻塞，提高整体性能。</li>
+</ul>
+<h4 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h4><p>由于InnoDB是基于磁盘存储的，为了使CPU与磁盘能够快的交互，提升整体性能而采用了缓冲池技术。<br>读数据简单的说可以用下面的流程图<br><img src="http://www.plantuml.com/plantuml/svg/Aov9B2hXidgnVlUpgHkUzQwpvifCKz20i9_EMV5yp-IdRPkURLoWgL2IaPgde56PMgp9fG04LY_sJtawUnvCLsfESQg2Hbu-LFB9xhxdYnkVpvu1DFXf_pIOAh2SafjdXDBJZWrmiwsn6fYNafd6LLoINm00"><br>更新数据的流程则如下:<br><img src="http://www.plantuml.com/plantuml/svg/Aov9B2hXidgnVlVJzbtFfcvurhlEcYilloHLeIWpFQF4Ik75_fdFfczxsZ0J8lbaHyFJTREUpbdnVC_afssRdcrSy6J7sYUxshYiditUycpQ1cJXvxDQO2PQFTkzyCMspS_cBdooUzlxFJrFExO35J-TFU_vuiRdisTOSnMNv1S00000"><br>由缓冲池的作用可以看到，缓冲池越大所容纳的数据就越多，与磁盘的交互就会越少，性能也就越高。所以缓冲池的大小直接影响着数据库的整体性能。<br>InnoDB在内存中主要有以下几部分组成:<br><img src="http://www.plantuml.com/plantuml/svg/TP31IiD048RlVOeX9tqDyU8x2CkskmcBszsoZI1AmGXfFLW4sneH15FiHQYrKg5AeI_ZnEOjZDbMH9CvVz_yCx_XDPygJtBOKqhlxc0xnF5DCdXEkayuULjDOpYfG3Rc1tJIJXU3soGQuJBwNFIm_GBx2hOCPngazaZrq7MvsNRWdpYymuVhTSJqFhT45ikgX38cVA4LbQJEwwIXjIHDSSmBjjZ8pD-uDYztCjoU-pr_HVjL6h_cmOpw51hKAuoO3N4ns912CNvKXYQNLnYEVjKWL9CR7yfBw0SVopW99ZajTUq0X79r0RdgFAQdP_ZUnzuvpY_iKKx9MpYEC9pRpMkcLMbz0G00"><br>具体来看缓冲池中缓存的数据页类型有:</p>
+<ul>
+<li><code>索引页</code>: 缓存数据表索引</li>
+<li><code>数据页</code>: 缓存数据页，占缓冲池的绝大部分</li>
+<li><code>undo页</code>: undo页是保存事务，为回滚做准备的。</li>
+<li><code>插入缓冲(Insert buffer)</code>: 上面提到的插入数据时要先插入到缓存池中。</li>
+<li><code>自适应哈希索引(adaptive hash index)</code>: 除了B+ Tree索引外，在缓冲池还会维护一个哈希索引，以便在缓冲池中快速找到数据页。</li>
+<li><code>InnoDB存储的锁信息(lock info)</code>: </li>
+<li><code>数据字典(data dictionary)</code>:<br>内存中除了缓冲池外外还有:</li>
+<li><code>重做日志缓冲redo log</code>: 为了避免数据丢失的问题，当前数据库系统普遍采用了write ahead log策略，既当事务提交时先写重做日志，再修改写页。当由于发生宕机而导致数据丢失时，可以通过重做日志进行恢复。InnoDB先将重做日志放到这个缓冲区，然后按照一定的频率更新到重做日志文件中。重做日志一般在下列情况下会刷新内容到文件:<ul>
+<li>Master Thread每一秒将重做日志缓冲刷新到重做日志文件</li>
+<li>每个事务提交时会将重做日志缓冲刷新到重做日志文件</li>
+<li>当重做日志缓冲池剩余空间小于1/2时，重做日志缓冲刷新到重做日志文件</li>
+</ul>
+</li>
+<li><code>额外内存池</code>: InnoDB存储引擎中，对内存的管理师通过一种称为内存堆的方式进行的，在对一些数据结构本身的内存进行分配时，需要从额外的内存池中进行申请，当该区域的内存不够时，会从缓冲池中进行申请。</li>
+</ul>
+<p>缓冲池是一个很大的内存区域，InnoDB是如何对这些内存进行管理的呢。答案就使用LRU list。<br><a href="https://en.wikipedia.org/wiki/Page_replacement_algorithm#Variants_on_LRU" target="_blank" rel="noopener">LRU</a>(Latest Recent Used, 最近最少使用)算法默认的是最近使用的放到表头，最早使用的放到表尾，依次排列。当有LRU填满时有新的进来就把最早的淘汰掉。InnoDB则是在这个基础上进行了修改:</p>
+<ol>
+<li>最近使用的不放到表头，而是根据配置放到一定比例处，这个地方叫做midpoint, midpoint之前的成为new列表，之后的成为old列表。淘汰的同样是表尾的页。</li>
+<li>为了保证new列表的不经常使用时能够淘汰，设置了一个超时时间:innodb_old_blocks_time，当数据在midpoint(我理解应该是在old列表中，不然这个点的页就一个，变化也比较频繁)的时间超过找个时间时就会被提升到表头，new列表的表尾页则被置换到old列表中。</li>
+</ol>
+<p>这么做的原因主要是因为常见的索引或数据的扫描操作会连续读取大量的页，甚至是全表扫描。如果采用原来的LRU算法就会更新全部的缓冲池，其他查询需要的热点数据就会被冲走，导致更多的磁盘读取操作，降低数据库的性能。<br>LRU是用来管理已经读取的页，当数据库启动时LRU是空列表,既只有表头，没有内容。这时页都放在Free List中。当需要有数据读写时要进行需要获取分页，这时要从Free List中删除分页，然后添加到LRU list中。到一定时间Free List中的分页就会被分配完毕，这时候就正常使用上面的LRU策略。<br>LRU列表中的页被修改后，称该页为脏页(dirty page),既缓冲池中的数据和磁盘上的数据产生了不一致，这时脏页会被加入到一个Flush 列表中(注意，同时存在两个列表中)。然后根据刷新的机制定时的刷新到磁盘中。</p>
+<h3 id="Checkpoint技术"><a href="#Checkpoint技术" class="headerlink" title="Checkpoint技术"></a>Checkpoint技术</h3><p>checkpoint其实就是一个刷新缓冲到磁盘的触发机制，当满足一定的条件时就会刷新缓冲到磁盘，这样做可以解决以下几个问题:</p>
+<ul>
+<li>缩短数据库的恢复时间: 数据库恢复可以使用redo log，但是如果要恢复的数据很多就会很慢。如果使用checkpoint刷新到磁盘，只需要从checkpoint开始恢复就可以了，所以速度会变快。</li>
+<li>缓冲池不够用时，将脏页刷新到磁盘。我们知道缓冲池的大小是由限制的，为了能够高效的使用缓冲池需要把一部分数据刷新到磁盘。</li>
+<li>重做日志不可用时，刷新脏页。重做日志并不是无限增大的，而是循环利用的。当有些已经不需要的页存在时可以覆盖写，当可用的页放不下时就会触发checkpoint,刷新到磁盘一部分脏页到磁盘，这样就能覆盖掉一些不再使用的重做日志。</li>
+</ul>
+<p>checkpoint根据触发时间，刷新页的策略又可以分为:</p>
+<ul>
+<li><code>sharp checkpoint</code>:刷新所有的脏页到磁盘。一般发生在数据库关闭时，为了保证所有的数据能够正常持久化。</li>
+<li><code>fuzzy checkpoint</code>:只刷新部分脏页。运行时使用这种可以保证系统的性能。<h3 id="Master-Thread的工作方式"><a href="#Master-Thread的工作方式" class="headerlink" title="Master Thread的工作方式"></a>Master Thread的工作方式</h3></li>
+</ul>
+<h2 id="关键特性"><a href="#关键特性" class="headerlink" title="关键特性"></a>关键特性</h2><h3 id="插入缓存"><a href="#插入缓存" class="headerlink" title="插入缓存"></a>插入缓存</h3><p>这里所说的插入缓存也是Insert Buffer, 区别是这个插入缓存不是缓冲池中的插入缓存,这里的插入缓存和数据页一样，业务物理页的组成部分。在介绍插入缓存之前先了解<a href="http://www.cnblogs.com/lwzz/archive/2012/08/05/2620824.html" target="_blank" rel="noopener">聚集索引和非聚集索引</a>，他们之间最重要的区别就是:聚集索引的叶子节点存储的是数据，而且是按照物理顺序存储的;非聚集索引叶子节点是地址(也就是聚集索引键地址)，是按照逻辑顺序存储的(以上言论是从网上了解到的，但是本书P194特别指出，聚集索引也不是按照物理地址连续的，而是逻辑上连续的)。<br>知道这个差别后就知道，当不停的插入数据时，如果是聚集索引的数据，按照物理顺序(这个应该是一般情况下，因为是一般聚集索引是主键，顺序递增的，所以这时候地址就是顺序的)连续插入，代价比较小。而如果是非聚集索引的插入则物理地址是离散的，会导致很大的系统开销，所以对于非聚集索引InnoDB开创性设计了Insert Buffer。使用InnoDB的Insert Buffer需要以下两个条件:</p>
+<ul>
+<li>索引是辅助索引(非聚集索引 secondary index);</li>
+<li>索引不是唯一(unique)的。</li>
+</ul>
+<p>Insert Buffer的使用流程是:<br><img src="http://www.plantuml.com/plantuml/svg/LKvB2e906DxFAMPfLz1TkuuHD98G5iwqQ5U14j6Bx06zo22em5wOA5YdyH_r5WtOfc_vlIah6mp9V3m5yyXx2xxs-EAk84t5KhRTfPrLjhOIxm3HF7DUi3abaGtMap_sSU0MCAiI7KijGWi82yY9Y8-EUPk2I8qIBEdrdyXd7q77GJiEBYMT4eFXObDLYG6tC7queb39ZN1TyQN_RvaEqey9_NF-1SO-k9Eqtqsw8Knw4FhS7iRlZTZKAvgAAAitlW00"><br>要求索引不是唯一的是因为如果索引是唯一的，那么每次更新都要坚持是不是已经存在，每次还是要访问数据页，这就失去了使用Insert Buffer的优势。<br>后面还提到了Update buffer以及Merge的过程和Insert Buffer的实现，这里就不再一一说了。</p>
+<h3 id="两次写"><a href="#两次写" class="headerlink" title="两次写"></a>两次写</h3><p>上面提到的Insert Buffer是提高了数据库的性能，doublewrite则是提高了数据库的可靠性。一个场景是当一个16k的数据页只写了一部分,比如4k,这时候突然断电，就会导致这个页的数据不全。所以就会导致这个页的数据丢失。我们知道重做日志是用来恢复数据的，但是重做日志记录的是对页的物理操作，如果这个页已经发生了损坏在对其进行重做是没有意义的。</p>
+<blockquote>
+<p>上面这段话，其实我并没有看懂，因为对页操作之前是先写重做日志的，当发生宕机时正在写数据页，证明这时候重做日志已经写完了。这时重做日志的记录的完整的，当用这个记录去恢复数据时，不管页是不是损坏，重做日志直接覆盖不就行了么？为什么不行呢？等到后面我更加深入的了解后再来补充。</p>
+</blockquote>
+<p>doublewrite有两部分组成，一部分是内存中的doublewrite buffer, 大小为2MB,另一部分是物理磁盘上共享表空间中连续的128个页，既两个区，大小同样为2MB<br>。对缓冲池的脏页进行刷新时，比不直接写磁盘，而是会通过memcpy函数将脏页先复制到内存中的doublewrite buffer, 之后通过doublewrite buffer再分两次，每次1MB的写入共享表空间的物理磁盘上，然后马上调用fsync函数，同步磁盘，避免缓冲写带来的问题。完成doublewrite页的写入后，再将doublewrite buffer中的页写入各个表空间文件中。</p>
+<p>如果磁盘写入时发生崩溃，可以从共享表空间的doublewrite中找到副本，将其复制到表空间文件，再应用重做日志。</p>
+<blockquote>
+<p>这个地方也有一个疑问，当doublewrite写入的过程中发生了崩溃，这时候数据该怎么办呢？</p>
+</blockquote>
+<h3 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h3><p>对于缓冲池中的页，为了能够快速的查找，InnoDB跟情况对其建立了一个hash index。这样对于等值查询就能够利用这个索引更加快速的查找，提高了查找的性能。</p>
+<h3 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h3><p>为了提高磁盘的操作性能，当前的数据库系统都采用异步IO的方式处理磁盘操作。用户可以在发出一个IO请求胡立即再发出另一个IO请求，当全部IO请求发送完毕后，等待所有IO操作完成，这就是AIO。<br>AIO的另一个优势是可以进行IO Merge操作，也就是将多个IO合并为1个IO, 这样可以提高IOPS的性能。</p>
+<h3 id="刷新临近页"><a href="#刷新临近页" class="headerlink" title="刷新临近页"></a>刷新临近页</h3><p>Flush Neighbor Page(刷新临近页)是当刷新一个脏页时，InnoDB会检测该页所在区的所有页，如果是脏页，那么一起进行刷新。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/mysql/">mysql</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/10/09/apache-and-nginx/"><span>apache与nginx对比</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/10/09/apache-and-nginx/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-10-09T07:09:38.000Z">
+          2015-10-09
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="apache工作原理"><a href="#apache工作原理" class="headerlink" title="apache工作原理"></a>apache工作原理</h2><p>apache httpd通过模块化的设计来适应各种环境，模块化的使用使其变得功能强大而且灵活。最基本的web服务器功能也是通过可选择的多处理模块(MPM)，用来绑定到网络端口上，以及调度子程序处理请求。这样做可以带来两个重要的好处:</p>
+<ul>
+<li>Apache httpd 能更优雅，更高效率的支持不同的平台。尤其是 Apache httpd 的 Windows 版本现在更有效率了，因为 <a href="http://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_winnt.html" target="_blank" rel="noopener">mpm_winnt</a> 能使用原生网络特性取代在 Apache httpd 1.3 中使用的 POSIX 层。它也可以扩展到其它平台 来使用专用的 MPM。</li>
+<li>Apache httpd 能更好的为有特殊要求的站点定制。例如，要求 更高伸缩性的站点可以选择使用线程的 MPM，即 <a href="http://httpd.apache.org/docs/2.4/zh-cn/mod/worker.html" target="_blank" rel="noopener">worker</a> 或 <a href="http://httpd.apache.org/docs/2.4/zh-cn/mod/event.html" target="_blank" rel="noopener">event</a>； 需要可靠性或者与旧软件兼容的站点可以使用 <a href="http://httpd.apache.org/docs/2.4/zh-cn/mod/prefork.html" target="_blank" rel="noopener">prefork</a>。</li>
+</ul>
+<p>下面主要介绍常用的两个MPM工作原理。</p>
+<h3 id="perfork"><a href="#perfork" class="headerlink" title="perfork"></a>perfork</h3><p>一个单独的控制进程(父进程)负责产生子进程，这些子进程用于监听请求并作出应答。Apache总是试图保持一些备用的 (spare)或是空闲的子进程用于迎接即将到来的请求。这样客户端就无需在得到服务前等候子进程的产生。在Unix系统中，父进程通常以root身份运行以便邦定80端口(注意这里是先绑定再fork的，所以意味着所有的子进程都监听了80端口)，而 Apache产生的子进程通常以一个低特权的用户运行。User和Group指令用于配置子进程的低特权用户。运行子进程的用户必须要对他所服务的内容有读取的权限，但是对服务内容之外的其他资源必须拥有尽可能少的权限。<br>子进程的个数会随着请求量的大小动态调整。调整的策略与perfork的配置息息相关，httpd.conf的配置文件有以下配置:<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;IfModule prefork.c&gt;</span><br><span class="line">StartServers 5</span><br><span class="line">MinSpareServers 5</span><br><span class="line">MaxSpareServers 10</span><br><span class="line">MaxClients 150</span><br><span class="line">MaxRequestsPerChild 0</span><br><span class="line">&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure></p>
+<p>具体的流程这里直接copy<a href="http://blog.csdn.net/hguisu/article/details/7395181" target="_blank" rel="noopener">Apache运行机制剖析</a>这篇博文的介绍。</p>
+<ol>
+<li>控制进程先建立’StartServers’个子进程;</li>
+<li>当空闲进程数小于MinSpareServers时，继续创建子进程，直到满足空闲进程数大于等于MinSpareServers;</li>
+<li>当并发请求高时而空闲进程数小于MinSpareServers时会继续创建子进程，最多可以创建MaxClients个;</li>
+<li>当并发高峰过去时，空闲进程的数量大于MaxSpareServers时会删除多余的子进程，直到剩MaxSpareServers为止;</li>
+<li>当子进程处理的连接数超过MaxRequestsPerChild时，自动关闭，当MaxRequestsPerChild为0时这没有这个限制;</li>
+</ol>
+<p>对每个参数的介绍如下:</p>
+<ul>
+<li><code>StartServers</code> 指定服务器启动时建立的子进程数量。</li>
+<li><code>MinSpareServers</code> 最小的空闲进程数。如果当前空闲进程数少于MinSpareServers时，Apache将以每秒一个的速度产生新的子进程。</li>
+<li><code>MaxSpareServers</code> 最大的空闲进程数。如果空闲进程数大于这个值，Apache父进程会自动kill掉一些多余的子进程。</li>
+<li><code>MaxRequestsPerChild</code> 每个子进程可处理的请求数。每个子进程处理完<code>MaxRequestsPerChild</code>后将自动销毁。0意味着用户销毁。销毁的好处有以下两个:<ul>
+<li>可以防止意外的内存泄露</li>
+<li>在服务器负载下降的时候会自动减少子进程数</li>
+</ul>
+</li>
+<li><code>MaxClients</code> 设定Apache可以同时处理的请求，是对性能影响最大的参数。如果请求数达到这个限制，那么后来的请求就需要排队，直到某个请求处理完毕。</li>
+</ul>
+<h3 id="worker"><a href="#worker" class="headerlink" title="worker"></a>worker</h3><p>每个进程能够拥有的线程数量是固定的。服务器会根据负载情况增加或减少进程数量。一个单独的控制进程(父进程)负责子进程的建立。每个子进程能够建立ThreadsPerChild数量的服务线程和一个监听线程，该监听线程监听接入请求并将其传递给服务线程处理和应答。Apache总是试图维持一个备用(spare)或是空闲的服务线程池。这样，客户端无须等待新线程或新进程的建立即可得到处理。在Unix中，为了能够绑定80端口，父进程一般都是以root身份启动，随后，Apache以较低权限的用户建立子进程和线程。User和Group指令用于配置Apache子进程的权限。虽然子进程必须对其提供的内容拥有读权限，但应该尽可能给予他较少的特权。另外，除非使用了suexec ，否则，这些指令配置的权限将被CGI脚本所继承。<br>  相对于prefork，worker是2.0 版中全新的支持多线程和多进程混合模型的MPM。由于使用线程来处理，所以可以处理相对海量的请求，而系统资源的开销要小于基于进程的服务器。但是，worker也使用了多进程，每个进程又生成多个线程，以获得基于进程服务器的稳定性。这种MPM的工作方式将是Apache 2.0的发展趋势。</p>
+<p>http.conf中也有关于worker的配置项:<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;IfModule worker.c&gt;</span><br><span class="line">StartServers 3</span><br><span class="line">MaxClients 2000</span><br><span class="line">ServerLimit 25</span><br><span class="line">MinSpareThreads 50</span><br><span class="line">MaxSpareThreads 200</span><br><span class="line">ThreadLimit 200</span><br><span class="line">ThreadsPerChild 100</span><br><span class="line">MaxRequestsPerChild 0</span><br><span class="line">&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure></p>
+<p>由主控制进程生成“StartServers”个子进程，每个子进程中包含固定的ThreadsPerChild线程数，各个线程独立地处理请求。同样，为了不在请求到来时再生成线程，MinSpareThreads和MaxSpareThreads设置了最少和最多的空闲线程数；而MaxClients设置了所有子进程中的线程总数。如果现有子进程中的线程总数不能满足负载，控制进程将派生新的子进程。<br>参数介绍:<br><code>StartServer</code> 服务器启动时建立的子进程数。<br><code>ServerLimit</code> 服务器允许配置的进程数上限。这个指令和ThreadLimit结合使用配置了MaxClients最大允许配置的数值。<br><code>MinSpareThreads</code> 最小空闲线程数。这个MPM将基于整个服务器监控空闲线程数。如果服务器中的总线程数太少，子进程将产生新的空闲线程。<br><code>MaxSpareThreads</code> 最大空闲线程数。这个MPM将基于整个服务器监控空闲线程数。如果服务器总的线程数太多，子进程将kill掉多余的空闲线程。MaxSpareThreads的取值范围是有限制的。<br><code>ThreadLimit</code> 每个子进程可配置的线程数上限。这个指令配置了每个子进程可配置的线程数ThreadsPerChild上限。<br><code>ThreadsPerChild</code> 每个子进程建立的常驻的执行线程数。子进程在启动时建立这些线程后就不再建立新的线程了。<br><code>MaxRequestsPerChild</code> 每个子进程在其生存期间允许执行的最大请求数量。到达这个限制后子进程将会结束，如果为0则永不结束( 注意，对于KeepAlive链接，只有第一个请求会被计数)。这样做的好处是:</p>
+<ul>
+<li>能够防止内存泄露无限进行，从而耗尽内存。</li>
+<li>給进程一个有限寿命，从而有助于当服务器负载减轻时减少活动进程的数量。</li>
+</ul>
+<h3 id="apache”惊群”现象与解决方案"><a href="#apache”惊群”现象与解决方案" class="headerlink" title="apache”惊群”现象与解决方案"></a>apache”惊群”现象与解决方案</h3><p>无论是上面那个MPM被选择，都有一问题就是主进程先监听80端口，然后又fork出子进程。所以可以知道，fork出来的每个子进程都在监听80端口，如果这时候有请求过来就会出现所有的空闲进程都回来抢这个fd,也就是这些进程都被唤醒了，但是最终只有一个进程能够拿到这个fd进行处理，其他进程因为拿不到进程而再次进入休眠状态，这就是”惊群”现象。<br>apache的prefork模型下的处理方式如下如所示:<br><img src="http://dl.iteye.com/upload/attachment/385428/e0714d6e-1c19-3f2b-9f0a-0592eee7c3ec.png" alt><br>apache通过在每个accept()函数上 增加互斥锁和条件变量 来解决这个惊群问题。保证每个请求只会被一个线程刚好拿到，不会影响其他线程；<br>这里详细介绍下：条件变量与互斥锁不同，条件变量是用来等待而不是用来上锁的。条件变量用来自动阻塞一个线程，直到某特殊情况发生为止。通常条件变量和互斥锁同时使用；互斥锁提供互斥机制，条件变量提供信号机制；<br>那么apache是如何利用条件变量和互斥锁来解决每次只有一个空闲线程被唤醒，并且处于监听者角色呢？<br>每次一个新的客户请求过来，正在监听的线程与该请求建立连接，并变为worker工作者线程。让出监听者角色时它同时发送信号到条件变量，并释放锁。这样在空闲（idle)状态的一个线程将被唤醒并获得锁。<br>也就是说：条件变量保证了其他线程在等待条件变化期间处于睡眠；互斥锁保证一次只有一个线程被唤醒<br>这个是参考<a href="http://alicsd.iteye.com/blog/865531" target="_blank" rel="noopener">客户/服务器程序设计范式</a>来的，但是有一个明显的问题是prefork是多进程模型不是多线程模型，由于现在还没读过apache源码，姑且认为总体的流程和思想是对的。有机会再深入阅读回来补充。</p>
+<h2 id="nginx工作原理"><a href="#nginx工作原理" class="headerlink" title="nginx工作原理"></a>nginx工作原理</h2><p>nginx使用的是多进程模型，类似于apache的prefork，不同的是nginx的子进程个数是固定的。nginx的进程模型可以用下图来表示:<br><img src="http://tengine.taobao.org/book/_images/chapter-2-1.PNG" alt><br>可以看到nginx进程模型是由一个mater进程和多个worker进程组成的，master进程主要用来管理worker进程，包含：接收来自外界的信号，向各worker进程发送信号，监控worker进程的运行状态，当worker进程退出后(异常情况下)，会自动重新启动新的worker进程。 worker进程则是来处理请求用的。</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><p>上面提到nginx的worker进程用来处理请求，而worker的个数是有限的，当并发高的时候nginx是如何应对的呢？这里不得不提到一个概念<code>异步非阻塞</code>(参考UNP卷一第三版P160页的介绍)关于这个过程<a href="http://tengine.taobao.org/book/chapter_02.html" target="_blank" rel="noopener">nginx平台初探</a>介绍的很好，直接COPY过来:</p>
+<blockquote>
+<p>为什么nginx可以采用异步非阻塞的方式来处理呢，或者异步非阻塞到底是怎么回事呢？我们先回到原点，看看一个请求的完整过程。首先，请求过来，要建立连接，然后再接收数据，接收数据后，再发送数据。具体到系统底层，就是读写事件，而当读写事件没有准备好时，必然不可操作，如果不用非阻塞的方式来调用，那就得阻塞调用了，事件没有准备好，那就只能等了，等事件准备好了，你再继续吧。阻塞调用会进入内核等待，cpu就会让出去给别人用了，对单线程的worker来说，显然不合适，当网络事件越多时，大家都在等待呢，cpu空闲下来没人用，cpu利用率自然上不去了，更别谈高并发了。好吧，你说加进程数，这跟apache的线程模型有什么区别，注意，别增加无谓的上下文切换。所以，在nginx里面，最忌讳阻塞的系统调用了。不要阻塞，那就非阻塞喽。非阻塞就是，事件没有准备好，马上返回EAGAIN，告诉你，事件还没准备好呢，你慌什么，过会再来吧。好吧，你过一会，再来检查一下事件，直到事件准备好了为止，在这期间，你就可以先去做其它事情，然后再来看看事件好了没。虽然不阻塞了，但你得不时地过来检查一下事件的状态，你可以做更多的事情了，但带来的开销也是不小的。所以，才会有了异步非阻塞的事件处理机制，具体到系统调用就是像select/poll/epoll/kqueue这样的系统调用。它们提供了一种机制，让你可以同时监控多个事件，调用他们是阻塞的，但可以设置超时时间，在超时时间之内，如果有事件准备好了，就返回。这种机制正好解决了我们上面的两个问题，拿epoll为例(在后面的例子中，我们多以epoll为例子，以代表这一类函数)，当事件没准备好时，放到epoll里面，事件准备好了，我们就去读写，当读写返回EAGAIN时，我们将它再次加入到epoll里面。这样，只要有事件准备好了，我们就去处理它，只有当所有事件都没准备好时，才在epoll里面等着。这样，我们就可以并发处理大量的并发了，当然，这里的并发请求，是指未处理完的请求，线程只有一个，所以同时能处理的请求当然只有一个了，只是在请求间进行不断地切换而已，切换也是因为异步事件未准备好，而主动让出的。这里的切换是没有任何代价，你可以理解为循环处理多个准备好的事件，事实上就是这样的。与多线程相比，这种事件处理方式是有很大的优势的，不需要创建线程，每个请求占用的内存也很少，没有上下文切换，事件处理非常的轻量级。并发数再多也不会导致无谓的资源浪费（上下文切换）。更多的并发数，只是会占用更多的内存而已。 我之前有对连接数进行过测试，在24G内存的机器上，处理的并发请求数达到过200万。现在的网络服务器基本都采用这种方式，这也是nginx性能高效的主要原因。</p>
+</blockquote>
+<p>所以推荐设置worker的个数为cpu的核数，在这里就很容易理解了，更多的worker数，只会导致进程来竞争cpu资源了，从而带来不必要的上下文切换。而且，nginx为了更好的利用多核特性，提供了cpu亲缘性的绑定选项，我们可以将某一个进程绑定在某一个核上，这样就不会因为进程的切换带来cache的失效。</p>
+<h3 id="nginx”惊群”现象与解决方案"><a href="#nginx”惊群”现象与解决方案" class="headerlink" title="nginx”惊群”现象与解决方案"></a>nginx”惊群”现象与解决方案</h3><p>worker进程之间是平等的，每个进程，处理请求的机会也是一样的。当我们提供80端口的http服务时，一个连接请求过来，每个进程都有可能处理这个连接，怎么做到的呢？首先，每个worker进程都是从master进程fork过来，在master进程里面，先建立好需要listen的socket（listenfd）之后，然后再fork出多个worker进程。所有worker进程的listenfd会在新连接到来时变得可读，为保证只有一个进程处理该连接，所有worker进程在注册listenfd读事件前抢accept_mutex，抢到互斥锁的那个进程注册listenfd读事件，在读事件里调用accept接受该连接。当一个worker进程在accept这个连接之后，就开始读取请求，解析请求，处理请求，产生数据后，再返回给客户端，最后才断开连接，这样一个完整的请求就是这样的了。我们可以看到，一个请求，完全由worker进程来处理，而且只在一个worker进程中处理。</p>
+<p>因为这里主要是对比apache与nginx的原理的不同，所以更深入的探讨nginx这里先不做介绍更深入的探讨nginx这里先不做介绍，以后有机会学习nginx源码的时候再写。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="http://httpd.apache.org/docs/2.4/zh-cn/mpm.html" target="_blank" rel="noopener">多处理模块(MPM)</a><br><a href="http://blog.csdn.net/hguisu/article/details/7395181" target="_blank" rel="noopener">Apache运行机制剖析</a><br><a href="http://tengine.taobao.org/book/chapter_02.html" target="_blank" rel="noopener">nginx平台初探</a><br><a href="http://alicsd.iteye.com/blog/865531" target="_blank" rel="noopener">客户/服务器程序设计范式</a><br><a href="http://blog.csdn.net/russell_tao/article/details/7204260" target="_blank" rel="noopener">“惊群”，看看nginx是怎么解决它的</a><br><a href="http://blog.csdn.net/zbszhangbosen/article/details/7982402" target="_blank" rel="noopener">web服务器nginx和apache的对比分析</a></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/apache/">apache</a><a href="/tags/nginx/">nginx</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/09/15/PHP-array-hash-key-overflow/"><span>PHP数组的key溢出问题</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/09/15/PHP-array-hash-key-overflow/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-09-15T02:52:49.000Z">
+          2015-09-15
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>作为PHP最重要的数据类型HashTable其key值是有一定的范围的，如果设置的key值过大就会出现溢出的问题，下面根据其内部结构及实现原理详细探讨一下key值溢出问题。</p>
+</blockquote>
+<p>下面先给出一个key溢出的例子:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$arr[<span class="number">1</span>] = <span class="string">'1'</span>;</span><br><span class="line">$arr[<span class="number">18446744073708551617333333333333</span>] = <span class="string">'18446744073708551617333333333333'</span>;</span><br><span class="line">$arr[] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">4294967296</span>] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">9223372036854775807</span>] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">9223372036854775808</span>] = <span class="string">'test'</span>;</span><br><span class="line">var_dump($arr);</span><br></pre></td></tr></table></figure></p>
+<p>上面代码的输出结果如下:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">array</span>(<span class="number">6</span>) &#123;</span><br><span class="line">  [<span class="number">1</span>]=&gt;</span><br><span class="line">  string(<span class="number">1</span>) <span class="string">"1"</span></span><br><span class="line">  [<span class="number">-999799117276250112</span>]=&gt;</span><br><span class="line">  string(<span class="number">32</span>) <span class="string">"18446744073708551617333333333333"</span></span><br><span class="line">  [<span class="number">2</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">4294967296</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">9223372036854775807</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">-9223372036854775808</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到当key值比较小是没有问题，当key值很大时输出的值溢出了，临界点是<code>9223372036854775807</code>这个数字。<br>下面分析一下原因 。首先我们先分析一下HashTable的结构(本文分析的是php-5.5.15版本的源码),可以通过源码看一下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* file: Zend/zend_hash.h */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> &#123;</span></span><br><span class="line">    ulong h;                        <span class="comment">/* Used for numeric indexing */</span> <span class="comment">/*对char *key进行hash后的值，或者是用户指定的数字索引值，可能会溢出*/</span></span><br><span class="line">    uint nKeyLength; <span class="comment">/*hash关键字的长度，如果数组索引为数字，此值为0*/</span></span><br><span class="line">    <span class="keyword">void</span> *pData; <span class="comment">/*指向value,一般是用户数据的副本，如果是指针数据，则指向pDataPtr*/</span></span><br><span class="line">    <span class="keyword">void</span> *pDataPtr; <span class="comment">/*如果是指针数据，此值会指向真正的value,同时上面pData会指向此值*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pListNext</span>;</span> <span class="comment">/*整个hash表的下一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pListLast</span>;</span> <span class="comment">/*整个hash表该元素的上一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pNext</span>;</span> <span class="comment">/*存放在同一个hash Bucket的下一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pLast</span>;</span> <span class="comment">/*同一个hash bucket的上一个元素*/</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *arKey; <span class="comment">/*保存当前值所对于的key字符串,这个字段只能定义在最后,实现变长结构体*/</span></span><br><span class="line">&#125; Bucket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">hashtable</span> &#123;</span></span><br><span class="line">    uint nTableSize; <span class="comment">/*hash Bucket的大小，最小为8，最以2*x增长*/</span></span><br><span class="line">    uint nTableMask; <span class="comment">/*nTableSize-1, 索引取值的优化*/</span></span><br><span class="line">    uint nNumOfElements; <span class="comment">/*hash Bucket中当前存在的元素个数， count()函数会直接返回此值*/</span></span><br><span class="line">    ulong nNextFreeElement; <span class="comment">/*下一个数字索引的位置*/</span></span><br><span class="line">    Bucket *pInternalPointer;   <span class="comment">/* Used for element traversal ,当前遍历的指针，foreach比for快的原因之一,这个指针指向当前激活的元素*/</span></span><br><span class="line">    Bucket *pListHead; <span class="comment">/*存储数组头元素指针*/</span></span><br><span class="line">    Bucket *pListTail; <span class="comment">/*存储数组尾元素指针*/</span></span><br><span class="line">    Bucket **arBuckets; <span class="comment">/*存储hash数组*/</span></span><br><span class="line">    <span class="keyword">dtor_func_t</span> pDestructor; <span class="comment">/*在删除元素时执行的回调函数，用于资源的释放*/</span></span><br><span class="line">    zend_bool persistent; <span class="comment">/*指出了Bucket内存分配的方式。如果persistent为TRUE，则使用操作系统本身的内存分配函数为Bucket分配内存，否则使用PHP的内存分配函数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> nApplyCount; <span class="comment">/*标记当前hash Bucket被递归访问的次数(防止多次递归)*/</span></span><br><span class="line">    zend_bool bApplyProtection; <span class="comment">/*标记当前hash桶允许不允许多次访问。不允许时，最多只能递归3次*/</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> ZEND_DEBUG</span></span><br><span class="line">    <span class="keyword">int</span> inconsistent;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line">&#125; HashTable;</span><br></pre></td></tr></table></figure>
+<p>假设我们已经对源码有了一定的了解了，我们可以知道<code>bucket.h</code>就是我们存储的key值，<code>bucket.h</code>的生成方法是根据<code>time33</code>算法获取的,对应到代码实现如下:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对于字符串类型的key</span></span><br><span class="line">ZEND_API <span class="keyword">int</span> _zend_hash_add_or_update(HashTable *ht, <span class="keyword">const</span> <span class="keyword">char</span> *arKey, uint nKeyLength, <span class="keyword">void</span> *pData, uint nDataSize, <span class="keyword">void</span> **pDest, <span class="keyword">int</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    ulong h;</span><br><span class="line">    uint nIndex;</span><br><span class="line">    Bucket *p;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> ZEND_SIGNALS</span></span><br><span class="line">    TSRMLS_FETCH();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line"></span><br><span class="line">    ZEND_ASSERT(nKeyLength != <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    CHECK_INIT(ht);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//算出来hash key后需要根据hashTable的长度，把nIndex限制在这个长度内(通过nTableMask)</span></span><br><span class="line">    h = zend_inline_hash_func(arKey, nKeyLength);</span><br><span class="line">    nIndex = h &amp; ht-&gt;nTableMask;</span><br><span class="line"></span><br><span class="line">    p = ht-&gt;arBuckets[nIndex];</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//对于数字类型的key</span></span><br><span class="line">ZEND_API <span class="keyword">int</span> _zend_hash_index_update_or_next_insert(HashTable *ht, ulong h, <span class="keyword">void</span> *pData, uint nDataSize, <span class="keyword">void</span> **pDest, <span class="keyword">int</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    uint nIndex;</span><br><span class="line">    Bucket *p;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> ZEND_SIGNALS</span></span><br><span class="line">    TSRMLS_FETCH();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line">    CHECK_INIT(ht);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 如果是新增元素(如$arr[] = 'hello'), 则使用nNextFreeElement值作为hash值,否则直接使用传入的key h 最为hash值 */</span></span><br><span class="line">    <span class="keyword">if</span> (flag &amp; HASH_NEXT_INSERT) &#123;</span><br><span class="line">        h = ht-&gt;nNextFreeElement;</span><br><span class="line">    &#125;</span><br><span class="line">    nIndex = h &amp; ht-&gt;nTableMask;</span><br><span class="line"></span><br><span class="line">    p = ht-&gt;arBuckets[nIndex];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//字符串的hash函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> ulong <span class="title">zend_inline_hash_func</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *arKey, uint nKeyLength)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">register</span> ulong hash = <span class="number">5381</span>; <span class="comment">//这个常量是哪儿来的？</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* variant with the hash unrolled eight times */</span></span><br><span class="line">    <span class="keyword">for</span> (; nKeyLength &gt;= <span class="number">8</span>; nKeyLength -= <span class="number">8</span>) &#123;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">switch</span> (nKeyLength) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">7</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">6</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">5</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">4</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0</span>: <span class="keyword">break</span>;</span><br><span class="line">EMPTY_SWITCH_DEFAULT_CASE()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面函数主要是插入或更新hashTable的函数，当插入的key是数字时，这个数字就是hastTable的索引值，其key值不经过hash算法，只经过<code>nIndex = h &amp; ht-&gt;nTableMask;</code>来确保存储的值范围属于hastTable的范围内，所以可以看出索引值<code>key</code> ,与其对应的时<code>nIndex</code>这个值，正在存储的槽位就是<code>nIndex</code>这个地方。</p>
+<p>这个key类型是<code>ulong</code>，也就是<code>unsigned long</code>类型。由于我们的机器是64位的，所以<code>unsigned long</code>类型的取值范围应该是<code>0~1844674407370955161</code>。PHP有两个预定义的变量<code>PHP_INT_MAX</code>和<code>PHP_INT_SIZE</code>对于64位的机器他们的值分别是9223372036854775807和8，这恰好是hasttable所能表示key的最大值,到这里也许你会有一个疑问:为什么<code>PHP_INT_MAX</code>的值比<code>key</code>的范围不一致?<br>要回答这个问题首先要知道，hastTable的key输出可以是负值，这是怎么做到的呢？其实一个hashTable的hash值一定是一个正整数才行，但是输出的数和hash值只是一个对应关系，不需要都为正整数， 虽然我们定义的参数为<code>unsigned long</code>,其实我们却可以传一个负数,比如<code>$arr[-1] = &#39;test&#39;</code>，这时候也是和传递一个正数的处理过程是一样的。这时候<code>h</code>的值其实是<code>-1</code>的补码。再回到上面的问题，为什么<code>PHP_INT_MAX</code>的值比<code>key</code>范围不一致。当我们负值 PHP_INT_MAX时，其值是<code>9223372036854775807</code>，当赋值再比这个大时,输出的却是负数。这其实跟我们使用<code>var_dump</code>这个函数有关系, 下面代码是使用var_dump输出数组时所使用的方法:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">php_array_element_dump</span><span class="params">(zval **zv TSRMLS_DC, <span class="keyword">int</span> num_args, va_list args, zend_hash_key *hash_key)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line"></span><br><span class="line">    level = va_arg(args, <span class="keyword">int</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hash_key-&gt;nKeyLength == <span class="number">0</span>) &#123; <span class="comment">/* numeric key */</span></span><br><span class="line">        php_printf(<span class="string">"%*c[%ld]=&gt;\n"</span>, level + <span class="number">1</span>, <span class="string">' '</span>, hash_key-&gt;h);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">/* string key */</span></span><br><span class="line">        php_printf(<span class="string">"%*c[\""</span>, level + <span class="number">1</span>, <span class="string">' '</span>);</span><br><span class="line">        PHPWRITE(hash_key-&gt;arKey, hash_key-&gt;nKeyLength - <span class="number">1</span>);</span><br><span class="line">        php_printf(<span class="string">"\"]=&gt;\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    php_var_dump(zv, level + <span class="number">2</span> TSRMLS_CC);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，当key为数字时输出的格式时<code>%ld</code>,值是<code>hash_key-&gt;h</code>，这就是问题所在了，存储的是一个<code>unsigned long</code>，输出的却是<code>long</code>，当值比<code>long</code>大时，自然输出的就是负数了。</p>
+<p>总结: PHP的hastTable是通过链表法实现的，按说是不会存在溢出的问题，但是其索引值表示的范围有限，当超出索引值时就会造成溢出，这个溢出只存在当索引值为数字时，输入的数字为正，输出却为负值的原因是函数参数与输出的类型不一致导致的。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/08/14/mean-primer/"><span>mean primer</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/08/14/mean-primer/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-08-14T06:57:05.000Z">
+          2015-08-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h1 id="MEAN入门"><a href="#MEAN入门" class="headerlink" title="MEAN入门"></a>MEAN入门</h1><h2 id="MEAN简介"><a href="#MEAN简介" class="headerlink" title="MEAN简介"></a>MEAN简介</h2><h3 id="什么是MEAN"><a href="#什么是MEAN" class="headerlink" title="什么是MEAN?"></a>什么是MEAN?</h3><p>根据<a href="http://meanjs.org/" target="_blank" rel="noopener">官方文档</a>, MEAN就是MongoDB +  Express +  AngularJS +  Node.js的组合。那么组成MEAN的各个部分又分别是什么? </p>
+<ul>
+<li><code>MongoDB</code>: 是一个基于分布式文件存储的NoSQL数据库。具体介绍和使用方法请参考<a href="http://docs.mongodb.org/manual/core/introduction/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>Express</code>: 是一个简洁、灵活的Node.js Web应用开发框架。其实和PHP的MVC框架作用是一样的。详细介绍参见<a href="http://expressjs.com/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>AngularJS</code>: 前端的MVC框架，更接近于 MVVM（Model-View-ViewModel)。具体介绍参考<a href="https://angularjs.org/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>Node.js</code>: javascript的一个解析器，提供js在服务器端的运行环境。<a href="https://nodejs.org/" target="_blank" rel="noopener">官方网站</a></li>
+</ul>
+<h3 id="为什么是这个组合"><a href="#为什么是这个组合" class="headerlink" title="为什么是这个组合?"></a>为什么是这个组合?</h3><p>大家已经熟悉了LAMP/LNMP的开发模式，这些开发模式已经能够满足了现在web开发的绝大部分需求。而新型的MEAN开发模式则是另外一个尝试,其目的是为了解决现在开发中的一些问题，是开发更加高效。总结起来主要有以下几个优点:</p>
+<ul>
+<li>Web服务器包含在了应用程序中，可以自动安装，部署过程得到了极大简化。</li>
+<li>从传统数据库到NoSQL再到以文档为导向的持久存储MongoDB，使用户花费在编写SQL上的时间减少，有更多的时间编写js中的映射/化简功能。还能节省大量的转换逻辑(因为MongoDB存储的时JSON对象，js可以直接用)</li>
+<li>得益于AngularJS,从传统的服务器端页面变为客户端单页面应用程序越来越方便。</li>
+</ul>
+<blockquote>
+<p>以上内容参考来源:<a href="http://www.ibm.com/developerworks/cn/web/wa-mean1/" target="_blank" rel="noopener">http://www.ibm.com/developerworks/cn/web/wa-mean1/</a></p>
+</blockquote>
+<p>另外，任何开发模式都不是万能的，也就是没有银弹，这种开发模式可以給大家带来很多新的思想,开拓思路,对大家以后应对不同应用场景的需求是提供更多的参考。</p>
+<h2 id="MEAN安装"><a href="#MEAN安装" class="headerlink" title="MEAN安装"></a>MEAN安装</h2><p>MEAN只是一个组合，可以自己单独安装配置各个模块，也有现成的集成方案，如<a href="http://meanjs.org/" target="_blank" rel="noopener">meanjs</a>和<a href="http://mean.io/" target="_blank" rel="noopener">mean.io</a>(关于他们之间的区别可以参考stackoverflow上面的<a href="http://stackoverflow.com/questions/23199392/difference-between-mean-js-and-mean-io" target="_blank" rel="noopener">讨论</a>)。这里我们选择的是meanjs作为开发框架。</p>
+<p>meanjs的安装可以参考<a href="http://meanjs.org/docs.html#getting-started" target="_blank" rel="noopener">官方文档</a>。这里需要提前介绍一下安装时用到的一些工具及安装遇到的问题和解决方案。</p>
+<h3 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h3><ul>
+<li><code>npm</code>: 是Node Package Manage的简称,Node.js的包管理工具,它的主要功能就是管理node包，包括：安装、卸载、更新、查看、搜索、发布等。这个类似于centos系统上的yum工具. 可以通过package.json对npm进行配置。可以访问<a href="https://www.npmjs.com/" target="_blank" rel="noopener">官网</a>查看相关文档，也可以编写自己的npm包提交上去。(安利一下我写的一个很简单的包:<a href="https://www.npmjs.com/package/hexo-tag-plantuml" target="_blank" rel="noopener">https://www.npmjs.com/package/hexo-tag-plantuml</a>)</li>
+<li><code>bower</code>: 也是包管理工具,由twitter推出.他和npm的区别是npm针对服务端的工具进行管理，bower则是主要管理前端页面的js依赖关系。通过bower.json和.bowerrc进行配置.</li>
+<li><code>grunt</code>: 构建javascript的工具,可以自动的完成代码规范的检查，文件合并，文件压缩，单元测试等流程(参考这边文档<a href="http://www.cnblogs.com/chyingp/archive/2013/05/11/grunt_getting_started.html" target="_blank" rel="noopener">grunt从入门到自定义项目模板</a>).详细信息参考<a href="http://gruntjs.com/" target="_blank" rel="noopener">官网</a>。</li>
+</ul>
+<h3 id="安装流程"><a href="#安装流程" class="headerlink" title="安装流程"></a>安装流程</h3><p>这部分上面提到的meanjs官网有详细的步骤，简单概况一下就是:</p>
+<ol>
+<li>安装Node.js&amp;npm, MongoDB, Bower, Grunt等</li>
+<li>下载源码: <code>git clone https://github.com/meanjs/mean.git meanjs</code></li>
+<li><p>进入meanjs目录，执行<code>npm install ; bower install</code>,执行bower使用会出现下面的提示:</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Since bower is a user command, there is no need to execute it with superuser permissions.</span><br><span class="line">If you&apos;re having permission errors when using bower without sudo, please spend a few minutes learning more about how your system should work and make any necessary repairs.</span><br><span class="line"></span><br><span class="line">http://www.joyent.com/blog/installing-node-and-npm</span><br><span class="line">https://gist.github.com/isaacs/579814</span><br><span class="line"></span><br><span class="line">You can however run a command with sudo using --allow-root option</span><br></pre></td></tr></table></figure>
+<p> 需要通过<code>bower install --allow-root</code>命令来执行安装。</p>
+</li>
+</ol>
+<p>只需要这些，一个完成的网站就建成了。meanjs自带了一个博客登陆体系和博客浏览发布的功能。<br>在根目录下运行<code>grunt</code>命令就可以启动服务器了，默认的端口是3000，我们可以通过ip:3000的方式来访问这个网站。</p>
+<h2 id="meanjs结构简介"><a href="#meanjs结构简介" class="headerlink" title="meanjs结构简介"></a>meanjs结构简介</h2><p>首先进入根目录可以看到如下的文件内容:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[@tc_214_162 meanjs]# tree -aL 1</span><br><span class="line">.</span><br><span class="line">├── app                     #后端MVC的内容目录</span><br><span class="line">├── bower.json              #bower配置包管理的文件</span><br><span class="line">├── .bowerrc                #配置安装路径</span><br><span class="line">├── config                  #相关配置目录</span><br><span class="line">├── .csslintrc</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── .editorconfig</span><br><span class="line">├── fig.yml                 </span><br><span class="line">├── .git</span><br><span class="line">├── .gitignore</span><br><span class="line">├── gruntfile.js           #grunt相关配置</span><br><span class="line">├── .jshintrc</span><br><span class="line">├── karma.conf.js</span><br><span class="line">├── LICENSE.md</span><br><span class="line">├── node_modules          #node模块的安装目录</span><br><span class="line">├── package.json          #npm包管理配置</span><br><span class="line">├── Procfile</span><br><span class="line">├── public                #前端内容</span><br><span class="line">├── README.md</span><br><span class="line">├── scripts               #独立脚本目录</span><br><span class="line">├── server.js             #服务运行的入口文件</span><br><span class="line">├── .slugignore</span><br><span class="line">└── .travis.yml</span><br></pre></td></tr></table></figure></p>
+<p>后端MVC的主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">├── controllers    #C层 </span><br><span class="line">├── models         #M层 </span><br><span class="line">├── routes         #路由规则</span><br><span class="line">├── tests</span><br><span class="line">└── views          #V层</span><br></pre></td></tr></table></figure></p>
+<p>前端主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public/</span><br><span class="line">├── application.js        #应用入口</span><br><span class="line">├── config.js             #应用配置</span><br><span class="line">├── humans.txt</span><br><span class="line">├── lib                   #angular相关库文件</span><br><span class="line">├── modules               #angular不同模块</span><br><span class="line">└── robots.txt</span><br></pre></td></tr></table></figure></p>
+<p>angular的模块结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public/modules/</span><br><span class="line">├── articles</span><br><span class="line">│   ├── articles.client.module.js</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers         #angular的C</span><br><span class="line">│   ├── services            #angular的服务层</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views               #V层</span><br><span class="line">├── core</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers</span><br><span class="line">│   ├── core.client.module.js</span><br><span class="line">│   ├── css</span><br><span class="line">│   ├── img</span><br><span class="line">│   ├── services</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views</span><br><span class="line">└── users</span><br><span class="line">    ├── config</span><br><span class="line">    ├── controllers</span><br><span class="line">    ├── css</span><br><span class="line">    ├── img</span><br><span class="line">    ├── services</span><br><span class="line">    ├── tests</span><br><span class="line">    ├── users.client.module.js</span><br><span class="line">    └── views</span><br></pre></td></tr></table></figure></p>
+<p>要相对上面的结构有清晰的了解，必须对熟悉各个模块的用法，还要了解一个页面从访问到展现的流程是怎么样。 下面通过一个页面的访问流程来对整个架构的工作流程有一个大概的认识。</p>
+<h2 id="打开一个页面的流程"><a href="#打开一个页面的流程" class="headerlink" title="打开一个页面的流程"></a>打开一个页面的流程</h2><p>为了便于我们假设你已经注册登录并创建了几篇文章，下面我们就依据对文章列表页的打开流程进行介绍。</p>
+<ol>
+<li><p>首先通过menu进入文章列表页:<code>http://localhost:3000/#!/articles</code>我们可以看到文章的列表。通过观察这个url可以看出，其实<code>#</code>是一个锚点，后台的部分只是hash参数，前面的才是真正的url,也就是我们其实访问的是根目录，通过访问日志也可以看出来:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">GET / 200 26.246 ms - -</span><br><span class="line">GET /modules/core/css/core.css 200 31.710 ms - 354</span><br><span class="line">GET /modules/users/css/users.css 200 26.138 ms - 211</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css 200 41.393 ms - -</span><br><span class="line">GET /lib/angular-resource/angular-resource.js 200 15.583 ms - -</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css 200 81.453 ms - -</span><br><span class="line">GET /lib/angular-animate/angular-animate.js 200 36.241 ms - -</span><br><span class="line">GET /lib/angular-ui-utils/ui-utils.js 200 22.724 ms - -</span><br><span class="line">GET /lib/angular-bootstrap/ui-bootstrap-tpls.js 200 28.636 ms - -</span><br><span class="line">GET /lib/angular-ui-router/release/angular-ui-router.js 200 44.805 ms - -</span><br><span class="line">GET /config.js 200 24.392 ms - 791</span><br><span class="line">GET /application.js 200 37.393 ms - 1016</span><br><span class="line">GET /modules/articles/articles.client.module.js 200 30.888 ms - 133</span><br><span class="line">GET /modules/core/core.client.module.js 200 24.737 ms - 129</span><br><span class="line">GET /modules/users/users.client.module.js 200 18.616 ms - 129</span><br><span class="line">GET /modules/articles/config/articles.client.config.js 200 13.114 ms - 389</span><br><span class="line">GET /lib/angular/angular.js 200 161.376 ms - -</span><br><span class="line">GET /modules/articles/config/articles.client.routes.js 200 36.936 ms - 700</span><br><span class="line">GET /modules/articles/services/articles.client.service.js 200 25.093 ms - 295</span><br><span class="line">GET /modules/core/config/core.client.routes.js 200 19.327 ms - 384</span><br><span class="line">GET /modules/core/controllers/header.client.controller.js 200 13.791 ms - 495</span><br><span class="line">GET /modules/articles/controllers/articles.client.controller.js 200 34.063 ms - -</span><br><span class="line">GET /modules/core/controllers/home.client.controller.js 200 43.584 ms - 224</span><br><span class="line">GET /modules/users/config/users.client.config.js 200 31.473 ms - 708</span><br><span class="line">GET /modules/core/services/menus.client.service.js 200 39.634 ms - -</span><br><span class="line">GET /modules/users/config/users.client.routes.js 200 27.816 ms - -</span><br><span class="line">GET /modules/users/controllers/authentication.client.controller.js 200 22.157 ms - -</span><br><span class="line">GET /modules/users/controllers/password.client.controller.js 200 17.350 ms - -</span><br><span class="line">GET /modules/users/controllers/settings.client.controller.js 200 21.926 ms - -</span><br><span class="line">GET /modules/users/services/authentication.client.service.js 200 15.335 ms - 202</span><br><span class="line">GET /modules/users/services/users.client.service.js 200 9.742 ms - 244</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css.map 200 8.378 ms - 47721</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css.map 200 49.468 ms - 390518</span><br><span class="line">GET /modules/articles/views/list-articles.client.view.html 200 8.756 ms - 819</span><br><span class="line">GET /modules/core/views/header.client.view.html 200 17.955 ms - -</span><br><span class="line">GET /articles 200 24.296 ms - 407</span><br><span class="line">GET /modules/core/img/brand/favicon.ico 200 12.350 ms - 32038</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>请求到达之后首先会根据<code>app/routes</code>目录下面的路由规则进行匹配，<code>app/routes/core.server.routes.js</code>匹配到了这个路由,其内容入下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">module.exports = function(app) &#123;</span><br><span class="line">    // Root routing</span><br><span class="line">    var core = require(&apos;../../app/controllers/core.server.controller&apos;);</span><br><span class="line">    app.route(&apos;/&apos;).get(core.index);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以看出这个请求匹配到后交给了<code>core.index</code>进行处理,<code>app/controllers/core.server.controller.js</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">exports.index = function(req, res) &#123;</span><br><span class="line">    res.render(&apos;index&apos;, &#123;</span><br><span class="line">        user: req.user || null,</span><br><span class="line">        request: req</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>index函数并接收到请求后对<code>&#39;index&#39;</code>模板进行了渲染,模板文件<code>app/views/index.server.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &apos;layout.server.view.html&apos; %&#125;</span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    &lt;section data-ui-view&gt;&lt;/section&gt;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个模板继承了<code>layout</code>模板，并且重写了content的block内容。<br>我们再看一下被继承的模板<code>app/views/layout.server.view.html</code>其主要内容入如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;header data-ng-include=&quot;&apos;/modules/core/views/header.client.view.html&apos;&quot; class=&quot;navbar navbar-fixed-top navbar-inverse&quot;&gt;&lt;/header&gt;</span><br><span class="line">    &lt;section class=&quot;content&quot;&gt;</span><br><span class="line">        &lt;section class=&quot;container&quot;&gt;</span><br><span class="line">            &#123;% block content %&#125;&#123;% endblock %&#125;</span><br><span class="line">        &lt;/section&gt;</span><br><span class="line">    &lt;/section&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Embedding The User Object--&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">        var user = &#123;&#123; user | json | safe &#125;&#125;;</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Application JavaScript Files--&gt;</span><br><span class="line">    &#123;% for jsFile in jsFiles %&#125;</span><br><span class="line">        &lt;script type=&quot;text/javascript&quot; src=&quot;&#123;&#123;jsFile&#125;&#125;&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line">    &#123;% if process.env.NODE_ENV === &apos;development&apos; %&#125;</span><br><span class="line">    &lt;!--Livereload script rendered --&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot; src=&quot;http://&#123;&#123;request.hostname&#125;&#125;:35729/livereload.js&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面的主要功是加载页面所需的js文件，这些文件的配置都在<code>config</code>里。根据上面的访问日志可以看出主要<code>public</code>下的js文件都被加载了。<br>到这里服务端的工作已经完成一半了。</p>
+<ol start="3">
+<li>前端js加载后，angular就开始发挥作用了。angular也是一套MVC框架。在进入流程之前我们再次观察一下URL。我们打开主页时会发现url变成了<code>http://localhost:3000/#!/</code>。为什么url会自动加上这部分内容，又为什么需要加这部分内容呢？<br>根据官方文档<a href="https://docs.angularjs.org/guide/$location" target="_blank" rel="noopener">$locaiton</a> Hashbang and HTML5 Modes部分的介绍,这应该是和浏览器对history支持的兼容性有关系。具体介绍可以看文档。 angualr的路由匹配规则其实是从<code>#!</code>之后开始的。再回到本页，<code>public/modules/articles/config/articles.client.routes.js</code>匹配到了当前规则代码如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state(&apos;listArticles&apos;, &#123;</span><br><span class="line">url: &apos;/articles&apos;,</span><br><span class="line">templateUrl: &apos;modules/articles/views/list-articles.client.view.html&apos;</span><br><span class="line">&#125;).</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以看出当匹配时，angualr会自动加载<code>templateUrl</code>到页面片上来，在观察一下被加载的页面片<code>public/modules/articles/views/list-articles.client.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;section data-ng-controller=&quot;ArticlesController&quot; data-ng-init=&quot;find()&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;page-header&quot;&gt;</span><br><span class="line">        &lt;h1&gt;Articles&lt;/h1&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;list-group&quot;&gt;</span><br><span class="line">        &lt;a data-ng-repeat=&quot;article in articles&quot; data-ng-href=&quot;#!/articles/&#123;&#123;article._id&#125;&#125;&quot; class=&quot;list-group-item&quot;&gt;</span><br><span class="line">            &lt;small class=&quot;list-group-item-text&quot;&gt;</span><br><span class="line">                Posted on</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.created | date:&apos;mediumDate&apos;&quot;&gt;&lt;/span&gt;</span><br><span class="line">                by</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.user.displayName&quot;&gt;&lt;/span&gt;</span><br><span class="line">            &lt;/small&gt;</span><br><span class="line">            &lt;h4 class=&quot;list-group-item-heading&quot; data-ng-bind=&quot;article.title&quot;&gt;&lt;/h4&gt;</span><br><span class="line">            &lt;p class=&quot;list-group-item-text&quot; data-ng-bind=&quot;article.content&quot;&gt;&lt;/p&gt;</span><br><span class="line">        &lt;/a&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;alert alert-warning text-center&quot; data-ng-if=&quot;articles.$resolved &amp;&amp; !articles.length&quot;&gt;</span><br><span class="line">        No articles yet, why don&apos;t you &lt;a href=&quot;/#!/articles/create&quot;&gt;create one&lt;/a&gt;?</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure></p>
+<p>页面加载后执行<code>find()</code>函数，这个函数在控制层文件<code>public/modules/articles/controllers/articles.client.controller.js</code>里可以看到:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$scope.find = function() &#123;</span><br><span class="line">    $scope.articles = Articles.query();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数调用了<code>Articels.query()</code>方法，这个方法是Angualr的一个注册的service(参考文档<a href="https://docs.angularjs.org/guide/services" target="_blank" rel="noopener">Services</a>), 位于文件<code>public/modules/articles/services/articles.client.service.js</code>中，代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//Articles service used for communicating with the articles REST endpoints</span><br><span class="line">angular.module(&apos;articles&apos;).factory(&apos;Articles&apos;, [&apos;$resource&apos;,</span><br><span class="line">    function($resource) &#123;</span><br><span class="line">        return $resource(&apos;articles/:articleId&apos;, &#123;</span><br><span class="line">            articleId: &apos;@_id&apos;</span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            update: &#123;</span><br><span class="line">                method: &apos;PUT&apos;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure></p>
+<p>看到并没有定义<code>query</code>方法,是因为这方法是<code>$resource</code>默认的(参考<a href="https://docs.angularjs.org/api/ngResource/service/$resource" target="_blank" rel="noopener">$resource</a>),代码中<code>articleId</code>是参数，本次查询并没有传递参数，所以实际访问的url是<code>/articles</code>,这个是一个RESTful接口，返回的结果赋值給<code>$scope.articles</code>,就可以在前端正常展示文章列表了。</p>
+<ol start="4">
+<li>第3步的最后提到了访问<code>/articles</code>接口，这个接口的作用就是从数据库取数据然后在返回到前端。当访问接口时，服务器接到请求,文件<code>app/routes/articles.server.routes.js</code>匹配到路由规则：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.route(&apos;/articles&apos;)</span><br><span class="line">    .get(articles.list)</span><br><span class="line">    .post(users.requiresLogin, articles.create);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>由于是get方法，所以需求转给了<code>articles.list</code>方法进行处理，<code>app/controllers/articles.server.controller.js</code>中<code>list</code>方法代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">exports.list = function(req, res) &#123;</span><br><span class="line">    Article.find().sort(&apos;-created&apos;).populate(&apos;user&apos;, &apos;displayName&apos;).exec(function(err, articles) &#123;</span><br><span class="line">        if (err) &#123;</span><br><span class="line">            return res.status(400).send(&#123;</span><br><span class="line">                message: errorHandler.getErrorMessage(err)</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            res.json(articles);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>Articles</code>这个对象是这个文件前面定义的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Article = mongoose.model(&apos;Article&apos;)</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>mongoose</code>是MongoDB的一个js封装库,这个module是在<code>app/models/article.server.model.js</code>下定义并注册的，代码如下:  </p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">var mongoose = require(&apos;mongoose&apos;),</span><br><span class="line">    Schema = mongoose.Schema;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Article Schema</span><br><span class="line"> */</span><br><span class="line">var ArticleSchema = new Schema(&#123;</span><br><span class="line">    created: &#123;</span><br><span class="line">        type: Date,</span><br><span class="line">        default: Date.now</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true,</span><br><span class="line">        required: &apos;Title cannot be blank&apos;</span><br><span class="line">    &#125;,</span><br><span class="line">    content: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true</span><br><span class="line">    &#125;,</span><br><span class="line">    user: &#123;</span><br><span class="line">        type: Schema.ObjectId,</span><br><span class="line">        ref: &apos;User&apos;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">mongoose.model(&apos;Article&apos;, ArticleSchema);</span><br></pre></td></tr></table></figure>
+</code></pre><p>到这里，整个页面从访问到处理到返回数据和渲染页面的流程就完毕了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/MEAN/">MEAN</a><a href="/tags/angularjs/">angularjs</a><a href="/tags/express/">express</a><a href="/tags/nodejs/">nodejs</a><a href="/tags/moongodb/">moongodb</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/05/28/http-cache/"><span>HTTP缓存机制</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/05/28/http-cache/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-05-28T08:38:39.000Z">
+          2015-05-28
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>HTTP缓存是web开发中经常碰到的问题，但是之前虽然看过，那时候web开发刚开始做，概念有点儿模糊不清，所以重读了<a href="http://book.douban.com/subject/10746113/" target="_blank" rel="noopener">《HTTP权威指南》</a>的缓存部分。这里对自己的理解做一下记录。</p>
+</blockquote>
+<h2 id="为什么要缓存"><a href="#为什么要缓存" class="headerlink" title="为什么要缓存"></a>为什么要缓存</h2><p>为什么要做缓存?如果你看到了这篇文章，其实心中肯定有了一个作缓存的需求和目标。缓存的目的无非就是提高用户体验，节省资源两方面。 </p>
+<ul>
+<li>提高用户体验:<br>从提高用户体验来讲，就是用户能够看到反馈的时间越短越好，速度越快越好。那么如何才能提高速度呢？当然是数据和用户越近越好，最好就在本地；还有就是网速越快越好，最好连接网络就能访问。我们都知道本地应用是最快的，因为所有的都在你的电脑里了，不需要再费劲去网上下载了。缓存的目的就是为了尽量完成这个工作而设计的。</li>
+<li>节省资源:<br>这个怎么说呢，如果你要访问一个网站，第一次你肯定没有这些数据，但是如果访问后所有的数据都保存在了本地，或者离你很近的地方，就省得在网络的海洋漫游过来了，这当然就节省了不少流量，当然你的计费方式是按带宽来的，多少流量无所谓，可是对于提供网站服务的供应商来说这些都是白花花的银子啊，能剩就剩，<code>节约每一个铜板</code>嘛。  <h2 id="缓存的机制"><a href="#缓存的机制" class="headerlink" title="缓存的机制"></a>缓存的机制</h2>这里只介绍基于HTTP协议的缓存。也许做web开发的都听过<code>expires</code>,<code>cache-control</code>,<code>If-Modified-Since</code>等缓存控制的HTTP头，这些眼花缭乱的头真让让人头晕啊，到底他们之间是什么关系，写了那么多，但是缓存是不是生效了？怎么生效的啊？带着这些疑问我也仔细阅读了一下书里的内容。其实一幅图可以说明很多问题:</li>
+</ul>
+<img src="http://www.plantuml.com/plantuml/svg/RL9DRzD05BpxLwp49JsOtcsfI4W88S49ReY3iTVOmlL6zYB1BK7GfZHfoeVIjB44eI54HRQX498sqFmPxzh-5zZUnevftcdtlT6RsPd5EZOW2F-y9sxtzgq7aJ-XFrw6Hw_ek1wETadlWjEWf42B0qcf5je46iPLONqT8Kr62hmkeqqEcWguXDbOiZ0dHDuyFl14Zjy0zDCPRNbqt8w-DiZXY7PziZ-apWxZZEQzgDyaZG7jk2Adgw3206HooW0trW3Me0agBw2zbgaGw76DZdTfvtjywf3pePXrJOGXiFGd6iwkQSMresY-BKko1daPcTX2HZuZxvhmULMte1rC1y7qXBW7r1ilTAI8z57fqknI28j-_oI3ZupyghQq-8VN7XlFu2D-8sy9jBqVNFJ2sI7nFjF69FpcY_cmK2w0ODgAdLeqh8T_tuOpXyLHG6sCgaoSOKDGCL71AWJJFUgqo9j-OlAbgrkj-AGP-VLLN7ahhV33w8xAtqEAhkfGuU_BkYd34YBnwwvaunmJkZkCv7-6acqBwt8bIHx1-TPgtz974FyiJvvsjcd_EFsBYwGP8-tzIZfBZ5UyoEoOBTcnDo7jZbXcShlazHV6L5AlgrnnAdOdgTuq9Fbf6klAvIL0UVloYErT-I6oTFy1">
+<p>通过这个流程图我们可以看出有三个方向:</p>
+<ol>
+<li>未找到缓存(黑色线)<br>当没有找到缓存时，说明我们本地并没有这些数据，这种情况一般发生在我们首次访问网站，或者以前访问过，但是清除过缓存后。这时浏览器没有这些数据，浏览器就会先访问服务器，然后把服务器上的内容取回来，内容取回来以后，就要根据情况来决定是否要保留到缓存中了。这个地方与<code>cache-control</code>字段的内容有关系。</li>
+<li>缓存未过期(蓝色线)<br>缓存未过期，指的是本地缓存没有过期，不需要访问服务器了，直接就可以拿本地的缓存作为响应在本地使用了。这样节省了不少网络成本，提高了用户体验过。这个内容跟<code>expires</code>字段和<code>cache-control</code>有密切的联系。</li>
+<li>缓存已过期(红色线)<br>缓存过期，是根据<code>expires</code>和<code>cache-control</code>来判断的，当满足过期的条件时，会向服务器发送请求，发送的请求一般都会进行一个验证，目的是虽然缓存文档过期了，但是文档内容不一定会有什么改变，所以服务器返回的也许是一个新的文档，这时候的HTTP状态码是200,或者返回的只是一个最新的时间戳和304状态码。</li>
+</ol>
+<p>下面就针对这些情况和其对应的字段及字段的优先级进行性说明:<br>第一优先级<code>cache-control</code>(expires)。下面的表是从高到低的顺序优先级递减。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache-Control</td>
+<td>no-store</td>
+<td>不存储缓存数据，禁止对相应进行复制</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>no-cache</td>
+<td>可以存储在本地缓存区中，但是必须进行新鲜度再验证满足之后才能使用</td>
+</tr>
+<tr>
+<td>Pragma</td>
+<td>no-cache</td>
+<td>用在HTTP/1.0协议中，与Cache-control一样</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>must-revalidate</td>
+<td>表示必须进行新鲜度的再验证之后才能使用,与no-cache的区别是，这个是在过期之后才会进行强制校验，一般用在没有使用cache-control等字段明确规定的缓存时，这时会自动使用缓存策略，如果不想自动缓存，则使用这个字段值(实际测试跟no-cache没什么区别)</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>max-age</td>
+<td>相对存活时间，相对与Last-Modified的时间，如果当前时间与Last时间只差小于这个值，则不用访问服务器，直接使用缓存，否者要进行新鲜度校验</td>
+</tr>
+<tr>
+<td>Expires</td>
+<td>date</td>
+<td>旧版本的使用方式，date是具体的过期时间,当没有cacche-control时使用</td>
+</tr>
+</tbody>
+</table>
+<p>上面这些主要是在本地进行的，主要作用就是决定用本地缓存还是用远程服务器的资源。下面有要介绍的是<code>新鲜度校验</code>阶段要用到的HTTP控制字段。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>If-Modified-Science</td>
+<td>date</td>
+<td>初始值与Last-Modified的值一样，当请求服务器时判断文件的Last-Modified，如果比现在的时间晚，证明做过修改，需要冲重新请求文档，返回的Last-Modified为最新的时间，下次次请求时，If-Modified-Science的值会更新到与Last-Modified一致,然后在发送请求.如果时间与现在的一样，证明那个没有更新，直接返回304状态码</td>
+</tr>
+<tr>
+<td>Last-Modified</td>
+<td>date</td>
+<td>表示的就是文档在服务器上的最后更新时间</td>
+</tr>
+<tr>
+<td>If-None-Match</td>
+<td>版本号</td>
+<td>前面的If-Modified-Science有一个缺点就是虽然文件的更新时间变了，但是内容并没有改变，也会重新发送文档，为了减少网络传输，这里就需要If-None-Match来判断了。主要是判断版本号与当前etag不一致时，更新文档，当Etag一致时只需更新文件更新时间就可以了</td>
+</tr>
+<tr>
+<td>Etag</td>
+<td>版本号</td>
+<td>标识当前文档内容</td>
+</tr>
+</tbody>
+</table>
+<p>优先级: Etag &gt; Last-Modified 也就是说如果有Etag，就用If-None-Match来验证，否者才能用If-Modified-Science验证.</p>
+<p>基本上常用的HTTP缓存功能就是这些。下面介绍一下在Nginx服务器先如何配置及前端页面如何访问和查看。</p>
+<h2 id="怎么使用"><a href="#怎么使用" class="headerlink" title="怎么使用"></a>怎么使用</h2><p>由于现在Nginx用的比较广泛，我用的也是Nginx，所以这里只介绍nginx的配置，其他服务器请google之。<br>首先是<code>expires</code>和<code>cache-control</code>的配置，参看<a href="http://nginx.org/en/docs/http/ngx_http_headers_module.html" target="_blank" rel="noopener">Nginx官方文档</a></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/http/">http</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/05/12/jekyll-to-hexo/"><span>从jekyll到hexo</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/05/12/jekyll-to-hexo/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-05-12T06:20:44.000Z">
+          2015-05-12
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近把博客从jekyll迁移到了hexo，告一段落后写个总结，給后来的人一个参考。</p>
+</blockquote>
+<h2 id="为什么要迁移"><a href="#为什么要迁移" class="headerlink" title="为什么要迁移"></a>为什么要迁移</h2><p>关于为什么把博客从 jekyll迁移到hexo，其原因其实跟这两个的优劣没有任何关系。每个人都有自己爱好，只要你用好了，其实本质上没什么差别，而我的原因则是因为最近团队前端人员极度缺人，只好让后台开发的人员也开始写js代码，不过自从写了js代码后我才发现js的天地是多么的广阔。通过写js代码我了解了的js语言的特性，以及前端的各种框架，比如<a href="http://requirejs.org/" target="_blank" rel="noopener">require.js</a>, <a href="http://www.gruntjs.net/" target="_blank" rel="noopener">grunt</a>, <a href="https://angularjs.org/" target="_blank" rel="noopener">angular</a>,<a href="http://expressjs.com/zh/" target="_blank" rel="noopener">express</a>等等，以及<a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a>开发平台和包管理工具<a href="https://www.npmjs.com/" target="_blank" rel="noopener">npm</a>.最后当然还有本博客平台<a href="http://hexo.io/zh-cn/" target="_blank" rel="noopener">hexo</a>。<br>说回原因，其实就是因为我最近在学习js，而且对ruby不熟悉，所有我把博客迁移到了js的博客框架hexo。</p>
+<h2 id="迁移过程中有哪些坑"><a href="#迁移过程中有哪些坑" class="headerlink" title="迁移过程中有哪些坑"></a>迁移过程中有哪些坑</h2><p>根据hexo官方文档的<a href="http://hexo.io/zh-cn/docs/migration.html" target="_blank" rel="noopener">迁移说明</a>，其实很简单，只不过是把之前的<code>_posts/*</code>下的md文件都copy到hexo的<code>_post</code>下，然后把<code>new_post_name</code>改为<code>new_post_name: :year-:month-:day-:title.md</code>。看似很简单，但是实际情况却比这个要复杂些，主要是之前jekyll写博客的时候md文件会有很多内容在hexo平台不被识别，特别是jekyll用过某些插件后，hexo更不认识了。</p>
+<h3 id="问题一-高亮代码标签不兼容"><a href="#问题一-高亮代码标签不兼容" class="headerlink" title="问题一: 高亮代码标签不兼容"></a>问题一: 高亮代码标签不兼容</h3><p>jekyll中代码的高亮的tag是这样的:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight %&#125;</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而hexo中，高亮代码的tag是这样的:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% codeblock %&#125;</span><br><span class="line">&#123;% endcodeblock %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个问题有两种解决方案，一种是用<code>sed</code>命令替换所有的jekyll高亮tag;第二种是自己写一个解析jekyll的tag插件.显然第一种方案更合适一些，所有我替换了所有的标签。  但是如果你想挑战自己，写一个插件也不错，可以copy hexo的codeblock插件代码，直接用到jekyll的tag上。</p>
+<h3 id="问题二-plantuml不支持"><a href="#问题二-plantuml不支持" class="headerlink" title="问题二: plantuml不支持"></a>问题二: plantuml不支持</h3><p>为了画流程图我用了开源的流程图解决方案<a href="http://www.plantuml.com/" target="_blank" rel="noopener">plantuml</a>。但是jekyll其实原生也是不支持plantuml的，可以通过插件来解决，关于jekyll如何使用 plantuml的方法我也写过一篇介绍:<a href="http://oohcode.com/2013/12/30/jekyll-and-plugin-plantuml/">jekyll添加plantuml模块</a>.仍在使用jekyll的同学可以参考一下。<br>显然hexo原生也是不支持plantuml的，但是我一时也找不到支持plantuml的插件，所以如果博客一定要支持流程图摆在面前的选择只有两条路了: </p>
+<ol>
+<li>先画好流程图，然后博客中引入。</li>
+<li>自己写一个支持plantuml的插件。<br>关于第一种解决方案，首先是麻烦，你需要提前生成各种图片，然后再引入进来，这会打断写博客的流程，同时也让人觉得很low。第二种解决方案，我研究了一下，发现并不难实现。下面就是plantuml插件实现的过程。  </li>
+</ol>
+<p>plantuml解析的两种方案:</p>
+<ol>
+<li>首先plantuml提供了java包，可以通过命令行把plantuml文件内容生成svg或png等格式的图片。</li>
+<li>plantuml还提供了一个很好的平台，可以吧plantuml编码后直接作为参数访问,比如:<a href="http://plantuml.com:80/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000" target="_blank" rel="noopener">http://plantuml.com:80/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000</a><br>这种方法是实时计算出来后在plantuml平台生成图片后返回过来的。<br>下面对比这两种方法:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>方法&amp;特点</th>
+<th>方法一：本地生成</th>
+<th>方法二 ：同步生成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优点</td>
+<td>页面展示速度快</td>
+<td>本地不需要保留任何图片</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>本地需要维护图片&amp;本地需要提前生产图片</td>
+<td>页面图片展示比较慢</td>
+</tr>
+</tbody>
+</table>
+<p>再结合我们写博客的目的，是为了快速方面的使用，所以为了不维护一堆图片，考虑图片的名字等细节问题，我们干脆全放到web端，而且自己的服务器不一定比plantuml的快，所以性能的考虑可以忽略。最终我选择了同步生成的方式来解析plantuml标签。</p>
+<p>hexo要添加tag的解析插件，可以参考hexo api文档<a href="http://hexo.io/zh-cn/api/tag.html" target="_blank" rel="noopener">标签插件</a>的介绍。其实就是注册插件，然后把tag里的内容当成参数传给tag处理函数，然后返回结果在页面上渲染。我们的这个hexo-tag-plantuml插件主要目的是把tag里的内容转化为plantuml的图片地址。正好plantuml提供了内容转化为图片的js <a href="http://www.plantuml.com/codejavascript.html" target="_blank" rel="noopener">API</a>，我其实就是把这些代码搬过来，然后根据hexo的tag插件写法实现的。具体源代码及用法请参考<a href="https://www.npmjs.com/package/hexo-tag-plantuml" target="_blank" rel="noopener">hexo-tag-plantuml</a>插件。</p>
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>有问题时再更新……</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/01/27/php-internals-1/"><span>php内核系列1:PHP程序运行的入口</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/01/27/php-internals-1/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-01-26T16:00:00.000Z">
+          2015-01-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近看了<a href="http://www.php-internals.com/book/" target="_blank" rel="noopener">深入理解PHP内核</a>这本书，并结合源码进行阅读。发现刚开始入门的时候很难，往往看了有点儿不知所云，因为虽然说了运行的周期，过程等，但是始终不明白的是:PHP程度的入口到底在哪里？不知道入口就没有起步，我始终走不下去。直到后来看<a href="http://www.php-internals.com/book/?p=chapt02/02-02-01-apache-php-module" target="_blank" rel="noopener">Apache模块</a>这章内容的时候才恍然大悟。这里就PHP的入口问题进行总结一下。</p>
+</blockquote>
+<h2 id="PHP入口"><a href="#PHP入口" class="headerlink" title="PHP入口"></a>PHP入口</h2><p>首先回顾一下，我们使用PHP的方式有哪些?最常用的无非两种情况：</p>
+<ul>
+<li>与WEB服务器结合，在浏览器下运行。</li>
+<li>命令行下直接运行PHP脚本文件。</li>
+</ul>
+<p>这两种方式的入口分别是什么呢？其实总结一下，就是下面三种入口。这点还可以从我们的PHP编译后的二进制文件找打足丝马迹，编译完PHP后我们会发现有一下几种二进制文件<code>php</code>, <code>php-cgi</code>等，没错，这些二进制文件就是PHP程序的入口。</p>
+<h2 id="CLI"><a href="#CLI" class="headerlink" title="CLI"></a>CLI</h2><p>我们知道PHP脚本可以直接在命令行下运行，像下面这样:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$php test.php</span><br></pre></td></tr></table></figure><br>其中<code>php</code>是PHP源代码编译后的二进制文件，当命令行执行php脚本时，其实是执行了源码<code>sapi/cli/php_cli.c</code>下的<code>main</code>函数, 这个函数大概内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"># ifdef PHP_CLI_WIN32_NO_CONSOLE</span><br><span class="line">int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)</span><br><span class="line"># else</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line"># endif</span><br><span class="line">&#123;</span><br><span class="line"># ifdef ZTS</span><br><span class="line">    void ***tsrm_ls;</span><br><span class="line"># endif</span><br><span class="line"># ifdef PHP_CLI_WIN32_NO_CONSOLE</span><br><span class="line">    int argc = __argc;</span><br><span class="line">    char **argv = __argv;</span><br><span class="line"># endif</span><br><span class="line"></span><br><span class="line">    int c;</span><br><span class="line">    int exit_status = SUCCESS;</span><br><span class="line">    int module_started = 0, sapi_started = 0; </span><br><span class="line">    char *php_optarg = NULL;</span><br><span class="line">    int php_optind = 1, use_extended_info = 0; </span><br><span class="line">    char *ini_path_override = NULL;</span><br><span class="line">    char *ini_entries = NULL;</span><br><span class="line">    int ini_entries_len = 0; </span><br><span class="line">    int ini_ignore = 0; </span><br><span class="line">    sapi_module_struct *sapi_module = &amp;cli_sapi_module; //sapi结构</span><br><span class="line"></span><br><span class="line">    /*   </span><br><span class="line">     * Do not move this initialization. It needs to happen before argv is used</span><br><span class="line">     * in any way.</span><br><span class="line">     */</span><br><span class="line">    argv = save_ps_args(argc, argv);</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">//根据参数选择处理程序</span><br><span class="line">    while ((c = php_getopt(argc, argv, OPTIONS, &amp;php_optarg, &amp;php_optind, 0, 2))!=-1) &#123;</span><br><span class="line">        switch (c) &#123;</span><br><span class="line">            case &apos;c&apos;:</span><br><span class="line">                if (ini_path_override) &#123;</span><br><span class="line">                    free(ini_path_override);</span><br><span class="line">                &#125;</span><br><span class="line">                ini_path_override = strdup(php_optarg);</span><br><span class="line">                break;</span><br><span class="line">            case &apos;n&apos;:</span><br><span class="line">                ini_ignore = 1;</span><br><span class="line">                break;</span><br><span class="line">            case &apos;d&apos;: &#123;</span><br><span class="line">                /* define ini entries on command line */</span><br><span class="line">                int len = strlen(php_optarg);</span><br><span class="line">                char *val;</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">     * Do not move this de-initialization. It needs to happen right before</span><br><span class="line">     * exiting.</span><br><span class="line">     */</span><br><span class="line">    cleanup_ps_args(argv);</span><br><span class="line">    exit(exit_status);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>具体这个函数是怎么执行的，我们先不关心，我们只是知道这个就是命令行下PHP代码执行的入口程序。</p>
+<h2 id="Apache-Module"><a href="#Apache-Module" class="headerlink" title="Apache Module"></a>Apache Module</h2><p>Apache Module是按照Apache的编码规范，给Apapche写的module, 这些module在Apache服务器启动时会加载进来，并且加载进来的module可以执行执行的代码。关于这点<a href="http://www.php-internals.com/book/?p=chapt02/02-02-01-apache-php-module" target="_blank" rel="noopener">Apache模块</a>这里讲的更清楚。Apahce启动时其实就加载了mod_php5这个module,然后把请求传递给这个module进行处理，这就是PHP程序的入口。在<code>sapi</code>下我们可以发现一共有几个跟apache相关的目录<code>apache</code>, <code>apache2filter</code>, <code>apache2handler</code>, <code>apache_hooks</code>。这些都是apache相关的module，都会被apache调用。</p>
+<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p>上面说了apache调用php的方式，但是还有一种常见的方式就是cgi。我们知道cgi是通用网关接口，其实就是一种通信的协议。我们经常用的另外一个服务器nginx并没有专门的php module，那么这种服务器是怎么调用PHP处理程序的呢？就是用的CGI。<br>我们在使用nginx的会配置cgi，最常见的就是<code>fastcgi_pass   127.0.0.1:9000;</code>这个配置。其实nginx收到请求之后就会根据配置把请求都转发到了这个端口上，然后等处理完了返回时再交给nginx处理(epoll方式，参见nginx的网络模型)。其实真正调用php脚本的是cgi。php编译后会有一个<code>php-cgi</code>的二进制文件，这个就是php的cgi入口。但是一般情况下我们不是直接使用这个，主要是因为处理的请求很多，一个进程肯定处理不过来，需要对php-cgi进程进行管理财型，所以一般情况下我们使用的是<code>spawn-cgi</code>或<code>php-fpm</code>等，这些程序最大的作用就是管理cgi进程，关于他们的不同，这里就不说了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>开篇讲的就是PHP的入口，知道这个等于是入门了，以后阅读源码就是顺藤摸瓜了。根据PHP源码，我们可以看到，这些入口都放在一个<code>sapi</code>目录下，其实PHP的所有代码的执行都是通过SAPI(Server Application Programming Interface指的是PHP具体应用的编程接口)这个抽象层来完成的。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/PHP/">PHP</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+
+<nav class="pagination">
+  
+  <a href="/" class="pagination-prev">Prev</a>
+  
+  
+  <a href="/page/3/" class="pagination-next">Next</a>
+  
+</nav>
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

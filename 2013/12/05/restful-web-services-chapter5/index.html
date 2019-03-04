@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>chapter5:设计只读的面向资源的服务 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="本章主要是针对只读类型的ROA架构进行设计的，只读的HTTP方法包括GET和HEAD。通过一个地图的例子对具体的设计过程进行了介绍。
+
+资源设计RPC式架构设计方法是把系统分解为一个个的动作。REST式则是参考面向对象的程序设计,面向对象设计主要有类和方法，这里的资源设计策略可以称为：“极限面向对象">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="chapter5:设计只读的面向资源的服务">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>chapter5:设计只读的面向资源的服务</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter5/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是针对只读类型的ROA架构进行设计的，只读的HTTP方法包括GET和HEAD。通过一个地图的例子对具体的设计过程进行了介绍。</em></p>
+</blockquote>
+<h2 id="资源设计"><a href="#资源设计" class="headerlink" title="资源设计"></a>资源设计</h2><p>RPC式架构设计方法是把系统分解为一个个的动作。REST式则是参考面向对象的程序设计,面向对象设计主要有类和方法，这里的资源设计策略可以称为：“极限面向对象”的策略，一个资源只暴露一个统一接口，最多支持六种HTTP方法。</p>
+<h2 id="创建只读资源"><a href="#创建只读资源" class="headerlink" title="创建只读资源"></a>创建只读资源</h2><p>本章提出了一些列步骤来说明如何设计一个ROA的只读资源服务，它们是：</p>
+<ol>
+<li>规划数据集</li>
+<li>把数据集划分为资源<br> 对其中的每种资源：</li>
+<li>用URI为该资源命名</li>
+<li>设计发给客户端的表示</li>
+<li>用超链接和表单把该资源与已有资源联系起来</li>
+<li>考虑有哪些典型的事件经过</li>
+<li>考虑可能出现哪些错误情况</li>
+</ol>
+<p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

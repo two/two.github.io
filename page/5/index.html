@@ -1,0 +1,1262 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Page 5 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/29/plantuml-chinese-garbled/"><span>plantuml在Mac OS X系统下中文乱码问题解决</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/29/plantuml-chinese-garbled/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-28T16:00:00.000Z">
+          2013-12-29
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>安装完plantuml使用plantuml.jar生成的uml图中文会出现乱码，这个问题困扰了我大半天，终于解决了～</p>
+</blockquote>
+<p>首先编写uml程序的文件的编码方式是utf-8的，test.uml内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@startuml</span><br><span class="line">|Brower|</span><br><span class="line">start</span><br><span class="line">:点击领取按钮;</span><br><span class="line">|WebServer|</span><br><span class="line">:领取勋章;</span><br><span class="line">|Cache|</span><br><span class="line">:更新缓存;</span><br><span class="line">|DB|</span><br><span class="line">:更新DB;</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure><br>但是利用<code>java -jar plantuml.jar -tsvg test.uml</code>或者利用plantuml的vim插件命令<code>:make</code>都可以正常生成，但是里面的中文都是乱码。实在是让我发愁啊，在网上找了好久，只有一篇博客提到了这个问题，就是<a href="http://blog.sina.com.cn/s/blog_53e449530101408m.html" target="_blank" rel="noopener">ubuntu plantuml的中文问题 </a>。但这并不是我想要的，首先我的系统是Mac OS X,跟博文中的系统不一样，其次我的系统对中文编码是支持的，其他的都没问题，只是这里有问题。最后还是自己帮了自己，使用<code>java -jar plantuml.jar -h</code>可以看到有个<code>-charset</code>选项，但是后面说的默认编码格式却是GBK2312，总有找到问题了，于是我在命令里加了下面的参数<code>java -jar plantuml.jar -charset utf-8 -tsvg test.uml</code>，在看结果终于可以了～中文显示正常了！  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/plantuml/">plantuml</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/26/mysql-optimiz-summary/"><span>MySQL优化总结</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/26/mysql-optimiz-summary/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-25T16:00:00.000Z">
+          2013-12-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这篇博客主要就mysql的优化进行问题从不同方面进行了总结。</em></p>
+</blockquote>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>通常意义上，数据库也就是数据的集合，具体到计算机上数据库可以是存储器上一些文件的集合或者一些内存数据的集合。MySql数据库是开放源代码的关系型数据库。目前，它可以提供的功能有：支持sql语言、子查询、存储过程、触发器、视图、索引、事务、锁、外键约束和影像复制等。MySql也是客户/服务器系统并且是<strong>单进程多线程架构</strong>的数据库。MySql区别于其它数据库系统的一个重要特点是支持<strong>插入式存储引擎</strong>。</p>
+<h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>根据存储数据及为数据建立索引和更新、查询技术的不同可以将mysql的存储分为不同的存储引擎，其中最主要的存储引擎有MyISAM、InnoDB、MEMORY等，其中最常用的有MyISAM和InnoDB两种，可以通过下面的命令查看自己的MySQL支持哪些存储引擎：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW ENGINES;</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| Engine     | Support | Comment                                                    | Transactions | XA   | Savepoints |</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| MRG_MYISAM | YES     | Collection of identical MyISAM tables                      | NO           | NO   | NO         |</span><br><span class="line">| CSV        | YES     | CSV storage engine                                         | NO           | NO   | NO         |</span><br><span class="line">| MyISAM     | DEFAULT | Default engine as of MySQL 3.23 with great performance     | NO           | NO   | NO         |</span><br><span class="line">| InnoDB     | YES     | Supports transactions, row-level locking, and foreign keys | YES          | YES  | YES        |</span><br><span class="line">| MEMORY     | YES     | Hash based, stored in memory, useful for temporary tables  | NO           | NO   | NO         |</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">5 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p><strong>MyISAM</strong>:这种引擎是mysql最早提供的。这种引擎又可以分为静态MyISAM、动态MyISAM 和压缩MyISAM三种：</p>
+<ul>
+<li>静态MyISAM：如果数据表中的各数据列的长度都是预先固定好的，服务器将自动选择这种表类型。因为数据表中每一条记录所占用的空间都是一样的，所以这种表存取和更新的效率非常高。当数据受损时，恢复工作也比较容易做。</li>
+<li>动态MyISAM：如果数据表中出现varchar、xxxtext或xxxBLOB字段时，服务器将自动选择这种表类型。相对于静态MyISAM，这种表存储空间比较小，但由于每条记录的长度不一，所以多次修改数据后，数据表中的数据就可能离散的存储在内存中，进而导致执行效率下降。同时，内存中也可能会出现很多碎片。因此，这种类型的表要经常用optimize table 命令或优化工具来进行碎片整理。</li>
+<li><p>压缩MyISAM：以上说到的两种类型的表都可以用myisamchk工具压缩。这种类型的表进一步减小了占用的存储，但是这种表压缩之后不能再被修改。另外，因为是压缩数据，所以这种表在读取的时候要先时行解压缩。</p>
+<p>但是，不管是何种MyISAM表，目前它都不支持事务，行级锁和外键约束的功能。</p>
+</li>
+</ul>
+</li>
+<li><strong>MyISAM Merge</strong>：这种类型是MyISAM类型的一种变种。合并表是将几个相同的MyISAM表合并为一个虚表。常应用于日志和数据仓库。</li>
+<li><strong>InnoDB</strong>：InnoDB表类型可以看作是对MyISAM的进一步更新产品，它提供了事务、行级锁机制和外键约束的功能。</li>
+<li><strong>memory(heap)</strong>：这种类型的数据表只存在于内存中。它使用散列索引，所以数据的存取速度非常快。因为是存在于内存中，所以这种类型常应用于临时表中。</li>
+<li><strong>archive</strong>：这种类型只支持select 和 insert语句，而且不支持索引。常应用于日志记录和聚合分析方面。</li>
+</ul>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><h4 id="索引用到的数据结构"><a href="#索引用到的数据结构" class="headerlink" title="索引用到的数据结构"></a>索引用到的数据结构</h4><p>关于存储引擎用的数据结构其中最重要的就是B树与B+树，可以参考JULY的这篇<a href="http://blog.csdn.net/v_july_v/article/details/6530142" target="_blank" rel="noopener">从B 树、B+ 树、B* 树谈到R 树</a>。<br>可以看到，B树与B+树的最大的区别其实就是：B树的所有信息都存在字节点中，而B+树的所有信息都存储在叶子节点中。<br>B+树比B树更适合做文件索引和数据库索引，原因是：</p>
+<ol>
+<li>B+-tree的磁盘读写代价更低<br>B+-tree的内部结点并没有指向关键字具体信息的指针。因此其内部结点相对B 树更小。如果把所有同一内部结点的关键字存放在同一盘块中，那么盘块所能容纳的关键字数量也越多。一次性读入内存中的需要查找的关键字也就越多。相对来说IO读写次数也就降低了。<br> 举个例子，假设磁盘中的一个盘块容纳16bytes，而一个关键字2bytes，一个关键字具体信息指针2bytes。一棵9阶B-tree(一个结点最多8个关键字)的内部结点需要2个盘快。而B+ 树内部结点只需要1个盘快。当需要把内部结点读入内存中的时候，B 树就比B+ 树多一次盘块查找时间(在磁盘中就是盘片旋转的时间)。</li>
+<li><p>B+-tree的查询效率更加稳定<br>由于非终结点并不是最终指向文件内容的结点，而只是叶子结点中关键字的索引。所以任何关键字的查找必须走一条从根结点到叶子结点的路。所有关键字查询的路径长度相同，导致每一个数据的查询效率相当。<br>读者点评</p>
+</li>
+<li><p>有人觉得这两个原因都不是主要原因。数据库索引采用B+树的主要原因是 B树在提高了磁盘IO性能的同时并没有解决元素遍历的效率低下的问题。正是为了解决这个问题，B+树应运而生。B+树只要遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，而B树不支持这样的操作（或者说效率太低）。</p>
+</li>
+</ol>
+<h4 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h4><p>MySQL数据库可以建立不同的数据库，主要类型有：</p>
+<ul>
+<li><strong>普通索引</strong>:就是普通的INDEX。索引的列可以重复。</li>
+<li><strong>唯一索引</strong>:UNIQUE INDEX ,索引的列值必须使唯一，可以有空值，如果是组合索引，则列值的组合必须使唯一的。<strong>主键索引</strong>是一种特殊的唯一索引，不允许为空值，一个表只能有一个主键。</li>
+<li><strong>全文索引</strong>:FULLTEXT索引，把CHAR、VARCHAR或TEXT列作为索引，仅可以用于MyISAM表中。</li>
+<li><strong>组合索引（最左前缀）</strong>:对个列组合成为一个索引。这个索引其实只是上面几种的一个特殊情况。</li>
+</ul>
+<h3 id="存储引擎对索引的利用"><a href="#存储引擎对索引的利用" class="headerlink" title="存储引擎对索引的利用"></a>存储引擎对索引的利用</h3><p>关于存储引擎及其使用的数据结构可以看下这个博客：<a href="http://blog.linezing.com/2011/07/%E6%B5%85%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E8%83%8C%E5%90%8E%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%AE%97%E6%B3%95" target="_blank" rel="noopener">浅谈mysql索引背后的数据结构及算法</a>。<br>这篇博客讲的很清楚了，但是这里我还是要总结一下重点，便于自己记忆。</p>
+<ol>
+<li>MyISAM与InnoDB使用的都是B+树作为索引</li>
+<li><p>MyISAM使用B+树的方式如下：</p>
+<ul>
+<li>对于主键索引：<br><img src="/assets/img/others/myisam_primary_key.png" alt="primary key"></li>
+<li>对于辅助索引：<br><img src="/assets/img/others/myisam_secondary_key.png" alt="primary key"><br>可见它主要是MyISAM的叶子节点存储的是数据的地址，索引文件与数据是分离的，当查询时先从索引文件中找到数据的地址，然后再根据地址去取出数据的值。主索引与普通索引的查询方法是一致的。</li>
+</ul>
+</li>
+<li><p>InnoDB使用B+树的方式如下： </p>
+<ul>
+<li>对于主键索引：<br><img src="/assets/img/others/innodb_primary_key.png" alt="primary key"></li>
+<li>对于辅助索引：<br><img src="/assets/img/others/innodb_secondary_key.png" alt="primary key"><br>可以看出与MyISAM不同，InnoDB的数据文件同时也是索引文件，对于主键索引的使用，就是直接从索引文件的叶子节点中找出数据。但是普通索引所有的叶子节点存储的都是主键的值，对于普通索引只能先通过索引文件找出主键的值，然后再根据主键的值从主键索引文件中找出数据。<br>ps:有点疑问：前面说选择B+Tree作为存储引擎数据结构的原因第一条是索引文件比较小，可以放到同一个磁盘上，减少磁盘的读取次数，所以效率比较高，但是这个把索引文件和数据融到了一起，是不是也会有这个问题呢？</li>
+</ul>
+</li>
+</ol>
+<h4 id="存储引擎适用的场景"><a href="#存储引擎适用的场景" class="headerlink" title="存储引擎适用的场景"></a>存储引擎适用的场景</h4><p>只有了解存储引擎的原理才能更好的进行优化，其实优化就是根据其原理把数据库的性能提升到尽可能的高。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/DB/">DB</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/mysql/">mysql</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/24/markdown-to-pdf/"><span>markdown转pdf</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/24/markdown-to-pdf/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-23T16:00:00.000Z">
+          2013-12-24
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>现在已经对markdown痴迷了，一直在折腾，想以后把markdown 作为我不管是写博客还是写文档的标准文件格式，因为据说它可以转换成很多其他的格式，适应在不同的设备上使用，这就是一劳永逸啊。可以过程却是很坑爹啊～</em></p>
+</blockquote>
+<h2 id="工具选择"><a href="#工具选择" class="headerlink" title="工具选择"></a>工具选择</h2><p>Google 了很久，终于发现一个强大的工具：<a href="http://johnmacfarlane.net/pandoc/" target="_blank" rel="noopener">pandoc</a>。于是苦逼的旅程开始了～</p>
+<h3 id="linux下安装："><a href="#linux下安装：" class="headerlink" title="linux下安装："></a>linux下安装：</h3><ol>
+<li>pandoc<a href="http://johnmacfarlane.net/pandoc/installing.html" target="_blank" rel="noopener">下载安装</a>页面竟然没有redhat?</li>
+<li>查看一下发现有一个<a href="http://johnmacfarlane.net/pandoc/installing.html#all-platforms" target="_blank" rel="noopener">all-platforms</a></li>
+<li>提示需要先安装<a href="http://www.haskell.org/platform/" target="_blank" rel="noopener">Haskell platform</a></li>
+<li>选择linux平台却发现没有redhat,只是看到不起眼的一行写着：<em>See also: <a href="http://justhub.org/" target="_blank" rel="noopener">justhub</a>, for RHEL, CentOS, Scientific Linux, and Fedora support</em>.</li>
+<li>进入下载页面总于看到希望了：<br><code>wget http://sherkin.justhub.org/el6/RPMS/x86_64/justhub-release-2.0-4.0.el6.x86_64.rpm</code><br><code>rpm -ivh justhub-release-2.0-4.0.el6.x86_64.rp</code><br><code>yum install haskell</code><br>尼玛，这个也太大了，要一个多G,我的<code>usr</code>都满了～</li>
+<li>再回到pandoc的<a href="http://johnmacfarlane.net/pandoc/installing.html" target="_blank" rel="noopener">下载页面</a>执行：<code>cabal install --force pandoc pandoc-citeproc</code></li>
+<li>果然又报错:<code>pandoc-1.12.2.1 failed during the building phase.</code>,找了好久，还是<a href="http://stackoverflow.com/questions/19045380/failed-to-compile-pandoc-with-cabal" target="_blank" rel="noopener">stackoverflow</a>靠谱，原来是内存不够用了！果断把其它进程kill了，腾出空间再次运行～</li>
+<li>终于看到安装成功的提示了，-_-#。来，运行一个pandoc命令看看：<code>pandoc -V</code>,竟然提示command no found!!!＿|￣|○</li>
+<li>找找有没有pandoc吧：<code>find / -name pandoc</code>果然找到了，二进制文件在这里：<code>/root/.cabal/bin/pandoc</code>。把它们加到PATH里，退出再登录一把。</li>
+<li>Y(^_^)Y，终于好了！！！</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/markdown/">markdown</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/20/csapp-chapter3/"><span>csapp chapter3:程序的机器级表示</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/20/csapp-chapter3/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-19T16:00:00.000Z">
+          2013-12-20
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>*本章是理解程序如何运行的关键所在，这一章将学到：  </p>
+<ol>
+<li>程序时如何从高级代码变为汇编代码;   </li>
+<li>程序编译后运行时在内存中是如何分布的;<br>3…*</li>
+</ol>
+</blockquote>
+<h2 id="程序代码"><a href="#程序代码" class="headerlink" title="程序代码"></a>程序代码</h2><p>首先介绍各种单片机、处理器，不同的处理器所使用的能够识别的汇编语言也是不一样的，如何根据不同处理器把同一段高级语言转换成对应的汇编语言，这个是编译器的事儿，本文所有的汇编语言我的机器就跟他不同，导致我学习的时候也为此很头疼,严重影响了我对本来就一知半解的汇编语言的理解。</p>
+<h3 id="程序编码"><a href="#程序编码" class="headerlink" title="程序编码"></a>程序编码</h3><p>在深入了解程序代码之前需要简单的了解一下GCC编译器的使用方法。</p>
+<p>首先编写一个简单的C文件:code.c<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> //code.c</span><br><span class="line">int accum = 0;</span><br><span class="line">  </span><br><span class="line">int sum(int x, int y)</span><br><span class="line">&#123;</span><br><span class="line">    int t = x + y;</span><br><span class="line">    accum += t;</span><br><span class="line">    return t;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后利用gcc命令加上<code>-S</code>参数生产一个汇编代码文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -S code.c</span><br><span class="line">ll</span><br><span class="line">code.c</span><br><span class="line">code.s</span><br></pre></td></tr></table></figure><br>可见生成了一个.s文件,打开这个汇编文件，内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">        .file&quot;code.c&quot;</span><br><span class="line">        .text</span><br><span class="line">.globl sum</span><br><span class="line">        .type   sum, @function</span><br><span class="line">sum:</span><br><span class="line">.LFB0:</span><br><span class="line">        .cfi_startproc</span><br><span class="line">        leal    (%rsi,%rdi), %eax</span><br><span class="line">        addl    %eax, accum(%rip)</span><br><span class="line">        ret</span><br><span class="line">        .cfi_endproc</span><br><span class="line">.LFE0:</span><br><span class="line">        .size   sum, .-sum</span><br><span class="line">.globl accum</span><br><span class="line">        .bss</span><br><span class="line">        .align 4                    </span><br><span class="line">        .type   accum, @object</span><br><span class="line">        .size   accum, 4</span><br><span class="line">accum:</span><br><span class="line">        .zero4</span><br><span class="line">        .ident  &quot;GCC: (GNU) 4.4.6 20110731 (Red Hat 4.4.6-3)&quot;</span><br><span class="line">        .section    .note.GNU-stack,&quot;&quot;,@progbits</span><br></pre></td></tr></table></figure><br>但是书中给出的生成的代码却是这样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sum:</span><br><span class="line">    pushl   %ebp</span><br><span class="line">    movl    %esp, %ebp</span><br><span class="line">    movl    12(%ebp), %eax</span><br><span class="line">    addl    8(%ebp), %eax</span><br><span class="line">    addl    %eax, accum</span><br><span class="line">    popl    %ebp</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure><br>可以看到这两段代码差别很大，这是因为所在的处理器环境不同，所以汇编命令格式会有差别；而且gcc的版本也不同，会导致优化的程度也不同。为了能够更好的理解课本，以后就按照书上的来理解。<br>如果在使用gcc的时候加<code>-C</code>参数，则汇编器会把汇编文件编译成二进制文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -c code.c</span><br></pre></td></tr></table></figure><br>这是生产了code.o文件，但是它的内容是二进制的，直接看不到。用vi打开文件，然后在normal模式下输入：<code>:%!xxd</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0000000: 7f45 4c46 0201 0100 0000 0000 0000 0000  .ELF............</span><br><span class="line">0000010: 0100 3e00 0100 0000 0000 0000 0000 0000  ..&gt;.............</span><br><span class="line">0000020: 0000 0000 0000 0000 1001 0000 0000 0000  ................</span><br><span class="line">0000030: 0000 0000 4000 0000 0000 4000 0c00 0900  ....@.....@.....</span><br><span class="line">0000040: 8d04 3e01 0500 0000 00c3 0000 0047 4343  ..&gt;..........GCC</span><br><span class="line">0000050: 3a20 2847 4e55 2920 342e 342e 3620 3230  : (GNU) 4.4.6 20</span><br><span class="line">0000060: 3131 3037 3331 2028 5265 6420 4861 7420  110731 (Red Hat</span><br><span class="line">0000070: 342e 342e 362d 3329 0000 0000 0000 0000  4.4.6-3)........</span><br><span class="line">0000080: 1400 0000 0000 0000 017a 5200 0178 1001  .........zR..x..</span><br><span class="line">0000090: 1b0c 0708 9001 0000 1400 0000 1c00 0000  ................</span><br><span class="line">......</span><br></pre></td></tr></table></figure><br>还可以通过gdb这个调试工具进行查看二进制文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$gbd code.o</span><br><span class="line">(gdb) x/17xb sum</span><br><span class="line">0x0 &lt;sum&gt;:0x8d0x040x3e0x010x050x000x000x                                00</span><br><span class="line">0x8 &lt;sum+8&gt;:0x000xc3Cannot access memory at address 0xa         </span><br></pre></td></tr></table></figure><br>但是要查看目标代码文件的内容，最有价值的还是反汇编器（disassembler)，这玩意儿听上去就很NB有木有？使用方法入下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -d code.o</span><br><span class="line">code.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;sum&gt;:</span><br><span class="line">   0:8d 04 3e             lea    (%r        si,%rdi,1),%eax</span><br><span class="line">   3:01 05 00 00 00 00    add    %eax,0x0(%rip)               # 9 &lt;sum+0x9&gt;</span><br><span class="line">   9:c3                   retq      </span><br></pre></td></tr></table></figure><br>这个是我电脑上的结果，跟书上的有不一样，书上的是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of funciton sum in binary file code.o</span><br><span class="line">00000000 &lt;sum&gt;</span><br><span class="line">Offset  Bytes                   Equivalent assembly language</span><br><span class="line">    0:  55                      push    %ebp</span><br><span class="line">    1:  89  e5                  mov %esp,%ebp</span><br><span class="line">    3:  8b  45  0c              mov 0xc(%ebp),%eax</span><br><span class="line">    6:  03  45  08              add 0x8(%ebp), %eax</span><br><span class="line">    9:  01  05  00  00  00  00  add %eax,0x0</span><br><span class="line">    f:  5d                      pop %ebp</span><br><span class="line">   10:  c3                      ret</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>生成实际可执行的代码需要对一组目标代码文件运行链接器，而这一组目标代码文件中必须含有一个main函数，假设文件main.c中有下面这样一个函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    return sum(1,3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>然后用下面的方法生成可执行文件prog:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -o prog code.o main.c</span><br></pre></td></tr></table></figure><br>看到生成了一个prog可执行文件，对其进行反编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d prog</span><br></pre></td></tr></table></figure><br>可看到一大坨的汇编代码，但是其中有一段跟上面的代码一样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">objdump -d code.o</span><br><span class="line">code.o:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;sum&gt;:</span><br><span class="line">   0:8d 04 3e             lea    (%rsi,%rdi,1),%eax</span><br><span class="line">   3:01 05 00 00 00 00    add    %eax,0x0(%rip)               # 9 &lt;sum+0x9&gt;</span><br><span class="line">   9:c3                   retq      </span><br></pre></td></tr></table></figure>
+<p>这个是我电脑上的结果，跟书上的有不一样，书上的是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of funciton sum in binary file code.o</span><br><span class="line">00000000 &lt;sum&gt;</span><br><span class="line">Offset  Bytes                   Equivalent assembly language</span><br><span class="line">    0:  55                      push    %ebp</span><br><span class="line">    1:  89  e5                  mov %esp,%ebp</span><br><span class="line">    3:  8b  45  0c              mov 0xc(%ebp),%eax</span><br><span class="line">    6:  03  45  08              add 0x8(%ebp), %eax</span><br><span class="line">    9:  01  05  00  00  00  00  add %eax,0x0</span><br><span class="line">    f:  5d                      pop %ebp</span><br><span class="line">   10:  c3                      ret</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>生成实际可执行的代码需要对一组目标代码文件运行链接器，而这一组目标代码文件中必须含有一个main函数，假设文件main.c中有下面这样一个函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    return sum(1,3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>然后用下面的方法生成可执行文件prog:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -O1 -o prog code.o main.c</span><br></pre></td></tr></table></figure><br>看到生成了一个prog可执行文件，对其进行反编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d prog</span><br></pre></td></tr></table></figure><br>可看到一大坨的汇编代码，但是其中有一段跟上面的代码一样<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0000000000400474 &lt;sum&gt;:</span><br><span class="line">  400474:   8d 04 3e             lea    (%rsi,%rdi,1),%eax</span><br><span class="line">  400477:   01 05 d3 03 20 00    add    %eax,0x2003d3(%rip)        # 600850 &lt;accum&gt;</span><br><span class="line">  40047d:   c3                   retq</span><br><span class="line">  40047e:   90                   nop</span><br><span class="line">  40047f:   90                   nop               </span><br></pre></td></tr></table></figure><br>与前面的代码对比差不多，但是其地址有明显的改变，应为第二段代码编译后说有的地址都是相对程序的地址指定了的。</p>
+<h3 id="访问信息"><a href="#访问信息" class="headerlink" title="访问信息"></a>访问信息</h3><p>访问信息分为：操作数指示符、数据传送指令等操作。通过一个练习题来巩固一下操作数指示符：</p>
+<blockquote>
+<p><em>例题3.1 假设下面的值存放在指明的存储器地址和寄存器中：</em></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">地址</th>
+<th style="text-align:right">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0x100</td>
+<td style="text-align:right">0xFF</td>
+</tr>
+<tr>
+<td style="text-align:left">0x104</td>
+<td style="text-align:right">0xAB</td>
+</tr>
+<tr>
+<td style="text-align:left">0x108</td>
+<td style="text-align:right">0x13</td>
+</tr>
+<tr>
+<td style="text-align:left">0x10C</td>
+<td style="text-align:right">0x11</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">寄存器</th>
+<th style="text-align:right">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">%eax</td>
+<td style="text-align:right">0x100</td>
+</tr>
+<tr>
+<td style="text-align:left">%ecx</td>
+<td style="text-align:right">0x1</td>
+</tr>
+<tr>
+<td style="text-align:left">%edx</td>
+<td style="text-align:right">0x3</td>
+</tr>
+</tbody>
+</table>
+<p>填写下表，给出所示操作数的值。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">操作数</th>
+<th style="text-align:right">值</th>
+<th>思路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">%eax</td>
+<td style="text-align:right">0x100</td>
+<td><em>直接从上面获取寄存器的初始值</em></td>
+</tr>
+<tr>
+<td style="text-align:left">0x104</td>
+<td style="text-align:right">0xAB</td>
+<td><em>从上面表中获取0x104地址的值</em></td>
+</tr>
+<tr>
+<td style="text-align:left">$0x108</td>
+<td style="text-align:right">0x108</td>
+<td><em>立即数</em></td>
+</tr>
+<tr>
+<td style="text-align:left">(%eax)</td>
+<td style="text-align:right">0xFF</td>
+<td><em>先获取寄存器%eax的值0x100,然后在获取地址0x100对应的值，间接寻址</em></td>
+</tr>
+<tr>
+<td style="text-align:left">4(%eax)</td>
+<td style="text-align:right">0xAB</td>
+<td>(基址＋偏移量)寻址：(4 + 0x100) = (0x104) = 0xAB</td>
+</tr>
+<tr>
+<td style="text-align:left">9(%eax, %edx)</td>
+<td style="text-align:right">0x11</td>
+<td>变址寻址：(9 + %eax + %edx) = (0x10C) = 0x11</td>
+</tr>
+<tr>
+<td style="text-align:left">260(%ecx, %edx)</td>
+<td style="text-align:right">0x13</td>
+<td>变址寻址：(260 + %ecx + %edx) = (0x108) = 0x13</td>
+</tr>
+<tr>
+<td style="text-align:left">0xFC(, %ecx, 4)</td>
+<td style="text-align:right">0xFF</td>
+<td>比例变址寻址：(0xFC + 0 + %ecx * 4) = (0xFC+0x4) = (0x100)=0xFF</td>
+</tr>
+<tr>
+<td style="text-align:left">(%eax, %edx, 4)</td>
+<td style="text-align:right">0x11</td>
+<td>比例变址寻址:(%eax + %edx * 4)=(0x10C)=0x11</td>
+</tr>
+</tbody>
+</table>
+<p>栈操作说明:</p>
+<img src="http://www.plantuml.com/plantuml/svg/IybCBqeio51mLwZcKW22lFoKr9B4p1o5wEACn89KsuBypBoIM0MuN6vcIafEAamsBpylLI4dCIarnrRfwPmDJ-SsnEGzNJJlwPBbIXXwZ62QYbAJyujIODggdoteUDGmv-ckgOyQvjRenUI1K0r4yEN2RK31McIpCb8JKr3TXkfiNJjaPq9vO4qAqOb5HVdb85MsIddvHRc9EKeAO26GD4WeBrL98IMpo5OfAJ4vMocM2snoSMaI98IA3A51L5sKc9TjMvoOcsgDi0g9QMHT2rPNorKB0000">
+<p>通过书中图3.5可知，当push一个数值时，栈指针减小，向下移动；当pop一个数据时栈指针向上移动。一般用 <code>%esp</code>来存储栈指针的地址。</p>
+<p>下面通过一个例子说明C语言中指针使用的方式，函数exchange代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int exchange(int *xp, int y)</span><br><span class="line">&#123;</span><br><span class="line">    int x = *xp;</span><br><span class="line">    *xp = y;</span><br><span class="line">    return x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int a = 4;</span><br><span class="line">int b = exchange(&amp;a, 3);</span><br><span class="line">printf(&quot;a = %d, b = %d\n&quot;, a, b);</span><br></pre></td></tr></table></figure><br>这段代码会打印出：<br><code>a = 3, b = 4</code><br>关键部分的汇编代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># xp地址的值存储在8(%ebp), y的值存储在12(%ebp)</span><br><span class="line">movl 8(%ebp) %edx #获取xp地址的值，存储在%edx</span><br><span class="line">movl (%edx), %eax #获取xp地址所指向的值赋予变量x,函数结束时返回这个值</span><br><span class="line">movl 12(%ebp), %ecx #获取y的值，存储在%ecx</span><br><span class="line">movl %ecx, (%edx) #%ecx的值存储在%edx所指向的值, 这时候*xp的值为y,xp地址的值没有变化</span><br></pre></td></tr></table></figure><br>局部变量比如x，通常时保存在寄存器中。</p>
+<h3 id="算术和逻辑操作"><a href="#算术和逻辑操作" class="headerlink" title="算术和逻辑操作"></a>算术和逻辑操作</h3><h4 id="加载有效地址"><a href="#加载有效地址" class="headerlink" title="加载有效地址"></a>加载有效地址</h4><p><em>加载有效地址(load effective address)</em>指令<code>leal</code>实际上是movl指令的变形。通过下面一个例子来说明它的含义：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 假设%edx的值为x</span><br><span class="line">movl 7(%edx, %edx, 4), %eax #计算7 + x + 4*x = 5x +7 那么%eax的值就是地址5x+7地址处所存储的值.</span><br><span class="line">leal 7(%edx, %edx, 4), %eax #计算7 + x + 4*x = 5x +7 那么%eax的值就是地址的值5x+7，而不是这个地址存储的值.</span><br></pre></td></tr></table></figure></p>
+<h4 id="一元操作和二元操作"><a href="#一元操作和二元操作" class="headerlink" title="一元操作和二元操作"></a>一元操作和二元操作</h4><p>如果一个操作只有一个操作数，既是源又是目的，这个操作就是一元操作。<br>如果一个操作有两个操作数，第二个操作数既是源又是目的,这个操作就是二元操作。<br>如下：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>效果</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INC D</td>
+<td>D &lt;- D + 1</td>
+<td>一元操作</td>
+</tr>
+<tr>
+<td>ADD S, D</td>
+<td>D &lt;- D + S</td>
+<td>二元操作</td>
+</tr>
+</tbody>
+</table>
+<h4 id="移位操作"><a href="#移位操作" class="headerlink" title="移位操作"></a>移位操作</h4><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>操作</th>
+<th>命令</th>
+<th>示意图</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>非循环移位</td>
+<td>逻辑左移/算术左移</td>
+<td>SHL/SAL</td>
+<td><img src="/assets/img/csapp/fig3.1.gif" alt></td>
+</tr>
+<tr>
+<td>非循环移位</td>
+<td>逻辑右移</td>
+<td>SHR</td>
+<td><img src="/assets/img/csapp/fig3.2.gif" alt></td>
+</tr>
+<tr>
+<td>非循环移位</td>
+<td>算术右移</td>
+<td>SAR</td>
+<td><img src="/assets/img/csapp/fig3.3.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>不含进位位的循环左移</td>
+<td>ROL</td>
+<td><img src="/assets/img/csapp/fig3.4.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>不含进位位的循环右移</td>
+<td>ROR</td>
+<td><img src="/assets/img/csapp/fig3.5.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>含进位位的循环左移</td>
+<td>RCL</td>
+<td><img src="/assets/img/csapp/fig3.6.gif" alt></td>
+</tr>
+<tr>
+<td>循环移位</td>
+<td>含进位位的循环右移</td>
+<td>RCR</td>
+<td><img src="/assets/img/csapp/fig3.7.gif" alt></td>
+</tr>
+</tbody>
+</table>
+<h3 id="控制"><a href="#控制" class="headerlink" title="控制"></a>控制</h3><h4 id="条件码"><a href="#条件码" class="headerlink" title="条件码"></a>条件码</h4><p>除了整数寄存器，CPU还维护着一组单个位的<em>条件码(codition code)</em>寄存器，最常用的条件码有：  </p>
+<ul>
+<li><strong>CF</strong>:进位标志。最近的操作使最高位产生了进位。可以用来检测无符号操作数的溢出。</li>
+<li><strong>ZF</strong>:零标志。最近的操作得出的结果为0。</li>
+<li><strong>SF</strong>:符号标志。最近的操作得到的结果为负。</li>
+<li><strong>OF</strong>:溢出标志。最近的操作导致一个补码溢出——正溢出或负溢出。</li>
+</ul>
+<h4 id="访问条件码"><a href="#访问条件码" class="headerlink" title="访问条件码"></a>访问条件码</h4><p>条件码通常不会直接读取常用的使用方法有三种：</p>
+<ol>
+<li>可以根据条件码的某个组合，将一个字节设置为0或者1；</li>
+<li>可以条件跳转到程序的某个其它部分;</li>
+<li>可以有条件地传送数据.</li>
+</ol>
+<p>对于第一种情况，举例说明一下：  </p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>同义名</th>
+<th>效果</th>
+<th>设置条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sete D</td>
+<td>setz</td>
+<td>D&lt;-ZF</td>
+<td>相等/零</td>
+</tr>
+<tr>
+<td>setne D</td>
+<td>setnz</td>
+<td>D&lt;-~ZF</td>
+<td>不等/非零</td>
+</tr>
+<tr>
+<td>sets D</td>
+<td></td>
+<td>D&lt;-SF</td>
+<td>负数</td>
+</tr>
+<tr>
+<td>setns D</td>
+<td></td>
+<td>D&lt;-~SF</td>
+<td>非负数</td>
+</tr>
+<tr>
+<td>setg D</td>
+<td>setnle</td>
+<td>D&lt;-~(SF ^ DF)&amp;~ZF</td>
+<td>大于(有符号>)</td>
+</tr>
+</tbody>
+</table>
+<p>SET指令。每条指令根据条件码的某个组合将一个字节设置为0或者1,而不是直接访问条件码寄存器。</p>
+<h4 id="跳转指令及其编码"><a href="#跳转指令及其编码" class="headerlink" title="跳转指令及其编码"></a>跳转指令及其编码</h4><p>正常情况下，指令按照它们出现的顺序一条一条地执行。<em>跳转(jump)</em>指令会导致执行切换到程序中一个全新的位置。在汇编代码中，这些跳转的目的地通常用一个<em>标号(label)</em>指明。当执行与PC(程序计数器)相关的寻址时，程序计数器的值是跳转指令后面的那条指令的地址，而不是跳转指令本身的地址。例如一段汇编代码及其反汇编代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">    jle .L2                         #if &lt;=, goto dest2</span><br><span class="line">.l5:                                #dest1:</span><br><span class="line">    movl    %edx, %eax      </span><br><span class="line">    sar1    %eax</span><br><span class="line">    subl    %eax, %edx</span><br><span class="line">    leal    (%edx, %edx, 2), %edx</span><br><span class="line">    testl   %edx, %edx              </span><br><span class="line">    jg      .L5                     #if &gt;, goto dest1</span><br><span class="line">.L2:                                #dest2</span><br><span class="line">    movl    %edx, %eax</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">8:   7e 0d        jle     17 &lt;silly+0x17&gt;</span><br><span class="line">a:   89 d0        mov     %edx, %eax</span><br><span class="line">c:   d1 f8        sar     %eax</span><br><span class="line">e:   29 c2        sub     %eax, %edx</span><br><span class="line">10:  8d 14 52     lea     (%edx, %edx, 2), %edx</span><br><span class="line">13:  85 d2        test    %edx, %edx</span><br><span class="line">15:  7f f3        jg      a &lt;silly+0xa&gt;</span><br><span class="line">17:  89 d0        mov     %edx, %eax</span><br></pre></td></tr></table></figure><br>我们看到在反汇编代码里的第一行，前面地址为<code>0x8</code>的地方，<code>0x7e</code>代表<code>jle</code>, <code>0xd</code>代表要跳转的地址，但是对应的汇编地址却是<code>0x17</code>, 其实<code>0x17</code>是通过<code>0x8</code>处的<code>0xd</code>与下一行<code>0xa</code>的地址（正是PC程序计数器的值)相加得出的。</p>
+<h4 id="翻译条件分支"><a href="#翻译条件分支" class="headerlink" title="翻译条件分支"></a>翻译条件分支</h4><p>如何将条件表达式和语句从C语言翻译成机器代码，最常用的方式是结合有条件和无条件跳转。通过一个例子来说明：<br>a) 原始的C语言代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    if (x &lt; y)</span><br><span class="line">        return y - x;</span><br><span class="line">    else</span><br><span class="line">        return x - y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>b) 与之等价的goto版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    int result;</span><br><span class="line">    if (x &gt;= y)</span><br><span class="line">        goto x_ge_y;</span><br><span class="line">    result = y - x;</span><br><span class="line">    goto done;</span><br><span class="line">    x_ge_y:</span><br><span class="line">        result = x - y;</span><br><span class="line">    done:</span><br><span class="line">        return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># x at %ebp + 8, y at %ebp + 12</span><br><span class="line">  movl 8(%ebp), %edx    #get x</span><br><span class="line">  movl 12(%ebp), %eax   #get y</span><br><span class="line">  cmpl %eax, %edx       #compare y:x 即用x-y的值更新标记位</span><br><span class="line">  jge  .L2              # x &gt; y </span><br><span class="line">  subl %edx, %eax       # y = y - x</span><br><span class="line">  jmp  .L3              #goto L3</span><br><span class="line">.L2:</span><br><span class="line">  subl %eax, %edx       #x = x - y</span><br><span class="line">  movl %edx, %eax       #y = x</span><br><span class="line">.L3:                    #done return x</span><br></pre></td></tr></table></figure>
+<h4 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h4><p>其实循环和条件分支所利用的都是jump指令和标记寄存器的值，这里就不再说明了。</p>
+<h4 id="条件传送指令"><a href="#条件传送指令" class="headerlink" title="条件传送指令"></a>条件传送指令</h4><p>实现条件操作的传统方法是利用<em>控制</em>的条件转移。但是在现代处理器上，它可能会非常的低效率。<em>数据</em>的条件转移是一种替代的策略。这种方法先计算一个条件操作的两种结果，然后再根据条件是否满足选取一个。通过一个例子来说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int absdiff(int x , int y) &#123;</span><br><span class="line">    return x &lt; y ? y-x:x-y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>产生的汇编代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># x at %ebp + 8, y at %ebp + 12</span><br><span class="line">movl    8(%ebp), %ecx   #get x</span><br><span class="line">movl    12(%ebp), %edx  #get y</span><br><span class="line">movl    %edx, %ebx      #copy y</span><br><span class="line">subl    %ecx, %ebx      #compute y - x</span><br><span class="line">movl    %ecx, %eax      #copy x</span><br><span class="line">subl    %edx, %eax      #compute x - y, set as return value</span><br><span class="line">cmpl    %edx, %ecx      #compare x:y</span><br><span class="line">cmovl   %ebx, %eax      #if &lt;, replace return value with y - x</span><br></pre></td></tr></table></figure><br>注意这个与上面的<em>翻译条件分支</em>一节的汇编做比较。这种方式效率会更好。原因是跟第4章和第5章讲的处理器的结构有关系，处理器通过<em>流水线(pipelining)</em>来获得高性能。第二种方式可以把所有的指令都放入到流水线中，而第一种方式则需要根据条件判断哪个指令放入到流水线，从这点可以看出第二种方式总是能把指令都放入流水线中，保证了执行的效率。</p>
+<h4 id="switch语句"><a href="#switch语句" class="headerlink" title="switch语句"></a>switch语句</h4><p>switch(开关)语句可以根据一个整数索引值进行多重分支(multi-way branching)。处理具有多种可能结果的测试时。这种语句特别有用。它们不仅提高了C代码的可读性，而且通过使用<em>跳转表(jump table)</em>这种数据结构使得实现更加高效。</p>
+<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>一个过程调用包括将数据（以过程参数和返回值的形式）和控制从代码的一部分传递到另一部分。另外，它还必须在进入时为过程的局部变量分配空间，并在退出时释放这些空间。数据传递、局部变量的分配和释放通过操纵程序栈来实现。</p>
+<h4 id="栈桢结构"><a href="#栈桢结构" class="headerlink" title="栈桢结构"></a>栈桢结构</h4><p>为单个过程分配的那部分栈称为<em>栈帧(stack frame)</em>。寄存器%ebp为<em>帧指针</em>,而寄存器%esp为<em>栈指针</em>。栈帧结构（栈用来传递参数、存储返回信息、保存寄存器，以及本地存储）<br><img src="/assets/img/csapp/fig3.21.png" alt></p>
+<h4 id="转移控制"><a href="#转移控制" class="headerlink" title="转移控制"></a>转移控制</h4><p>支持过程调用和返回的指令：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>call Label</td>
+<td>过程调用</td>
+</tr>
+<tr>
+<td>call *Operand</td>
+<td>过程调用</td>
+</tr>
+<tr>
+<td>leave</td>
+<td>为返回准备栈</td>
+</tr>
+<tr>
+<td>ret</td>
+<td>从过程调用中返回</td>
+</tr>
+</tbody>
+</table>
+<p>call指令的效果是将返回地址入栈，并跳转到被调用过程的起始处。返回地址是在程序中紧跟在call后面的那条指令地址。<br>例如：<br><img src="/assets/img/csapp/fig3.22.png" alt><br>执行call的之后栈顶入栈的地址为call命令后那条命令的地址，然后ret执行后把这个地址弹出到%eip，开始执行%eip处的命令。%eip应该是程序计数器。还有一个要注意的是<em>保存的%ebp</em>,这个起始是上一个帧的起始地址，当前过程执行完后，这个保存的%ebp就会返回到%ebp中，更新当前帧的开始地址为上一帧的地址。</p>
+<h4 id="寄存器使用惯例"><a href="#寄存器使用惯例" class="headerlink" title="寄存器使用惯例"></a>寄存器使用惯例</h4><p>程序寄存器组是唯一能被所有过程共享的资源。虽然在给定时刻只能有一个过程是活动的，但是我们必须保证当一个过程(<em>调用者</em>)调用另一个过程(<em>被调用者</em>)时，被调用者不会覆盖某个调用者稍后会使用的寄存器的值。根据惯例，寄存器%eax、%edx和%ecx被划分为<em>调用者保存</em>寄存器。当过程P调用Q时，Q可以覆盖这些寄存器，而不会破任何P所需要的数据。另一方面，寄存器%ebx、%esi和%edi被划分为<em>被调用者保存</em>寄存器。这意味着Q必须在覆盖这些寄存器之前，先把它们保存到栈中，并在返回前恢复它们。</p>
+<h4 id="过程示例"><a href="#过程示例" class="headerlink" title="过程示例"></a>过程示例</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int swap_add(int *xp, int *yp)</span><br><span class="line">&#123;</span><br><span class="line">    int x = *xp;</span><br><span class="line">    int y = *yp;</span><br><span class="line">    </span><br><span class="line">    *xp = y;</span><br><span class="line">    *yp = x;</span><br><span class="line">    return x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int caller()</span><br><span class="line">&#123;</span><br><span class="line">    int arg1 = 534;</span><br><span class="line">    int arg2 = 1057;</span><br><span class="line">    int sum = swap_add(&amp;arg1, &amp;arg2);</span><br><span class="line">    int diff = arg1 - arg2;</span><br><span class="line">    </span><br><span class="line">    return sum * diff;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/assets/img/csapp/fig3.24.png" alt><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">caller:</span><br><span class="line">    pushl   %ebp    #save old %ebp, 保存上一个帧的开始地址</span><br><span class="line">    movl    %esp, %ebp  #set %ebp as frame pointer，更新%ebp地址为当前帧的地址</span><br><span class="line">    subl    $24, %esp   #alllocate 24 bytes on stack, 申请栈空间，指针头向下移动</span><br><span class="line">    movl    $534, -4(%ebp)  #set arg1 to 534</span><br><span class="line">    movl    $1057, -8(%ebp) #set arg2 to 1057</span><br><span class="line">    leal    -8(%ebp), %eax  #compute &amp;arg2</span><br><span class="line">    movl    %eax, 4(%esp)   #store on stack</span><br><span class="line">    leal    -4(%ebp), %eax  #compute &amp;arg1</span><br><span class="line">    movl    %eax, (%esp)    #store to stack</span><br><span class="line">    call    swap_add    #call the swap_add function</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>ps:为什么GCC分配从不使用的空间<br>GCC为caller分配了24个字节，但是却只是用了16个字节，这是因为GCC坚持一个x86编程指导方针，也就是一个函数使用的所有栈空间必须是16字节的整数倍。包括%ebp值的4个字节和返回值的4个字节，caller一共使用了32个字节。采用这个规则是为了保证访问数据的严格对齐(alignment)。</p>
+</blockquote>
+<p>swap_add开始代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">swap_add:</span><br><span class="line">    pushl   %ebp</span><br><span class="line">    movl    %esp, %ebp</span><br><span class="line">    pushl   %ebx #需要寄存器%ebp做为临时存储。因为这是一个被调用者保存的寄存器。</span><br></pre></td></tr></table></figure><br>swap_add主体代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">movl    8(%ebp), %edx   #get xp</span><br><span class="line">movl    12(%ebp), %ecx  #get yp</span><br><span class="line">movl    (%edx), %ebx    #get x</span><br><span class="line">movl    (%ecx), %eax    #get y</span><br><span class="line">movl    %eax, (%edx)    #store y at xp</span><br><span class="line">movl    %ebx, (%ecx)    #store x at yp</span><br><span class="line">addl    %ebx, %eax      #return value = x+y</span><br></pre></td></tr></table></figure><br>这段代码从caller的栈帧中取出它的参数,这点需要注意。<br>swap_add结束代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">popl    %ebx    #restore %ebx, 从栈帧中弹出之前存储的%ebx的值到%ebx，恢复%ebx的值</span><br><span class="line">popl    %ebp    #restore %ebp, 从栈帧中弹出之前存储的%ebp的值到%ebp，恢复%ebp的值</span><br><span class="line">ret             #return, 弹出地址到%eip， 并且从上个帧调用call下一行的地址开始执行。</span><br></pre></td></tr></table></figure></p>
+<h4 id="递归过程"><a href="#递归过程" class="headerlink" title="递归过程"></a>递归过程</h4><p>上面描述的栈链接惯例使得过程能够递归地调用它们自身。因为每个调用过程都有它自己的私有空间，多个未完成调用的局部变量不会相互影响。</p>
+<ul>
+<li><p>递归的阶乘程序的C代码:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int rfact(int n)</span><br><span class="line">&#123;</span><br><span class="line">    int result;</span><br><span class="line">    if (n &lt;= 1)</span><br><span class="line">        result = 1;</span><br><span class="line">    else </span><br><span class="line">        result = n * rfact(n-1);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对应的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># argument: n at %ebp + 8</span><br><span class="line"># registes: n in %ebx, result in %eax</span><br><span class="line">rfact:</span><br><span class="line">    pushl   %ebp    #save old %ebp</span><br><span class="line">    movl    %esp, %ebp  #set %ebp as frame pointer</span><br><span class="line">    pushl   %ebx    #save callee save register %ebx</span><br><span class="line">    subl    $4, %esp    #allocate 4 byte on stack</span><br><span class="line">    movl    8(%ebp), %ebx   #get n</span><br><span class="line">    movl    $1, %eax #result = 1</span><br><span class="line">    cmpl    $1, $ebx    # 比较参数 n 与 1</span><br><span class="line">    jle     .L53    #if n &lt;= 1， 跳到L53</span><br><span class="line">    leal    -1(%ebx), %eax  #%eax &lt;- n-1</span><br><span class="line">    movl    %eax, (%esp) #n-1保存到栈顶</span><br><span class="line">    call    rfact   #调用rfact(n-1)</span><br><span class="line">    imull   %ebx, $eax #result = return value * n</span><br><span class="line">.L53:</span><br><span class="line">    addl    $4, %esp</span><br><span class="line">    popl    %ebx</span><br><span class="line">    popl    %ebp</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+<p>当n=1时，调用L53，被调用过程返回，然后继续执行imull指令 %eax 值 1</p>
+<p><img src="/assets/img/csapp/fig3.27.png" alt><br>递归的阶乘函数的栈帧,这是递归调用之前的帧状态。</p>
+<h2 id="数组分配和访问"><a href="#数组分配和访问" class="headerlink" title="数组分配和访问"></a>数组分配和访问</h2><p>C语言中数组是一种将标量数据聚集成为更大数据类型的方式。</p>
+<h3 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h3><p>对于数据类型T和整型常数N，声明如下：<br>T A[N]<br>它有两个效果：  </p>
+<ol>
+<li>它在存储器中分配一个\( L \bullet N \)字节的连续区域；这里L是数据类型T的大小(单位为字节), 用<strong> \( x_{A} \) </strong> 来表示起始位置。  </li>
+<li>它引入了标符A;可以用A作为指向数组开头的指针,这个指针的值就是<strong> \(x_{A}\) </strong>。数组元素i被存放在地址为 \(x_{A} + L \bullet i\)的地方。<br>通过例子加深理解：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char    A[12];</span><br><span class="line">char    *B[8]; //指针数组，数组的值是(char *)类型，指针的地址是int型的。</span><br><span class="line">double  C[6];</span><br><span class="line">double  *D[5];</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>数组</th>
+<th>元素大小</th>
+<th>总的大小</th>
+<th>起始地址</th>
+<th>元素i</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>1</td>
+<td>12</td>
+<td>\(x_{A}\)</td>
+<td>\(x_{A} + i\)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>4</td>
+<td>32</td>
+<td>\(x_{B}\)</td>
+<td>\(x_{B} + 4i\)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>8</td>
+<td>48</td>
+<td>\(x_{C}\)</td>
+<td>\(x_{C} + 8i\)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>4</td>
+<td>20</td>
+<td>\(x_{D}\)</td>
+<td>\(x_{D} + 4i\)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="异质的数据结构"><a href="#异质的数据结构" class="headerlink" title="异质的数据结构"></a>异质的数据结构</h2><p>C语言提供了两种结合不同类型的对象来创建数据类型的机制：<em>结构(structure)</em>，用关键字struct声明， 将多个对象集合到一个单位中；<em>联合(union)</em>, 用关键字union声明，允许用集中不同的类型来引用一个对象。</p>
+<h3 id="数据对齐"><a href="#数据对齐" class="headerlink" title="数据对齐"></a>数据对齐</h3><p>许多计算机系统对基本数据类型合法地址做出了一些限制，要求某种类型对象的地址必须是某个值k(通常是2，4或8)的倍数。这种<em>对齐限制</em>简化了形成处理器和存储器系统之间接口的硬件设计。<br>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct S1 &#123;</span><br><span class="line">    int i;</span><br><span class="line">    char c;</span><br><span class="line">    int j;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>按照最小字节分配应该是这样的：<br><img src="/assets/img/csapp/fig3.28.png" alt><br>但是要遵循字节对齐，真实的分配情况是这样的：<br><img src="/assets/img/csapp/fig3.29.png" alt>  </p>
+<h2 id="综合：理解指针"><a href="#综合：理解指针" class="headerlink" title="综合：理解指针"></a>综合：理解指针</h2><p>指针和它们映射到机器代码的关键原则:  </p>
+<ul>
+<li>每个指针都对应一个类型。void * 类型代表通用指针。</li>
+<li>每个指针都有一个值。这个值是某个指定类型对象的地址。</li>
+<li>指针用&amp;运算符创建。常用<code>leal</code>指令来计算表达式的值。<code>int * p = &amp;x</code></li>
+<li>操作符用于指针的间接引用。</li>
+<li>数组与指针紧密联系。</li>
+<li>将指针从一种类型强制转换为另一种类型，只改变它的类型，而不改变它的值。</li>
+<li>指针也可以指向函数。</li>
+</ul>
+<h2 id="存储器的越界引用和缓冲区溢出"><a href="#存储器的越界引用和缓冲区溢出" class="headerlink" title="存储器的越界引用和缓冲区溢出"></a>存储器的越界引用和缓冲区溢出</h2><p>C对于数组引用不进行任何边界检查，而且局部变量和状态信息(例如保存的寄存器值和返回地址),都存放在栈中。这两种情况结合到一起就可能导致严重的程序错误，对越界的数组元素的写操作会破坏存储在栈中的状态信息。一种常见的状态破坏称为<em>缓冲区溢出(buffer overflow)</em>。入下图所示:<br><img src="/assets/img/csapp/fig3.31.png" alt><br>为buf分配的空间只有8个字节元素，上面地址保存的是%ebx, %ebp和返回地址的值，如果buf的长度超过分配的长度，就会把多出来的元素写入到保存这些寄存器地址的值，破坏%ebx，%ebp和返回地址的值，这样程序就不能正确的返回%ebx的值，不能正确的返回上以栈帧的地址，不能正确返回下一条要执行的命令地址。如果这些输入的元素包含一些可执行代码的字节编码，称为<em>攻击代码(exploit code)</em>, 比如串改返回地址的值，使程序返回到恶意程序的代码地址进行执行，就会成为我们所说的<em>蠕虫和病毒</em>。<br>对抗缓冲区溢出攻击的方法：(详细的原理不再赘述，可以自己google)  </p>
+<ol>
+<li>栈随机化。</li>
+<li>栈破坏检测。</li>
+<li>限制可执行代码区域。</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/CSAPP/">CSAPP</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/06/restful-web-services-chapter7/"><span>chapter7-12:REST章节总结</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/06/restful-web-services-chapter7/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-05T16:00:00.000Z">
+          2013-12-06
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="第七章：一个服务实现"><a href="#第七章：一个服务实现" class="headerlink" title="第七章：一个服务实现"></a>第七章：一个服务实现</h2><blockquote>
+<p><em>本章主要是根据前面的给出的一些介绍和原则进行，用ROR对其进行一个简单的实现。其中最重要的是作者分析需求的过程以及如何根据这些需求与ROA架构进行融合。本章是设计ROA服务步骤的具体实践过程,是对第六章的一个继承。</em></p>
+</blockquote>
+<h2 id="第八章：REST和ROA最佳实践"><a href="#第八章：REST和ROA最佳实践" class="headerlink" title="第八章：REST和ROA最佳实践"></a>第八章：REST和ROA最佳实践</h2><p>本章主要讲REST和ROA的实现过程中遇到的一些问题，以及如何应对这些问题：</p>
+<ul>
+<li>GET请求与HEAD请求是安全的，它们不应导致服务器状态发生改变。</li>
+<li>GET、HEAD、PUT与DELETE请求应该是幂等的，想一个URL发送多次应该与只做过一次请求的效果一样。</li>
+<li>POST既不是安全的也不是幂等的。</li>
+<li>遇到不支持PUT或DELETE请求的的情况，要用重载的POST请求来实现。</li>
+<li>HTTP异步操作可以通过返回状态码202告诉客户端已接受到请求，正在等待处理</li>
+<li>HTTP如何实现事务操作的过程比较复杂。</li>
+<li>复杂请求遵循的原则是：如果无法用统一接口适应多个动作，那就把它本身暴露为资源。</li>
+<li>URL的设计要考虑到新旧版本的更迭。</li>
+</ul>
+<p>其它涉及到HTTP缓存和认真等是HTTP本身的特性，不在这里介绍了。</p>
+<h2 id="第九章：服务的技术构件"><a href="#第九章：服务的技术构件" class="headerlink" title="第九章：服务的技术构件"></a>第九章：服务的技术构件</h2><p>本章第一部分是介绍在使用rest 服务是数据的表示方式，这不再说了，第二部分是如何定义请求与返回状态码。第三部分结束了WADL这个web应用描述语言，类似于SOAP的WSDL语言但它是基于REST的，虽然用法上感觉差不多，但其实是有着本质的区别的，我的理解是：WSDL和WADL都是为了简化编程，但是WSDL是根据SOAP的风格规定了调用的函数，传递的参数等，而WSDL则是遵循REST风格，规定了请求的方法、地址及请求的参数。</p>
+<h2 id="第十章：面向资源的架构VS大Web服务"><a href="#第十章：面向资源的架构VS大Web服务" class="headerlink" title="第十章：面向资源的架构VS大Web服务"></a>第十章：面向资源的架构VS大Web服务</h2>
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter5/"><span>chapter5:设计只读的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter5/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是针对只读类型的ROA架构进行设计的，只读的HTTP方法包括GET和HEAD。通过一个地图的例子对具体的设计过程进行了介绍。</em></p>
+</blockquote>
+<h2 id="资源设计"><a href="#资源设计" class="headerlink" title="资源设计"></a>资源设计</h2><p>RPC式架构设计方法是把系统分解为一个个的动作。REST式则是参考面向对象的程序设计,面向对象设计主要有类和方法，这里的资源设计策略可以称为：“极限面向对象”的策略，一个资源只暴露一个统一接口，最多支持六种HTTP方法。</p>
+<h2 id="创建只读资源"><a href="#创建只读资源" class="headerlink" title="创建只读资源"></a>创建只读资源</h2><p>本章提出了一些列步骤来说明如何设计一个ROA的只读资源服务，它们是：</p>
+<ol>
+<li>规划数据集</li>
+<li>把数据集划分为资源<br> 对其中的每种资源：</li>
+<li>用URI为该资源命名</li>
+<li>设计发给客户端的表示</li>
+<li>用超链接和表单把该资源与已有资源联系起来</li>
+<li>考虑有哪些典型的事件经过</li>
+<li>考虑可能出现哪些错误情况</li>
+</ol>
+<p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
+</blockquote>
+<ul>
+<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
+<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
+<li>成功的HTTP的相应代码有可能是201、205等。</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/04/restful-web-services-chapter4/"><span>chapter4:面向资源的架构</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/04/restful-web-services-chapter4/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-03T16:00:00.000Z">
+          2013-12-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这一章说的是一个具体的REST式架构——面向资源的架构(Resource-Oriented Architecture, ROA)。ROA是一种把实际问题转换为REST式Web服务的方法：它令URI、HTTP和XML具有跟其他Web应用一样的工作方式，令程序员们容易是用它们。<br>这一章将面向资源的架构(ROA)的功能分成：资源、资源名称、资源的表示、资源间的链接。还将介绍ROA的特性：可寻址性(addressability)、无状态性(statelessness)、连通性(connectedness)和统一接口(uniform interface)。</em></p>
+</blockquote>
+<p>这里有一个容易混淆的地方：为什么有REST了还要用一个ROA呢？<strong>REST</strong>就是一个指导原则，只要满足REST原则，任何具体的设计都可以成为REST式架构。而<strong>ROA</strong>就是REST的一个具体的设计架构，可以称之为具体的架构。关于REST的设计原则请参考Roy Fielding的博士论文：《架构风格与基于网络的软件架构设计》及博客：<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a>。其中总结REST的架构的6个主要的特性如下：</p>
+<ul>
+<li><p>客户-服务器（Client-Server）<br>通信只能由客户端单方面发起，表现为请求-响应的形式。</p>
+</li>
+<li><p>无状态（Stateless）<br>通信的会话状态（Session State）应该全部由客户端负责维护。</p>
+</li>
+<li><p>缓存（Cache）<br>响应内容可以在通信链的某处被缓存，以改善网络效率。</p>
+</li>
+<li><p>统一接口（Uniform Interface）<br>通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</p>
+</li>
+<li><p>分层系统（Layered System）<br>通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</p>
+</li>
+<li><p>按需代码（Code-On-Demand，可选）<br>支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</p>
+</li>
+</ul>
+<p>这些特性在介绍ROA的时候也会具体详细的介绍。<br>REST并不依赖于HTTP机制或URI结构，对于特定的服务来说比如Web服务来说明REST，则其具体的表现形式就是HTTP与URI，这些具体的架构形式就称之为ROA架构。如果一个REST式的服务不是基于Web的则可能不叫ROA,但是其遵循的原则都是一致的，只不过表现形式会有一些差别。</p>
+<h2 id="什么是资源"><a href="#什么是资源" class="headerlink" title="什么是资源"></a>什么是资源</h2><p>这里的定义是：任何事物，只要具有被引用的必要，它就是一个资源(resource)。<br>资源的具体形式在计算机里就是体现为比特流的事物，如文档、数据库的记录、某程序的运行结果。</p>
+<h2 id="URIs"><a href="#URIs" class="headerlink" title="URIs"></a>URIs</h2><p>在web里是什么令资源称得上为一个资源呢？那就是它必须至少有一个URI。URI既是资源的地址又是资源的名称，如果一则信息没有URI,那就不能称之为一个资源，而只能算是描述另一个资源的一些数据。<br>资源与URI的关系式：<br><strong>URI:资源——&gt; N:1</strong></p>
+<h2 id="可寻址性"><a href="#可寻址性" class="headerlink" title="可寻址性"></a>可寻址性</h2><p><strong>ROA的第一个特性</strong>.这个很好理解，就是每个资源都有自己的URI,这个URI在一定时间内是固定不变的，在有效的时间内用户可以通过URI来找到该资源。</p>
+<h2 id="无状态性"><a href="#无状态性" class="headerlink" title="无状态性"></a>无状态性</h2><p><strong>ROA的第二个特性</strong>.意味着每个HTTP请求都是完全孤立的。这个应该很好理解。<br>这里还有两个概念：<code>应用状态</code>和<code>资源状态</code>。应用状态是要保存到客户端的，资源状态是保存在服务端的。其实这两个状态是资源与客户端所拥有的资源的状态，每个资源之间是孤立的。</p>
+<h2 id="连通性"><a href="#连通性" class="headerlink" title="连通性"></a>连通性</h2><p>这个特性是要求资源之间通过它们的表示彼此链接起来。这个特性主要是体现web的易用性。</p>
+<h2 id="统一接口"><a href="#统一接口" class="headerlink" title="统一接口"></a>统一接口</h2><p>统一接口的意思就是要求对资源的操作要按照REST的要求进行，也就是特定的操作要使用对应的操作方法，而不是混乱的使用。<br>常用的HTTP方法已经介绍过了，但是有几点需要注意的是</p>
+<ul>
+<li><p>PUT与POST该用哪个？这个是很容易混淆的地方，一般来说POST表示的是增加新的资源，PUT表示修改已有的资源。但是还有下面几个原则：</p>
+<ul>
+<li>客户端负责决定新资源采用什么URI，就用PUT;服务器负责新资源采用什么URI,那就用POST。</li>
+<li>对现有资源进行追加信息的时候采用POST。</li>
+</ul>
+</li>
+<li><p>重载的POST不符合统一接口。<br>这点并不好理解。其实大部分的时候我们见到的都是这种：它们用POST向一个数据加工处理程序提供数据块（a block of data ）。其中一个最常见的例子就是form表单的提交。这种方法是通过单个HTTP方法表达无数个非HTTP方法。这种重载的POST不应该被用于掩饰拙略的资源设计，这个时候可以通过调整资源设计来做到统一接口。具体如何做，还要等了解再补充。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/29/restful-web-services-chapter3/"><span>chapter3:REST式服务有什么特别不同</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/29/restful-web-services-chapter3/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-28T16:00:00.000Z">
+          2013-11-29
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>前面讲了不少关于Rest的知识，但是现在大部分都是RPC或者REST-RPC混合的模式，这种并不是纯粹的Rest架构。本章就是为了介绍REST架构及面向资源的服务到底是什么样的。</em></p>
+</blockquote>
+<h2 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h2><p>Amazon S3为例子进行介绍。S3提供SOAP和REST两种服务方式，一个桶就是一个放置资源的仓库，桶列表就是仓库的列表，一个对象就是放置到仓库里的一个资源。S3的资源及其方法如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>GET</th>
+<th>HEAD</th>
+<th>PUT</th>
+<th>DELETE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>桶列表</td>
+<td>列出所有桶</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>一个桶</td>
+<td>列出桶里的对象</td>
+<td>-</td>
+<td>创建桶</td>
+<td>删除桶</td>
+</tr>
+<tr>
+<td>一个对象</td>
+<td>获取对象的值及元数据</td>
+<td>获取对象的元数据</td>
+<td>设置对象的值及元数据</td>
+<td>删除对象</td>
+</tr>
+</tbody>
+</table>
+<p>从表中可以看出每个方法的作用都是名副其实的。</p>
+<h2 id="HTTP相应代码"><a href="#HTTP相应代码" class="headerlink" title="HTTP相应代码"></a>HTTP相应代码</h2><p>利用HTTP响应代码是REST架构的另一个标志象征。程序根据HTTP响应代码来判断响应的内容是正确的还是错误的。</p>
+<h2 id="一个S3客户端"><a href="#一个S3客户端" class="headerlink" title="一个S3客户端"></a>一个S3客户端</h2><p>下面我们根据S3客户端编写的代码来剖析REST服务。</p>
+<h4 id="对桶的操作"><a href="#对桶的操作" class="headerlink" title="对桶的操作"></a>对桶的操作</h4><p><strong>获取桶的列表(GET方法):</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 桶列表</span><br><span class="line">class BucketList</span><br><span class="line">    inlcude Authorized</span><br><span class="line"></span><br><span class="line">    #获取该用户的所有桶</span><br><span class="line">    def get</span><br><span class="line">        buckets = []</span><br><span class="line">        #向桶列表的URI发送GET请求，并读取返回的XML文档</span><br><span class="line">        doc = REXML::Document.new(open(HOST).read)</span><br><span class="line">        </span><br><span class="line">        #对于每个桶...</span><br><span class="line">        REXML::XPath.each(doc, &quot;//Bucket/Name&quot;) do |e|  </span><br><span class="line">            #...创建一个Bucket对象，并把它添加到列表中</span><br><span class="line">            bucket &lt;&lt; Bucket.new(e.text) if e.text</span><br><span class="line">        end</span><br><span class="line">        return buckets</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br><strong>保存或更新桶(PUT方法)和删除桶(DELETE方法):</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># 一个S3桶</span><br><span class="line">class Bucket</span><br><span class="line">    include Authorized</span><br><span class="line">    attr_accessor   :name</span><br><span class="line"></span><br><span class="line">    def initialize(name)</span><br><span class="line">        @name = name</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    #桶的URI等于服务的根URI加上桶名</span><br><span class="line">    def uri</span><br><span class="line">        HOST + URI.escape(name)</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    #在S3上保存这个桶</span><br><span class="line">    #类似于在数据库里保存对象的ActiveRecord::Base#save.</span><br><span class="line">    def put(acl_policy=nil)</span><br><span class="line">        #设置HTTP方法，作为open()的参数</span><br><span class="line">        #同时为该桶设置S3访问策略（如果有提供的话）</span><br><span class="line">        args = &#123;:method=&gt; :put&#125;</span><br><span class="line">        args[&quot;x-amz-acl&quot;] =acl_policy if acl_policy</span><br><span class="line">        </span><br><span class="line">        #向该桶的URI发送PUT请求</span><br><span class="line">        open(uri, args)</span><br><span class="line">        return self</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    #删除该桶</span><br><span class="line">    #如果该桶不为空的话，改删除操作将失败</span><br><span class="line">    #并返回HTTP响应代码409（&quot;Conflict&quot;)</span><br><span class="line">    def delete</span><br><span class="line">        open(uri, :method =&gt; :delete)</span><br><span class="line">    end</span><br></pre></td></tr></table></figure></p>
+<h4 id="对对象的操作"><a href="#对对象的操作" class="headerlink" title="对对象的操作"></a>对对象的操作</h4><p><strong>获取对象(GET方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"># 获取桶里的全部或部分对象</span><br><span class="line">def get(options=&#123;&#125;)</span><br><span class="line">    #获取该桶的基准URI，并把子集选项</span><br><span class="line">    #附加到查询字符串上</span><br><span class="line">    uri = uri()</span><br><span class="line">    suffix = &apos;?&apos;</span><br><span class="line"></span><br><span class="line">    #对于用户提供的每个选项...</span><br><span class="line">    options.each do |param, value|</span><br><span class="line">        #...如果属于某个S3子集选项...</span><br><span class="line">        if [:Prefix, :Maker, :Delimiter, :MaxKeys].member? :param</span><br><span class="line">            #...把它附加到URI上</span><br><span class="line">            uri &lt;&lt; suffix &lt;&lt; param.to_s &lt;&lt; &apos;=&apos; &lt;&lt; URI.escape(value)</span><br><span class="line">            suffix = &apos;&amp;&apos;</span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    #现在我们已经构造好了URI,向该URI发送GET请求，</span><br><span class="line">    #并读取含有S3对象信息的XML文档</span><br><span class="line">    doc = REXML::Document.new(open(uri).read)</span><br><span class="line">    there_are_more = REXML::XPath.first(doc, &quot;//IsTruncated&quot;).text == &quot;true&quot;</span><br><span class="line"></span><br><span class="line">    #构建一个S3::Object对象的列表</span><br><span class="line">    objects = []</span><br><span class="line">    #对于桶里的每个S3对象...</span><br><span class="line">    REXML::XPath.each(doc, &quot;//Contents/Key&quot;) do |e|</span><br><span class="line">        #...构建一个S3:Object对象，并把它添加到列表中</span><br><span class="line">        objects &lt;&lt; Object.new(self, e.text) if e.text</span><br><span class="line">    end</span><br><span class="line">    return objects, there_are_more</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p><strong>获取对象数据(GET方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 跟某个桶关联的一个具有值和元数据的S3对象</span><br><span class="line">class Object</span><br><span class="line">    include Authorized</span><br><span class="line">    </span><br><span class="line">    #客户端可以知道对象在哪个桶里</span><br><span class="line">    attr_reader :bucket</span><br><span class="line">    </span><br><span class="line">    #客户端可以读写对象的名称</span><br><span class="line">    attr_accessor :name</span><br><span class="line"></span><br><span class="line">    #客户端可以写对象的元数据和值</span><br><span class="line">    attr_writer :metadata, :value</span><br><span class="line">    </span><br><span class="line">    def initialize(bucket, name, value=nil, metadata=nil)</span><br><span class="line">        @bucket, @name, @value, @metadata = bucket, name, value, metadata</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    #对象的URI等于所在桶的URI加上该对象的名称</span><br><span class="line">    def uri</span><br><span class="line">        @bucket.uri + &apos;/&apos; + URI.escape(name)</span><br><span class="line">    end</span><br></pre></td></tr></table></figure></p>
+<p><strong>获取对象元数据(HEAD方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># 获取对象的元数据hash</span><br><span class="line">def metadata</span><br><span class="line">    #如果没有元数据...</span><br><span class="line">    unless @metadata</span><br><span class="line">        #向对象的URI发送一个HEAD请求，并从响应的HTTP报头里读取元数据</span><br><span class="line">        begin</span><br><span class="line">            store_metadata(open(uri, :method =&gt; :head).meta)</span><br><span class="line">        rescue OpenURI::HTTPError =&gt; e</span><br><span class="line">            if e.io.status == [&quot;404&quot;, &quot;Not Found&quot;]</span><br><span class="line">                #假如没有元数据是因为对象不存在，这不算错误</span><br><span class="line">                @metadata = &#123;&#125;</span><br><span class="line">            else</span><br><span class="line">                #其他情况，做错误处理</span><br><span class="line">                raise e</span><br><span class="line">            end</span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">    return @metadata</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br><strong>获取对象数据(GET方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 获取对象的值和元数据</span><br><span class="line">def value</span><br><span class="line">    #如果没有值...</span><br><span class="line">    unless @value</span><br><span class="line">        #向对象的URI发送GET请求</span><br><span class="line">        response = opne(uri)</span><br><span class="line">        #从相应的HTTP报头里读取元数据</span><br><span class="line">        store_metadata(respons.meta) unless @metadata</span><br><span class="line">        #从实体主体里读取值</span><br><span class="line">        @value = response.read</span><br><span class="line">    end</span><br><span class="line">    return @value</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br><strong>保存对象数据(PUT方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 在S3上保存对象</span><br><span class="line">def put(acl_policy=nil)</span><br><span class="line">    #以原始元数据的副本开始，或者</span><br><span class="line">    #如果没有元数据的话，就以空hash开始。</span><br><span class="line">    args = @metadata ? @metadata.cloen ：&#123;&#125;</span><br><span class="line">    #设置HTTP方法、实体主体及一些另外的HTTP报头</span><br><span class="line">    args[:method] = :put</span><br><span class="line">    args[&quot;x-amz-acl&quot;] = acl_policy if acl_policy</span><br><span class="line">    if @value</span><br><span class="line">        args[&quot;Content-Lenght&quot;] = @value.size.to_s</span><br><span class="line">        args[:body] = @value</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    #向对象的URI发送PUT请求</span><br><span class="line">    open(uri, args)</span><br><span class="line">    return self</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br><strong>删除对象数据(DELETE方法)</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 删除对象</span><br><span class="line">def delete</span><br><span class="line">    #向对象的URI发送DELETE请求</span><br><span class="line">    open(uri,:method =&gt; :delete)</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br>通过上面这些例子的介绍，我们对每个方法的使用都有了一个大致的印象，知道每个方法对应的应用场景。实际的使用过程中是如何把他们关联起来的呢？下面再对它们的应用通过一个例子做一个综合的介绍。</p>
+<h2 id="使用S3客户端"><a href="#使用S3客户端" class="headerlink" title="使用S3客户端"></a>使用S3客户端</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"># !/usr/bin/ruby -w</span><br><span class="line">#  s3-sample-client.rb</span><br><span class="line">require &apos;S3lib&apos;</span><br><span class="line"></span><br><span class="line"># 收集命令行参数</span><br><span class="line">bucket_name, object_name, object_value = ARGV</span><br><span class="line">unless bucket_name</span><br><span class="line">    puts &quot;Usage: #&#123;0&#125; [bucket name] [object name] [object value]&quot;</span><br><span class="line">    exit</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># 找到或创建桶</span><br><span class="line">buckets = S3::BucketList.new.get    #GET /</span><br><span class="line">bucket = buckets.detect&#123; |b| b.name == bucket_name &#125;</span><br><span class="line">if bucket</span><br><span class="line">    puts &quot;Found bucket #(bucket_name).&quot;</span><br><span class="line">else</span><br><span class="line">    puts &quot;Could not find bucket #&#123;bucket_name&#125;, creating it&quot;</span><br><span class="line">    bucket = S3::Bucket.new(bucket_name)</span><br><span class="line">    bucket.put</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># 创建对象</span><br><span class="line">object = S3:Object.new(bucket, object_name)</span><br><span class="line">object.metadata[&apos;content-type&apos;] = &apos;text/plain&apos;</span><br><span class="line">object.value = object_value</span><br><span class="line">object.put                              #PUT /&#123;bucket&#125;/&#123;object&#125;</span><br><span class="line"></span><br><span class="line"># 对桶里的每个对象...</span><br><span class="line">bucket.get[0].each do |o|               #GET /&#123;bucket&#125;</span><br><span class="line">    #...打印出有关该对象的信息</span><br><span class="line">    puts &quot;Name: #&#123;o.name&#125;&quot;</span><br><span class="line">    puts &quot;Value: #&#123;o.value&#125;&quot;            #GET /&#123;bucket&#125;/&#123;object&#125;</span><br><span class="line">    puts &quot;Metadata hash: #&#123;o.metadata.inspect&#125;&quot;</span><br><span class="line">    puts</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h2 id="用ActiveResource创建透明的客户端"><a href="#用ActiveResource创建透明的客户端" class="headerlink" title="用ActiveResource创建透明的客户端"></a>用ActiveResource创建透明的客户端</h2><p>安装ruby on rails，然后利用rails生成一个创建一个自己的app，根据书里的过程并参考《Ruby On Ralis 3 Toturial》中的例子就可以完成。建立完成后可以在页面中看到notes的操作了，可以增加，编辑，删除note,可以到在views里可以看到这么一段代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;td&gt;&lt;%= link_to &apos;Destroy&apos;, note, method: :delete, data: &#123; confirm: &apos;Are you sure?&apos; &#125; %&gt;&lt;/td&gt;</span><br></pre></td></tr></table></figure><br>ruby中前端是通过method来指定HTTP请求的发送类型的，但是我在web端看到的请求是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Request Method:POST</span><br><span class="line">Form Data:</span><br><span class="line">_method:delete</span><br></pre></td></tr></table></figure><br>从这里来看ruby并没有在HTTP请求的方法中就变为DELETE，而是在from里传了一个参数，这并不是符合标准的REST架构的。鉴于我对ROR还不了解，现在可能有些不太明白，先看着后面的章节，等了解后再完善本章内容。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/27/restful-web-services-chapter2/"><span>chapter2:编写Web服务客户端</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/27/restful-web-services-chapter2/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-26T16:00:00.000Z">
+          2013-11-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是介绍如何编写一个简单的Web Service客户端服务，但是其中涉及到一些知识是之前我没有注意和研究过的，所以这一章学习一下还是很有用的。</em></p>
+</blockquote>
+<h2 id="封装库、WADL和ActiveResource"><a href="#封装库、WADL和ActiveResource" class="headerlink" title="封装库、WADL和ActiveResource"></a>封装库、WADL和ActiveResource</h2><p>web服务用的是HTTP请求，但是HTTP请求的过程却是大同小异的，所以如果每次请求都要自己写整个过程的话确实比较麻烦，而且容易出bug。最好的方法是对它们进行封装，<code>封装库</code>确实简化了web服务编程，但是还有一个问题就是这个封装库有很多种，没有一个统一的标准，于是又一个想法冒出来了：可不可以抽象服务间的差异，使一个封装库能够用于所有的REST式和混合式架构？答案当然是可以，了解SOAP的都知道有一个WSDL转本用来描述服务的格式。而REST社区就这个标准还没达成一致，这里作者推荐的是WADL作为面向资源的描述语言。</p>
+<h2 id="用HTTP库发送请求"><a href="#用HTTP库发送请求" class="headerlink" title="用HTTP库发送请求"></a>用HTTP库发送请求</h2><p>不同的语言有不同的HTTP库来封装底层的HTTP请求，这里如果要构建一个完全通用的Web客户端，HTTP库需要具有以下特征：</p>
+<ul>
+<li>必须支持HTTPS和SSL证书验证。主要是为了安全传输。</li>
+<li>必须支持至少五个主要的HTTP方法：GET/HEAD/PUT/POST/DELETE。因为这是REST风格所必须的。</li>
+<li>必须允许定制PUT或POST请求的实体主体数据。</li>
+<li>必须允许定制请求的HTTP报头。</li>
+<li>必须能够获取HTTP响应的响应代码及报头。</li>
+<li>必须支持通过HTTP代理进行HTTP通信。</li>
+</ul>
+<p>可选特性：</p>
+<ul>
+<li>为了节省带宽，需要支持压缩的报头(Encoding)</li>
+<li>HTTP库能够自动把返回的响应缓存起来</li>
+<li>HTTP库应该透明的支持常见的HTTP认证形式</li>
+<li>HTTP库应该能够透明地作HTTP重定向</li>
+<li>HTTP库能够解析并创建HTTP cookie字符串</li>
+</ul>
+<h2 id="用XML解析器处理相应"><a href="#用XML解析器处理相应" class="headerlink" title="用XML解析器处理相应"></a>用XML解析器处理相应</h2><p>这里重点的内容是XML的解析器的几种不同的原理。<br>有两种XML的解析策略：</p>
+<ul>
+<li>基于文档的(document-based)策略（如DOM等树式解析器）</li>
+<li>基于事件的(event-based)策略（如SAX及“拖”式解析器）</li>
+</ul>
+<p><strong>基于文档的策略</strong><br>这种策略是最简单的,先把整个文档加载进来，然后根据XPath等把整个文档转换为树式结构，然后就可以处理所需的节点了。这种方案的缺点就是必须要有完整的XML文档才行。<br><strong>SAX式或拖式（pull）解析器</strong><br>这种是把XML文档转换为事件流，而不是数据结构。首标签（staring tag）、尾标签（closing tag）、XML注释（comments）及实体声明（entity declaration）等都是事件（event）。<br>如果每个事件都要处理则拖式解析器是很有用的。拖式解析器允许一次处理一个事件，处理完一个事件后再从事件流拖出下一个事件，是一个类似先进先出的链表。<br>如果只关心部分事件，那么SAX则更有用。向SAX解析器注册一些回调方法。一旦定义好回调方法，解析器将按照既定的、跟文档无关的步骤执行下去：解析器将把XML文档转换为一系列事件，并连接处理文档中的每个事件；每当一个事件与回调方法所对应的事件匹配时，解析器就会触发该回调方法，执行你定义的代码；回调方法执行结束后，SAX解析器将接着继续处理事件序列。关于PHP的基于事件的XML解析器可以参考<a href="http://us3.php.net/manual/en/ref.xml.php" target="_blank" rel="noopener">php文档</a>中的说明。<br>基于文档的解析器优点是：可以随机访问文档中的内容；而对于基于事件的解析器，事件触发以后就没有机会再处理了。如果XML格式有问题，基于事件的解析器直到遇到错误的地方才会报错和崩溃。<br>实际使用过程中可以根据自己的需求选择不同的XML文档解析器。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+
+<nav class="pagination">
+  
+  <a href="/page/4/" class="pagination-prev">Prev</a>
+  
+  
+  <a href="/page/6/" class="pagination-next">Next</a>
+  
+</nav>
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

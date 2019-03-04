@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>setuptools配置文件参数详解 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="前面介绍了python的打包工具setuptools的用法，这里对其配置文件setup.py进行一个详细的介绍，以便以后使用的时候能够找到相应的配置。
+
+常见的参数这里的参数主要是参考setuptools官方文档而来，下面经常用到的参数进行一个详细的介绍，以后要是有其他的参数，再做补充。name这个">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="setuptools配置文件参数详解">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>setuptools配置文件参数详解</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/04/setuptools-setuppy-config/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-03T16:00:00.000Z">
+          2013-11-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>前面介绍了python的打包工具setuptools的用法，这里对其配置文件setup.py进行一个详细的介绍，以便以后使用的时候能够找到相应的配置。</em></p>
+</blockquote>
+<h2 id="常见的参数"><a href="#常见的参数" class="headerlink" title="常见的参数"></a>常见的参数</h2><p>这里的参数主要是参考<a href="http://pythonhosted.org/setuptools/setuptools.html#new-and-changed-setup-keywords" target="_blank" rel="noopener">setuptools官方文档</a>而来，下面经常用到的参数进行一个详细的介绍，以后要是有其他的参数，再做补充。<br><strong>name</strong><br>这个参数主要是标识工程的名字。这个名字就是打包后的包的名字。<br><strong>version</strong><br>这个参数主要是标识工程的版本号，打包后的名字包含这个版本号。<br>在安装同一个包的不同版本是可以用如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install -i http://10.11.215.61:3141/simple/ myproject==1.1.7 </span><br></pre></td></tr></table></figure><br><strong>packages</strong><br>这个参数主要是说明要打包的工程的源代码路径，默认不写的话是从本工程的根目录开始，也可自定义，要引入find_packages函数，函数参数是包的相对路径.。<br><strong>package_dir</strong><br>这个主要是为了说明包的路径<br><strong>zip_safe</strong><br><strong>scripts</strong><br><strong>entry_points</strong><br><strong>include_package_data</strong><br>这个参数是为了表示打包是需要包含的文件，如果值为True，表示setuptools打包时会自动包含package目录下的所有文件，这些文件可能是在版本控制下或者在MANIFEST.in文件中表明的文件。详情请参考<a href="http://pythonhosted.org/setuptools/setuptools.html#including-data-files" target="_blank" rel="noopener">文档</a><br>注意MANIFEST.ini的写法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">include README.rst #包含具体的文件</span><br><span class="line">...</span><br><span class="line">include django/dispatch/license.txt #包含相对目录的文件</span><br><span class="line">recursive-include docs * #循环包含某个文件夹下所有的文件</span><br></pre></td></tr></table></figure><br>ps:亲测，版本控制这个好像不太靠谱，还是自己写都包含哪些文件吧~<br><strong>package_data</strong><br>跟上面的参数意思差不多，只不过这里表示粒度比较小的文件，上面没有包含到的文件可以在这里包含，一边表示比较具体的文件。<br><strong>description</strong><br><strong>long_description</strong><br><strong>author</strong><br><strong>author_email</strong><br><strong>license</strong><br><strong>keywords</strong><br><strong>platforms</strong><br><strong>url</strong>  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

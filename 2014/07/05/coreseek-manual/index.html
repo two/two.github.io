@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>coreseek使用手册 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="产生文本摘要和高亮函数原型:function BuildExcerpts ( $docs, $index, $words, $opts=array() )
+相关文档:(官方文档)该函数用来产生文档片段（摘要）。连接到searchd，要求它从指定文档中产生片段（摘要），对命中词高亮，并返回结果。  
+">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="coreseek使用手册">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>coreseek使用手册</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/07/05/coreseek-manual/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-07-04T16:00:00.000Z">
+          2014-07-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="产生文本摘要和高亮"><a href="#产生文本摘要和高亮" class="headerlink" title="产生文本摘要和高亮"></a>产生文本摘要和高亮</h2><h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型:"></a>函数原型:</h3><p><code>function BuildExcerpts ( $docs, $index, $words, $opts=array() )</code></p>
+<h3 id="相关文档"><a href="#相关文档" class="headerlink" title="相关文档:"></a>相关文档:</h3><p>(<a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#api-func-buildexcerpts" target="_blank" rel="noopener">官方文档</a>)<br>该函数用来产生文档片段（摘要）。连接到searchd，要求它从指定文档中产生片段（摘要），对命中词高亮，并返回结果。  </p>
+<ul>
+<li><code>$docs</code>为包含各文档内容的数组。必须把需要高亮的文本内容以数组的形式传入到函数中，最后输出的是标红后的文本摘要数组。</li>
+<li><code>$index</code>为包含索引名字的字符串。给定索引的不同设置（例如字符集、形态学、词形等方面的设置）会被使用。</li>
+<li><code>$words</code>为包含需要高亮的关键字的字符串。它们会按索引的设置被处理。例如，如果英语取词干（stemming）在索引中被设置为允许，那么即使关键词是“shoe”，“shoes”这个词也会被高亮。从版本0.9.9-rc1开始，关键字可以包含通配符，与查询支持的star-syntax类似。</li>
+<li><p><code>$opts</code>为包含其他可选的高亮参数的hash表：</p>
+<ul>
+<li><code>&quot;before_match&quot;</code>:在匹配的关键字前面插入的字符串。从版本 1.10-beta开始，可以在该字符串中使用%PASSAGE_ID%宏。该宏会被替换为当前片段的递增值。递增值的起始值默认为1，但是可以通过</li>
+<li><code>&quot;start_passage_id&quot;</code>设置覆盖。在多文档中调用时，%PASSAGE_ID%会在每篇文档中重新开始。默认为”<b>“。</b></li>
+<li><code>&quot;after_match&quot;</code>:在匹配的关键字后面插入的字符串。从版本1.10-beta开始，可以在该字符串中使用%PASSAGE_ID%宏。默认为 ““。</li>
+<li><code>&quot;chunk_separator&quot;</code>:在摘要块（段落）之间插入的字符串。默认为” … “.</li>
+<li><code>&quot;limit&quot;</code>:摘要最多包含的符号（码点）数。整数，默认为256。</li>
+<li><code>&quot;around&quot;</code>:每个关键词块左右选取的词的数目。整数，默认为 5.</li>
+<li><code>&quot;exact_phrase&quot;</code>:是否仅高亮精确匹配的整个查询词组，而不是单独的关键词。布尔值，默认为false.</li>
+<li><code>&quot;single_passage&quot;</code>:是否仅抽取最佳的一个区块。布尔值，默认为false.</li>
+<li><code>&quot;use_boundaries&quot;</code>:是否跨越由phrase_boundary选项设置的词组边界符。布尔型，默认为false.</li>
+<li><code>&quot;weight_order&quot;</code>:对于抽取出的段落，要么根据相关度排序（权重下降），要么根据出现在文档中的顺序（位置递增）。布尔型，默认是false.</li>
+<li><code>&quot;query_mode&quot;</code>:版本1.10-beta新增。设置将<code>$words</code>当作 扩展查询语法的查询处理，还是当做普通的文本字符串处理（默认行为）。例如，在查询模式时，(“one two” | “three four”)仅高亮和包含每个片段中出现”one two” 或 “three four” 的地方及相邻的部分。而在默认模式时， 每个单独出现”one”, “two”, “three”, 或 “four”的地方都会高亮。布尔型，默认是false。</li>
+<li><code>&quot;force_all_words&quot;</code>:版本1.10-beta新增. 忽略摘要的长度限制直至包含所有的词汇。布尔型，默认为false.</li>
+<li><code>&quot;limit_passages&quot;</code>:版本1.10-beta新增. 限制摘要中可以包含的最大区块数。整数值，默认为 0 (不限制).</li>
+<li><code>&quot;limit_words&quot;</code>:版本1.10-beta新增. 限制摘要中可以包含的最大词汇数。整数值，默认为 0 (不限制).</li>
+<li><code>&quot;start_passage_id&quot;</code>:版本1.10-beta新增. 设置 %PASSAGE_ID% 宏的起始值 (在before_match, after_match 字符串中检查和应用). 整数值，默认为1.</li>
+<li><code>&quot;load_files&quot;</code>:版本1.10-beta新增. 设置是否将$docs作为摘要抽取来源的数据（默认行为），或者将其当做文件名。从版本2.0.1-beta开始，如果该标志启用，每个请求将创建最多dist_threads个工作线程进行并发处理。布尔型，默认为false.</li>
+<li><code>&quot;html_strip_mode&quot;</code>:版本1.10-beta新增. HTML标签剥离模式设置。默认为”index”，表示使用index的设置。可以使用的其他值为”none”和”strip”，用于强制跳过或者应用剥离，而不管索引如何设置的。还可以使用”retain”，表示保留HTMK标签并防止高亮时打断标签。”retain”模式仅用于需要高亮整篇文档，并且不能设置限制片段的大小。字符型，可用值为”none”，”strip”，”index”或者”retain”。</li>
+<li><code>&quot;allow_empty&quot;</code>:版本1.10-beta新增. 允许无法产生摘要时将空字符串作为高亮结果返回 (没有关键字匹配或者不符合片段限制。). 默认情况下，原始文本的开头会被返回而不是空字符串。布尔型，默认为false.</li>
+<li><p><code>&quot;passage_boundary&quot;</code>:版本2.0.1-beta新增. 确保区块不跨越句子，段落或者zone区域（仅当每个索引的设置启用时有效）。字符型，可用值为 “sentence”, “paragraph”, 或者 “zone”.”emit_zones”:版本2.0.1-beta新增. 在每个区块前使用区域对应的HTML标签来封闭区域。布尔型，魔默认为false。</p>
+<p>摘要提取算法倾向于提取更好的片段（与关键词完全匹配），然后是不在摘要中但是包含了关键词的片段。 通常情况下，它会尝试高亮查询的最佳匹配，并且在限制条件下尽可能的高亮查询中的所有关键词。 如果文档没有匹配查询，默认情况下将根据限制条件返回文档的头部。从版本1.10-beta开始，可以通过设置allow_empty属性位true以返回空的片段来替代默认方式。<br>失败时返回false。成功时返回包含有片段（摘要）字符串的数组。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><p>代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">//...略</span><br><span class="line">include(&quot;SphinxClient.php&quot;);</span><br><span class="line">class test&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    protected function make_words_highLight($source,$kw)&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        $cll = new SphinxClient ();</span><br><span class="line">        $opts = array</span><br><span class="line">            (</span><br><span class="line">                &quot;before_match&quot;      =&gt; &quot;&lt;span style=&apos;color:red&apos;&gt;&quot;,</span><br><span class="line">                &quot;after_match&quot;          =&gt; &quot;&lt;/span&gt;&quot;,</span><br><span class="line">                &quot;chunk_separator&quot;     =&gt; &quot; ... &quot;,</span><br><span class="line">                &quot;limit&quot;                =&gt; 10,</span><br><span class="line">                &quot;around&quot;               =&gt; 6,</span><br><span class="line">            );</span><br><span class="line">        $index = &quot;test1&quot;;</span><br><span class="line">        return $cll-&gt;BuildExcerpts($source,$index,$kw,$opts);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    //test</span><br><span class="line">    public function test()&#123;</span><br><span class="line">        $content = array(&quot;北京是中华人民共和国的首都&quot;,&quot;中国的首都是北京，2008奥运会就在这里举办的&quot;,&quot;京东老板刘强东&quot;);</span><br><span class="line">        $qsKey = &quot;北京 东&quot;;</span><br><span class="line">        $contentArr = $this-&gt;make_words_highLight($content,$qsKey);</span><br><span class="line">        print_r($contentArr);die;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$m = new test();</span><br><span class="line">$m-&gt;test();</span><br><span class="line"></span><br><span class="line">?&gt;</span><br><span class="line">//输出结果</span><br><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [0] =&gt; &lt;span style=&apos;color:red&apos;&gt;北京&lt;/span&gt;是中华人民共和国 ... </span><br><span class="line">    [1] =&gt;  ... 首都是&lt;span style=&apos;color:red&apos;&gt;北京&lt;/span&gt;，2008 ... </span><br><span class="line">    [2] =&gt; 京东老板刘强&lt;span style=&apos;color:red&apos;&gt;东&lt;/span&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<h2 id="mmseg-同义词-复合分词处理"><a href="#mmseg-同义词-复合分词处理" class="headerlink" title="mmseg 同义词/复合分词处理"></a>mmseg 同义词/复合分词处理</h2><h3 id="文档-官方文档"><a href="#文档-官方文档" class="headerlink" title="文档(官方文档)"></a>文档(<a href="http://www.coreseek.cn/opensource/mmseg/#coreseek_mmseg_complex" target="_blank" rel="noopener">官方文档</a>)</h3><p>mmseg 3.2.13版本开始，提供了类似复合分词的处理方式，供coreseek进行调用。<br>其基本使用状况为：</p>
+<ul>
+<li>词库包含：<code>南京西路、南京、西路</code>(注意，一定要加入生成uni.lib的词库中)</li>
+<li>索引时：文本中的“南京西路”会被同时索引为以上三者查</li>
+<li>查询时：输入南京西路，可以直接匹配南京西路，而不匹配南京或者西路；输入南京或者西路，也可以搜索到南京西路</li>
+</ul>
+<p>用法：</p>
+<ol>
+<li>处理<code>unigram.txt</code>(在<code>mmseg3/etc</code>目录下)将词库加入，利用命令<code>mmseg -u unigram.txt</code> 生成新的词库<code>unigram.txt.uni</code>,用新的词库替代老词库<code>mv unigram.txt.uni uni.lib</code>(ps:被替换的同义词必须加入词库中，例如想让一个没有的词<code>测试</code>映射同义词<code>南京西路</code>则需要<code>南京西路</code>在词库中,<code>测试</code>不需要加入).</li>
+<li><p>生成同义词库文件mmseg-3.2.13源代码<code>/script/build_thesaurus.py unigram.txt &gt; thesaurus.txt</code>(默认的同义词库，可自己修改).<br><code>thesaurus.txt</code>文件的格式如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">南京西路</span><br><span class="line">-南京,西路,</span><br><span class="line">张三丰</span><br><span class="line">-太极宗师,武当祖师,</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成同义词词典:<code>mmseg -t thesaurus.txt</code>. 将<code>thesaurus.lib</code>放到<code>uni.lib</code>同一目录</p>
+</li>
+<li>停止索引服务searchd，重新建立索引，然后启动searchd (ps : 如果只是加入了新的同义词映射，没有修改词表的话不需要重启服务，只需重建索引即可)</li>
+<li>coreseek索引和搜索时，会自动进行复合分词处理。搜索<code>南京</code>，<code>西路</code>时都能将搜索<code>南京西路</code>的结果匹配到</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/coreseek/">coreseek</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

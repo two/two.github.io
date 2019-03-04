@@ -1,0 +1,995 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Page 3 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/11/27/observer-pattern/"><span>设计模式-观察者模式</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/27/observer-pattern/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-26T16:00:00.000Z">
+          2014-11-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>在学习js事件的时候，说js事件其实就是观察者模式，所以打算先把观察者模式了解一下，这样就能更好的理解事件机制了。</p>
+</blockquote>
+<p>由于观察者模式，其实比较好理解，这里就举<a href="http://zh.wikipedia.org/wiki/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">wikipedia的例子</a><br>观察者模式的UML类图如下:</p>
+<img src="http://www.plantuml.com/plantuml/svg/Iyv9B2vMy4ygJYqgIorIgERIpiiloKohrD3agkLA1ai6boPbfIQNWEGIKr9WIe4Aj5DISr9BKf5589gHH626EEVd9HSXANP4jieQfp8d_CgWJaCo38_LKCLEE1HZkb2tj42tnWuUE5oOZiEb0kukg08edml3AMZoy7ZGrSt7fSbHGK_F3ZCyCSt6fio92m00">
+<p>分析一下这个类图。主要分为两种类。一个是观察者类(Observer), 一个是被观察者类(Subject), 被观察者类有三种方法分别是：</p>
+<ul>
+<li><code>addObserver()</code>: 添加观察者到被观察者类中</li>
+<li><code>deleteObserver()</code>: 从被观察者类中删除观察者</li>
+<li><code>notifyObserver()</code>: 通知已经注册过的观察者</li>
+</ul>
+<p>这里<code>ConcreteSubjectA</code>和<code>ConcreteSubjectB</code>是继承<code>Subject</code>的。当有多个被观察者类时可以用这种方式，当只有一个被观察者类时，可以直接用<code>Subject</code>进行实例话，不需要派生类。<br><code>Observer</code>是观察者的抽象类。所有的观察者都继承自这个类。每个观察者类都要实现一个<code>notify()</code>函数。这个函数是当被观察者发生变化需要通知观察者的时候调用的，也就是<code>notifyObserver()</code>调用的。</p>
+<h2 id="代码事例"><a href="#代码事例" class="headerlink" title="代码事例:"></a>代码事例:</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Student"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I'm a student of "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Teacher"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I teach in "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Subject</span> <span class="keyword">implements</span> <span class="title">SplSubject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $nome_materia;</span><br><span class="line">    <span class="keyword">private</span> $_observadores = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">private</span> $_log = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_materia</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome_materia;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">SET_log</span><span class="params">($valor)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = $valor ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">GET_log</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;_log;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome_materia = $nome;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" Subject $nome was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Adiciona um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">attach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_classes[] = $classes;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Remove um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">detach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $key =&gt; $obj) &#123;</span><br><span class="line">            <span class="keyword">if</span> ($obj == $classes) &#123;</span><br><span class="line">                <span class="keyword">unset</span>(<span class="keyword">$this</span>-&gt;_classes[$key]);</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was removed"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Notifica os observadores */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">notify</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $classes) &#123;</span><br><span class="line">            $classes-&gt;update(<span class="keyword">$this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the math Subject</span></span><br><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br><span class="line"> </span><br><span class="line">$subject2 = <span class="keyword">new</span> Subject(<span class="string">"English"</span>);</span><br><span class="line">$renato = <span class="keyword">new</span> Teacher(<span class="string">"Renato"</span>);</span><br><span class="line">$fabio = <span class="keyword">new</span> Student(<span class="string">"Fabio"</span>);</span><br><span class="line">$tiago = <span class="keyword">new</span> Student(<span class="string">"tiago"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the english Subject</span></span><br><span class="line">$subject2-&gt;attach($renato);</span><br><span class="line">$subject2-&gt;attach($vinicius);</span><br><span class="line">$subject2-&gt;attach($fabio);</span><br><span class="line">$subject2-&gt;attach($tiago);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Remove the instance "Rafael from subject"</span></span><br><span class="line">$subject-&gt;detach($rafael);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Notify both subjects</span></span><br><span class="line">$subject-&gt;notify();</span><br><span class="line">$subject2-&gt;notify();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">echo</span> <span class="string">"First Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;hr&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"Second Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject2-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br></pre></td></tr></table></figure>
+<p>输出结果:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//First Subject</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">//Second Subject</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Array (</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">   [0] =&gt;  Subject English was included</span></span><br><span class="line"><span class="string">   [1] =&gt;  The Teacher Renato was included</span></span><br><span class="line"><span class="string">   [2] =&gt;  The Student Vinicius was included</span></span><br><span class="line"><span class="string">   [3] =&gt;  The Student Fabio was included</span></span><br><span class="line"><span class="string">   [4] =&gt;  The Student tiago was included</span></span><br><span class="line"><span class="string">   [5] =&gt; Comes from Renato: I teach in English</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Vinicius: I'</span>m a student of English</span><br><span class="line">   [<span class="number">7</span>] =&gt; Comes from Fabio: I<span class="string">'m a student of English</span></span><br><span class="line"><span class="string">   [8] =&gt; Comes from tiago: I'</span>m a student of English</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>结合代码我们再具体分析。上面的代码中有<code>SplObserver</code>是观察者基类,观察者类<code>Student</code>和<code>Teacher</code>都继承它。被观察者<code>Subject</code>继承自<code>SplSubject</code>基类,实现了三个函数:添加观察者的<code>attach</code>、删除观察者的<code>detach</code>及通知观察者的<code>notify</code>。我们还注意到每个观察者类都有一个<code>update</code>函数，这个函数是被观察者通知观察者时的接口，由<code>notify</code>函数调用并传递被观察者的信息到观察者。这就是一个完整的观察者模式的代码实例。</p>
+<p>我们再看如何使用:<br>开始的时候初始化观察者和被观察者类:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br></pre></td></tr></table></figure>
+<p>然后把观察者注册到被观察者中:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br></pre></td></tr></table></figure>
+<p>接着又把<code>$rafael</code>从观察者类中删除了:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;detach($rafael);</span><br></pre></td></tr></table></figure>
+<p>最后由被观察者通知注册的观察者做出改变:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;notify();</span><br></pre></td></tr></table></figure>
+<p>所以最后的结果如下:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br></pre></td></tr></table></figure>
+<p>第二个分析方法相同,不在赘述了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/设计模式/">设计模式</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/11/21/factory-pattern/"><span>设计模式-工厂模式</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/21/factory-pattern/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-20T16:00:00.000Z">
+          2014-11-21
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>工厂模式如果细分的话可以分为工厂方法，简单工厂模式和抽象工厂模式,本文对其进行一一介绍。</p>
+</blockquote>
+<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>首先先举一个例子<br>需求：创建一个按钮，在不同的系统上有不同的风格.<br>分析，如果不用模式：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">drawButton</span><span class="params">($type)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">        &#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> WimButton();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        button-&gt;draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，这段代码也很简洁，但是我们只考虑了两种系统，当增加系统时（比如ubuntu ,centos, redhat等) 我们就会不停的添加判断分之：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">    button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">&#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">    button = <span class="keyword">new</span> WinButton();</span><br><span class="line">&#125; <span class="keyword">else</span> ($type == <span class="string">'ubuntu'</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>这个条件语句就会变的不可控。为了使代码看起来更简洁，并且添加分类更容易可以进行如下改造:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">drawButton</span><span class="params">($type)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        button = ButtonFactory::create($type);</span><br><span class="line">        button-&gt;draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class ButtonFactory()&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">($type)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">        &#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> WinButton();</span><br><span class="line">        &#125; <span class="keyword">else</span> ($type == <span class="string">'ubuntu'</span>) &#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> button;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新增了一个ButtonFactory类，负责创建button对象使对象的创建和使用进行了分离。其实PHP还可以这么写:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class ButtonFactory()&#123;</span><br><span class="line">    static public function create($type) &#123;</span><br><span class="line">            button = new $type.&quot;Button&quot;();  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用UML类图表示他们之间的关系，就是这样的:</p>
+<img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE02IoWubPQKvEUv9IQNv1TLAbHpQIia5wKcbgHgQ7BLeYW1owKK9PQ3PL2rwQNab-VfsIc4P-P19738-oOcG-NXAXLqImjqQ-oWbd31LQ29km0jLj0hoapFAD6pGtKqLZa0">
+<p>ButtonFactory是工厂类,负责创建所需的产品类。Button时产品类，WinButton等继承Button。 Draw 是调用的类用到了工厂和产品类，与它们是关联的关系。</p>
+<h2 id="工厂方法"><a href="#工厂方法" class="headerlink" title="工厂方法"></a>工厂方法</h2><p>需求：还是上面的需求，随着操作系统类型的增加，我们会发现这个工厂类还是需要修改和维护，这也很容易冗余而产生问题。这时工厂方法应运而生。先看UML图:<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE02IoWubPQKvEUv9IQNv1TLAbHpQISNfIQMf6feSjL2LOHdvX5Mv9kOJ5WHH0L8AgKeiHoR5LZau2PZaNC1Se72jGfS68xKBItGhR53zHuNXYkngi8mIoydDQr4pmxXJ4o3O4hW4WXJK2r1Q4KJ1_j5JmyN7seH0000"></p>
+<p>工厂方法是针对每一种产品提供一个工厂类。通过不同的工厂实例来创建不同的产品实例。这种进一步抽象化的结果，使这种工厂方法模式可以用来允许系统在不修改具体工厂角色的情况下引进新的系统，这一特点无疑使得工厂方法模式具有超过简单工厂模式的优越性。<br>代码事例:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ButtonFactory</span> </span>&#123;</span><br><span class="line">    abstruct <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WinButtonFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> WinButton();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MacButtonFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MacButton();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class Button() &#123;</span><br><span class="line">abstruct <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WinButton</span> <span class="keyword">extends</span> <span class="title">Button</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"draw win button"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MacButton</span> <span class="keyword">extends</span> <span class="title">Button</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"draw mac button"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">winButton = WinButtonFactory::create();</span><br><span class="line">WinButton-&gt;draw();</span><br><span class="line">macButton = MacButtonFactory::create();</span><br><span class="line">MacButton-&gt;draw();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是工厂方法存在一个问题，那就是我们如果事先不知道会需要哪一种类，需要根据情况来选择。那就又回到了第一种情况：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>($type == <span class="string">"win"</span>) &#123;</span><br><span class="line">        $button = WinButtonFactory::create();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ($type == <span class="string">"mac"</span>) &#123;</span><br><span class="line">        $button = MacButtonFactory::create();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    button-&gt;draw();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时候就需要综合简单工厂和工厂方法两种模式，做出一个混合体：再创建一个简单工厂类，用来根据参数调用工厂方法创建对象。</p>
+<h2 id="抽象工厂"><a href="#抽象工厂" class="headerlink" title="抽象工厂"></a>抽象工厂</h2><p>现在需求又复杂化了: 这次不光要创建按钮，还要画边框(border)，画输入框(input)。<br>让我们再来仔细分析一下需求: 要完成一个画图的程序，这个程序要适应不同的操作系统，这个程序又有许多种元素需要画(比如按钮，边框，输入框)。这里需要注意的是，以前按钮只是一个函数，现在需要多个调用。<br>“工厂”是创建产品（对象）的地方，其目的是将产品的创建与产品的使用分离。抽象工厂模式的目的，是将若干抽象产品的接口与不同主题产品的具体实现分离开。这样就能在增加新的具体工厂的时候，不用修改引用抽象工厂的客户端代码。<br><img src="http://www.plantuml.com/plantuml/svg/hP4z2y8m48Rt-nKT5Md_WD11H71mTWunWo19IHD4gl_TvkjwEJfslETutpn9v4kCOtCHqXdxQIOuIAk4KoVldD6x_H61iGzb2RZgmRim_q36ZljJRr5p4tABcXIPg1r7yqaSfTuwnL18CHGFhqACp1b6pbQymuHQJUk7zjjdRq0tnb48UPm0hHWlBWN70OfFJSa7Pfv787_2DYJJTVtoociBD68BTA8S7s1jWNTcYzGKthPq5qzaI-WF"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>简单工厂模式: 把创建对象的方法进行封装，使其使用和创建进行分离.但是每增加一个类型都要修改工厂类.</li>
+<li>工厂方法: 对每个对象创建都建立一个工厂类，当有类型增加时只需要再创建一个工厂类，不需要修改原来的代码。但是当不确定使用的工厂是哪个时，需要结合简单工厂进行选择。</li>
+<li>抽象工厂: 每个类型出了本身是一个类外，其要完成的功能比较复杂，是多个类的组合。这时就要对每个使用到的类都进行抽象，根据使用类的不同进行选择，其实是工厂方法的复杂版本。</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/设计模式/">设计模式</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/11/19/uml-class-diagram/"><span>UML类图详解</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/19/uml-class-diagram/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-18T16:00:00.000Z">
+          2014-11-19
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>类图(the class diagram)是UML中很重要的一种静态试图，主要用途是在系统设计环节，描述各个类之间的关系。</p>
+</blockquote>
+<h2 id="类的表示方法"><a href="#类的表示方法" class="headerlink" title="类的表示方法"></a>类的表示方法</h2><p>有面向对象知识的人都知道，类是一类事物的抽象。它封装了数据和行为。在UML中类的表示如下：<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE02IoWytxZxwOHUXMek1TsqpDIS54FTvyiRdytfv59G1lEDT9_sJt-oV-wphYLS2jfW8MFTfwrhdhPkv5AeBYv9BCbChbK0YvleFjdH_RHZqlDT-z_lcVLoxind3OrS2dMvgIKP-Ic66azxMZMv5FGXN2EDvxkNF-lShybL2m00"><br>顶部是类的名字，中间是类的属性，底部是类的方法。</p>
+<h2 id="类成员"><a href="#类成员" class="headerlink" title="类成员"></a>类成员</h2><p>UML提供机制，以代表类的成员，如属性和方法，对他们的其他信息。<br>指定一个类成员的可见性（即任何属性或方法）有下列符号，必须摆在各成员的名字之前。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+         公共</span><br><span class="line">-         私有</span><br><span class="line">#          受保护</span><br><span class="line">~         包</span><br><span class="line">/         继承</span><br><span class="line">下划线     静态</span><br></pre></td></tr></table></figure>
+<h2 id="类之间的关系"><a href="#类之间的关系" class="headerlink" title="类之间的关系"></a>类之间的关系</h2><p>类图主要是表现各个类之间的关系，他们的关系以及表示方式如下：</p>
+<h3 id="外部链接"><a href="#外部链接" class="headerlink" title="外部链接"></a>外部链接</h3><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>继承是面向对象最基本的特性，这个就不再说了，这个设计一般没有什么争议性。关系图如下:<br><img src="http://www.plantuml.com/plantuml/svg/Syv9B2usC5ImgT7LLN06Sum0"></p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>实现，是指类(class)实现一个接口(interface)的功能,接口有关的定义在PHP里参见文档<a href="http://php.net/manual/zh/language.oop5.interfaces.php" target="_blank" rel="noopener">对象接口</a>。相当于C++里的抽象类。关系图如下:<br><img src="http://www.plantuml.com/plantuml/svg/yymhIIrAIqnETLImgT7JKt3EIImkTkBoH0XRAMYdbUObbsJcvnbgQ5fpGLIW2mC0"></p>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>依赖关系（Dependency）可以简单的理解为一个类A使用到了另一个类B，而这种使用关系是具有偶然性、临时性的、非常弱的，但是B类的变化会影响到A；表现在代码层面，为类B作为参数被类A在某个method方法中使用；用带燕尾箭头的虚线表示。<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE1o1aauATZevQIcbUWfWBcE45571Ii5xPJKWjIy50seCh0nJffMPVcPAG00"></p>
+<h3 id="关联"><a href="#关联" class="headerlink" title="关联"></a>关联</h3><p>一个关联（Association）代表一个家族的联系。<br>关联可以命名，并结束一个关联可以饰以角色名称，所有权指标，多重性，可视性，以及其他属性，如相互关联和有方向的关联。语义上是两个类、或者类与接口之间一种强依赖关系，是一种长期的稳定的关系；表现在代码层面，为被关联类以类属性的形式出现在关联类中，也可能是关联类引用了一个类 型为被关联类的全局变量；目前定义有五种不同类型的关联。双向（Bi-directional）和单向（uni-directional）的关联是最常见的。<br>下图中展示的关联类A引用了一个类型为被关联类B的全局变量(A关联B);<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE1o1aauATZevgIcbUWgWBcE45571Ii5NR169ok8CW00"><br>在比如人（person）与杂志(magazine)是一种关联(双向):<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE0AI2qgpizJK3BGqzDIKj3LXR5y4zCJgpBpKc4Ah1IqYqkJYfE11gGMSS5aKOHJ57AXmW00"><br>学生与课程的关系(通过注册关联起来)：<br><img src="http://www.plantuml.com/plantuml/svg/Iyv9B2vM22ufJKdDAr6evb9Gy4lCJUMgvO89AHdewMafAUWgA1c26SxvfKN5gLmQK7aTg82cWfwUWcjUKNvEJYvGc8ih6MmmGWHiTafHVe669f2Hd9YNd9e3PDO20000"></p>
+<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><p>聚合（Aggregate）是表示整体与部分的一类特殊的关联关系，是“弱”的包含（has a）关系，成分类别可以不依靠聚合类别而单独存在，可以具有各自的生命周期，部分可以属于多个整体对象，也可以为多个整体对象共享。例如，池塘与（池塘中的）鸭子。再例如教授与课程就是一种聚合关系。聚集可能不涉及两个以上的类别。图形以空心的菱形与实线来表示。<br><img src="http://www.plantuml.com/plantuml/svg/SqlCpSofLCZNpKbDAz6rKt3EoCn9KG00"><br>上面举的例子是家庭和孩子，家庭是整体，孩子是不分，家庭和孩子都是独立的，但是孩子又是家庭的一部分。</p>
+<h3 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h3><p>组成（Composition）关系，是一类“强”的整体与部分的包含关(contains a)系。成分类别必须依靠合成类别而存在。整体与部分是不可分的，整体的生命周期结束也就意味着部分的生命周期结束。合成类别完全拥有成分类别，负责创建、销毁成分类别。例如汽车与化油器，又例如公司与公司部门就是一种组成关系。图形以实心的菱形与实线表示。<br><img src="http://www.plantuml.com/plantuml/svg/SofApCnJiD7DIKqhqTLI24WjAixF0m00"><br>上面举的例子是人与大脑的关系，大脑是人的组成部分，谁也离不开谁。</p>
+<blockquote>
+<p>参考文献:<br><a href="http://blog.csdn.net/zhaoxu0312/article/details/7212152" target="_blank" rel="noopener">1. UML类图关系（泛化 、继承、实现、依赖、关联、聚合、组合） </a><br><a href="http://zh.wikipedia.org/wiki/%E9%A1%9E%E5%88%A5%E5%9C%96" target="_blank" rel="noopener">2. 类别图－维基百科</a></p>
+</blockquote>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/uml/">uml</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/11/07/gdb-manual/"><span>GDB使用手册</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/07/gdb-manual/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-06T16:00:00.000Z">
+          2014-11-07
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<blockquote>
+<p>在学习C语言和学习源代码的过程中为了了解代码的运行过程，必须要DEBUG。GDB是一个不错的选择，有着强大的功能和成熟的技术。本博客记录GDB的各种使用方法，以便进行不断的学习总结。</p>
+</blockquote>
+</blockquote>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/C/">C</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/GDB-DEBUG/">GDB DEBUG</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/07/05/coreseek-manual/"><span>coreseek使用手册</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/07/05/coreseek-manual/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-07-04T16:00:00.000Z">
+          2014-07-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="产生文本摘要和高亮"><a href="#产生文本摘要和高亮" class="headerlink" title="产生文本摘要和高亮"></a>产生文本摘要和高亮</h2><h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型:"></a>函数原型:</h3><p><code>function BuildExcerpts ( $docs, $index, $words, $opts=array() )</code></p>
+<h3 id="相关文档"><a href="#相关文档" class="headerlink" title="相关文档:"></a>相关文档:</h3><p>(<a href="http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html#api-func-buildexcerpts" target="_blank" rel="noopener">官方文档</a>)<br>该函数用来产生文档片段（摘要）。连接到searchd，要求它从指定文档中产生片段（摘要），对命中词高亮，并返回结果。  </p>
+<ul>
+<li><code>$docs</code>为包含各文档内容的数组。必须把需要高亮的文本内容以数组的形式传入到函数中，最后输出的是标红后的文本摘要数组。</li>
+<li><code>$index</code>为包含索引名字的字符串。给定索引的不同设置（例如字符集、形态学、词形等方面的设置）会被使用。</li>
+<li><code>$words</code>为包含需要高亮的关键字的字符串。它们会按索引的设置被处理。例如，如果英语取词干（stemming）在索引中被设置为允许，那么即使关键词是“shoe”，“shoes”这个词也会被高亮。从版本0.9.9-rc1开始，关键字可以包含通配符，与查询支持的star-syntax类似。</li>
+<li><p><code>$opts</code>为包含其他可选的高亮参数的hash表：</p>
+<ul>
+<li><code>&quot;before_match&quot;</code>:在匹配的关键字前面插入的字符串。从版本 1.10-beta开始，可以在该字符串中使用%PASSAGE_ID%宏。该宏会被替换为当前片段的递增值。递增值的起始值默认为1，但是可以通过</li>
+<li><code>&quot;start_passage_id&quot;</code>设置覆盖。在多文档中调用时，%PASSAGE_ID%会在每篇文档中重新开始。默认为”<b>“。</b></li>
+<li><code>&quot;after_match&quot;</code>:在匹配的关键字后面插入的字符串。从版本1.10-beta开始，可以在该字符串中使用%PASSAGE_ID%宏。默认为 ““。</li>
+<li><code>&quot;chunk_separator&quot;</code>:在摘要块（段落）之间插入的字符串。默认为” … “.</li>
+<li><code>&quot;limit&quot;</code>:摘要最多包含的符号（码点）数。整数，默认为256。</li>
+<li><code>&quot;around&quot;</code>:每个关键词块左右选取的词的数目。整数，默认为 5.</li>
+<li><code>&quot;exact_phrase&quot;</code>:是否仅高亮精确匹配的整个查询词组，而不是单独的关键词。布尔值，默认为false.</li>
+<li><code>&quot;single_passage&quot;</code>:是否仅抽取最佳的一个区块。布尔值，默认为false.</li>
+<li><code>&quot;use_boundaries&quot;</code>:是否跨越由phrase_boundary选项设置的词组边界符。布尔型，默认为false.</li>
+<li><code>&quot;weight_order&quot;</code>:对于抽取出的段落，要么根据相关度排序（权重下降），要么根据出现在文档中的顺序（位置递增）。布尔型，默认是false.</li>
+<li><code>&quot;query_mode&quot;</code>:版本1.10-beta新增。设置将<code>$words</code>当作 扩展查询语法的查询处理，还是当做普通的文本字符串处理（默认行为）。例如，在查询模式时，(“one two” | “three four”)仅高亮和包含每个片段中出现”one two” 或 “three four” 的地方及相邻的部分。而在默认模式时， 每个单独出现”one”, “two”, “three”, 或 “four”的地方都会高亮。布尔型，默认是false。</li>
+<li><code>&quot;force_all_words&quot;</code>:版本1.10-beta新增. 忽略摘要的长度限制直至包含所有的词汇。布尔型，默认为false.</li>
+<li><code>&quot;limit_passages&quot;</code>:版本1.10-beta新增. 限制摘要中可以包含的最大区块数。整数值，默认为 0 (不限制).</li>
+<li><code>&quot;limit_words&quot;</code>:版本1.10-beta新增. 限制摘要中可以包含的最大词汇数。整数值，默认为 0 (不限制).</li>
+<li><code>&quot;start_passage_id&quot;</code>:版本1.10-beta新增. 设置 %PASSAGE_ID% 宏的起始值 (在before_match, after_match 字符串中检查和应用). 整数值，默认为1.</li>
+<li><code>&quot;load_files&quot;</code>:版本1.10-beta新增. 设置是否将$docs作为摘要抽取来源的数据（默认行为），或者将其当做文件名。从版本2.0.1-beta开始，如果该标志启用，每个请求将创建最多dist_threads个工作线程进行并发处理。布尔型，默认为false.</li>
+<li><code>&quot;html_strip_mode&quot;</code>:版本1.10-beta新增. HTML标签剥离模式设置。默认为”index”，表示使用index的设置。可以使用的其他值为”none”和”strip”，用于强制跳过或者应用剥离，而不管索引如何设置的。还可以使用”retain”，表示保留HTMK标签并防止高亮时打断标签。”retain”模式仅用于需要高亮整篇文档，并且不能设置限制片段的大小。字符型，可用值为”none”，”strip”，”index”或者”retain”。</li>
+<li><code>&quot;allow_empty&quot;</code>:版本1.10-beta新增. 允许无法产生摘要时将空字符串作为高亮结果返回 (没有关键字匹配或者不符合片段限制。). 默认情况下，原始文本的开头会被返回而不是空字符串。布尔型，默认为false.</li>
+<li><p><code>&quot;passage_boundary&quot;</code>:版本2.0.1-beta新增. 确保区块不跨越句子，段落或者zone区域（仅当每个索引的设置启用时有效）。字符型，可用值为 “sentence”, “paragraph”, 或者 “zone”.”emit_zones”:版本2.0.1-beta新增. 在每个区块前使用区域对应的HTML标签来封闭区域。布尔型，魔默认为false。</p>
+<p>摘要提取算法倾向于提取更好的片段（与关键词完全匹配），然后是不在摘要中但是包含了关键词的片段。 通常情况下，它会尝试高亮查询的最佳匹配，并且在限制条件下尽可能的高亮查询中的所有关键词。 如果文档没有匹配查询，默认情况下将根据限制条件返回文档的头部。从版本1.10-beta开始，可以通过设置allow_empty属性位true以返回空的片段来替代默认方式。<br>失败时返回false。成功时返回包含有片段（摘要）字符串的数组。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><p>代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">//...略</span><br><span class="line">include(&quot;SphinxClient.php&quot;);</span><br><span class="line">class test&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    protected function make_words_highLight($source,$kw)&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        $cll = new SphinxClient ();</span><br><span class="line">        $opts = array</span><br><span class="line">            (</span><br><span class="line">                &quot;before_match&quot;      =&gt; &quot;&lt;span style=&apos;color:red&apos;&gt;&quot;,</span><br><span class="line">                &quot;after_match&quot;          =&gt; &quot;&lt;/span&gt;&quot;,</span><br><span class="line">                &quot;chunk_separator&quot;     =&gt; &quot; ... &quot;,</span><br><span class="line">                &quot;limit&quot;                =&gt; 10,</span><br><span class="line">                &quot;around&quot;               =&gt; 6,</span><br><span class="line">            );</span><br><span class="line">        $index = &quot;test1&quot;;</span><br><span class="line">        return $cll-&gt;BuildExcerpts($source,$index,$kw,$opts);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    //test</span><br><span class="line">    public function test()&#123;</span><br><span class="line">        $content = array(&quot;北京是中华人民共和国的首都&quot;,&quot;中国的首都是北京，2008奥运会就在这里举办的&quot;,&quot;京东老板刘强东&quot;);</span><br><span class="line">        $qsKey = &quot;北京 东&quot;;</span><br><span class="line">        $contentArr = $this-&gt;make_words_highLight($content,$qsKey);</span><br><span class="line">        print_r($contentArr);die;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$m = new test();</span><br><span class="line">$m-&gt;test();</span><br><span class="line"></span><br><span class="line">?&gt;</span><br><span class="line">//输出结果</span><br><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [0] =&gt; &lt;span style=&apos;color:red&apos;&gt;北京&lt;/span&gt;是中华人民共和国 ... </span><br><span class="line">    [1] =&gt;  ... 首都是&lt;span style=&apos;color:red&apos;&gt;北京&lt;/span&gt;，2008 ... </span><br><span class="line">    [2] =&gt; 京东老板刘强&lt;span style=&apos;color:red&apos;&gt;东&lt;/span&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<h2 id="mmseg-同义词-复合分词处理"><a href="#mmseg-同义词-复合分词处理" class="headerlink" title="mmseg 同义词/复合分词处理"></a>mmseg 同义词/复合分词处理</h2><h3 id="文档-官方文档"><a href="#文档-官方文档" class="headerlink" title="文档(官方文档)"></a>文档(<a href="http://www.coreseek.cn/opensource/mmseg/#coreseek_mmseg_complex" target="_blank" rel="noopener">官方文档</a>)</h3><p>mmseg 3.2.13版本开始，提供了类似复合分词的处理方式，供coreseek进行调用。<br>其基本使用状况为：</p>
+<ul>
+<li>词库包含：<code>南京西路、南京、西路</code>(注意，一定要加入生成uni.lib的词库中)</li>
+<li>索引时：文本中的“南京西路”会被同时索引为以上三者查</li>
+<li>查询时：输入南京西路，可以直接匹配南京西路，而不匹配南京或者西路；输入南京或者西路，也可以搜索到南京西路</li>
+</ul>
+<p>用法：</p>
+<ol>
+<li>处理<code>unigram.txt</code>(在<code>mmseg3/etc</code>目录下)将词库加入，利用命令<code>mmseg -u unigram.txt</code> 生成新的词库<code>unigram.txt.uni</code>,用新的词库替代老词库<code>mv unigram.txt.uni uni.lib</code>(ps:被替换的同义词必须加入词库中，例如想让一个没有的词<code>测试</code>映射同义词<code>南京西路</code>则需要<code>南京西路</code>在词库中,<code>测试</code>不需要加入).</li>
+<li><p>生成同义词库文件mmseg-3.2.13源代码<code>/script/build_thesaurus.py unigram.txt &gt; thesaurus.txt</code>(默认的同义词库，可自己修改).<br><code>thesaurus.txt</code>文件的格式如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">南京西路</span><br><span class="line">-南京,西路,</span><br><span class="line">张三丰</span><br><span class="line">-太极宗师,武当祖师,</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成同义词词典:<code>mmseg -t thesaurus.txt</code>. 将<code>thesaurus.lib</code>放到<code>uni.lib</code>同一目录</p>
+</li>
+<li>停止索引服务searchd，重新建立索引，然后启动searchd (ps : 如果只是加入了新的同义词映射，没有修改词表的话不需要重启服务，只需重建索引即可)</li>
+<li>coreseek索引和搜索时，会自动进行复合分词处理。搜索<code>南京</code>，<code>西路</code>时都能将搜索<code>南京西路</code>的结果匹配到</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/coreseek/">coreseek</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/05/26/csapp-chapter8/"><span>csapp chapter8:异常控制流</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/26/csapp-chapter8/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-25T16:00:00.000Z">
+          2014-05-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>程序运行的顺序是根据程序计数器（PC）的值而定的，PC从一个地址到另一个地址的过渡称为<em>控制转移(control transfer)</em>,这样的控制转移序列叫做处理器的<em>控制流(flow of control或 control flow)</em>。一般如果PC是按照顺序地址进行过渡的，控制流是一个平滑的序列，但是有些情况下PC是来回跳转的，这些突变称为<em>异常控制流(Exceptional Control Flow 简称EFC)</em>,EFC发生在计算机系统的各个层次。本章主要分析这种异常控制流。</p>
+</blockquote>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>异常(exception)就是控制流中的突变,用来响应处理器状态中的某些变化。<br>下面通过一个图来理解异常.<br><img src="/assets/img/csapp/fig8.1.png" alt><br>可以看到程序在执行到<em> \(I_{curr}\) </em>时发生了一个异常，导致程序从原来该执行<em> \(I_{next}\)</em> ，变为了执行异常处理, 在执行完异常出理由程序后有下面三种可能：</p>
+<ul>
+<li>处理程序将控制返回给当前指令\(I_{curr}\), 即当事件发生时正在执行的命令。</li>
+<li>处理程序将控制权返回给\(I_{next}\), 即如果没有发生异常将会执行的下一条指令。</li>
+<li>处理程序终止被中断的程序。</li>
+</ul>
+<p>在任何情况下，当处理器检测到有事件发生时，它就会通过一张<em>异常表</em>的跳转表,进行一个间接过程调用(异常)，到一个专门设计用来处理这类事件的操作系统子程序(异常处理程序(exception handler))。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>系统为每个异常的类型都分配了一个唯一的非负整数的<em>异常号(exception number)</em>, 每个异常处理号都对应了一个异常处理程序，这些异常处理程序有些是处理器设计者分配的，有些事操作系统内核的设计者分配的，前者主要包括被零除，缺页，存储器访问违例、断点以及算术溢出，后者主要包括系统调用和来自外部I/O设备的信号。<br>在系统启动时，操作系统分配和初始化一张称为<em>异常表</em>的跳转表，如下：<br><img src="/assets/img/csapp/fig8.2.png" alt><br>这个图显示了如何利用根据异常号来找异常处理程序，并执行。  </p>
+<p><strong>异常与过程调用的区别</strong>：</p>
+<ul>
+<li>异常调用时，在跳转处理器之前，处理器将返回地址压入栈中。返回地址是根据异常的类型而定的，可能是当前指令的地址，也可能是下一条指令的地址。过程调用一般入栈的是下一条指令的地址。</li>
+<li>处理器把一些额外的处理器状态压到栈里，当处理程序返回时，重新开始被中断的程序会需要这些状态。</li>
+<li>如果控制从一个用户程序转移到内核，那么所有的这些项目都被压入内核栈中，而不是压到用户栈中。</li>
+<li>异常处理程序运行在内核模式下。这意味着它们对所有的系统资源具有完全的访问权限。</li>
+</ul>
+<p><strong>异常的类别</strong>:</p>
+<ul>
+<li><strong>中断</strong>:当前指令执行完后，会发现中断引脚的电压高了，就从系统总线读取处理程序。这种异常一般都是由外部的设备引起的，跟处理程序之间没有必然的联系，所以是异步的。下面的都是程序运行过程中自己有意或无意的引起的，所以事同步的行为。</li>
+<li><strong>陷阱</strong>:是一个有意的异常，是执行一条指令引起的，引起异常的指令一般都是系统调用函数（如fork, single, exit, waitpid等），这些函数调用使程序从用户模式切换到了内核模式。</li>
+<li><strong>故障</strong>:故障是由程序运行中的错误造成的，它能够被捕获并被故障处理程序修正。这种故障如缺页异常等。</li>
+<li><strong>终止</strong>:这种异常一般是指不会恢复的致命错误。通常是一些硬件错误。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>原因</th>
+<th>异步/同步</th>
+<th>返回行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中断</td>
+<td>来自I/O设备的信号</td>
+<td>异步</td>
+<td>总是返回到下一条指令</td>
+</tr>
+<tr>
+<td>陷阱</td>
+<td>有意的异常</td>
+<td>同步</td>
+<td>总是返回到下一条指令</td>
+</tr>
+<tr>
+<td>故障</td>
+<td>潜在可恢复的错误</td>
+<td>同步</td>
+<td>可能返回当前指令</td>
+</tr>
+<tr>
+<td>终止</td>
+<td>不可恢复的错误</td>
+<td>同步</td>
+<td>不会返回</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/CSAPP/">CSAPP</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/05/21/csapp-chapter7/"><span>csapp chapter7:链接</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/21/csapp-chapter7/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-20T16:00:00.000Z">
+          2014-05-21
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>链接(linking)是将各种代码和数据部分收集起来并组合成为一个单一文件的过程，这个文件可以被加载（或拷贝）到存储器并执行。链接可以执行于编译时（compile time）,也就是在源代码被翻译成为机器代码时；也可以执行于加载时（load time），也就是在程序被加载器（loader）加载到存储器并执行时；甚至执行于运行时(rum time),由应用程序来执行。</p>
+</blockquote>
+<p>链接器使得分离编译(separate compilation)成为可能。本章将讨论从传统静态链接到加载时的共享库的动态链接，以及到运行时的共享库的动态链接。</p>
+<h2 id="编译器驱动程序"><a href="#编译器驱动程序" class="headerlink" title="编译器驱动程序"></a>编译器驱动程序</h2><p>通过一个例子来说明一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># main.c</span><br><span class="line">void swap();</span><br><span class="line">int buf[2] = &#123;1, 2&#125;;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    swap();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># swap.c</span><br><span class="line">extern int buf[];</span><br><span class="line">int *bufp0 = &amp;uf[0];</span><br><span class="line">int *bufp1;</span><br><span class="line"></span><br><span class="line">void swap()</span><br><span class="line">&#123;</span><br><span class="line">    int temp;</span><br><span class="line">    bufp1 = &amp;buf[1];</span><br><span class="line">    temp = *bufp0;</span><br><span class="line">    *bufp0 = *bufp1;</span><br><span class="line">    *bufp1 = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>大多数系统提供<em>编译驱动程序(compiler driver)</em>,它代表用户在需要时调用语言预处理器，编译器，汇编器和链接器。<br>运行<code>gcc main.c swap.c -o p</code>命令都发生了什么？</p>
+<ol>
+<li>预处理器先将<code>main.c</code>和<code>swap.c</code>翻译成一个ASCII码的中间文件<code>main.i</code>和<code>swap.i</code></li>
+<li>C编译器将<code>main.i</code>和<code>swap.i</code>翻译成ASCII汇编语言文件<code>main.s</code>和<code>swap.s</code></li>
+<li>汇编器将<code>main,s</code>和<code>swap.s</code>翻译成<em>可重定定位的目标文件</em><code>main.o</code>和<code>swap.o</code></li>
+<li>连接器程序ld将<code>main.o</code>和<code>swap.o</code>以及一些必要的系统目标文件组合起来，创建<em>可执行目标文件</em>p</li>
+</ol>
+<p>生产了可执行文件，可以通过过<code>./p</code>来运行，这是由外壳调用操作系统一个叫做<em>加载器</em>的函数,它拷贝可执行文件<code>p</code>中的代码和数据到存储器，然后将控制转移到这个程序的开头。</p>
+<p>本章主要讲的是第4步的内容。</p>
+<h2 id="静态链接"><a href="#静态链接" class="headerlink" title="静态链接"></a>静态链接</h2><p>将一组可重定位目标文件和命令行参数作为输入，生成一个完全链接的可以加载和运行的可执行目标文件作为输出。完成这种功能的是静态连接器，为了构造可执行文件，连接器必须完成两个主要任务：</p>
+<ul>
+<li><em>符号解析</em>(symbol resolution):目标文件定义和引用符号。符号解析的目的是将每个符号引用刚好和一个符号定义联系起来。</li>
+<li><em>重定位</em>(relocation):编译器和汇编器生成从地址0开始的代码和数据节。链接器通过把每个符号定义与一个存储器位置联系起来，然后修改所有对这些符号的引用，使得它们指向这个存储器位置，从而重定为这些节。</li>
+</ul>
+<h2 id="目标文件"><a href="#目标文件" class="headerlink" title="目标文件"></a>目标文件</h2><p>目标文件可以分为三种形式：</p>
+<ul>
+<li><em>可重定位目标文件</em>。包含二进制代码和数据，其形式可以在编译时与其他可重定位目标文件合并起来，创建一个可执行目标文件。</li>
+<li><em>可执行目标文件</em> 包含二进制代码和数据，其形式可以被直接拷贝到存储器链接并执行。</li>
+<li><em>共享目标文件</em>：一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到存储器这并连接。</li>
+</ul>
+<h2 id="可重定位目标文件"><a href="#可重定位目标文件" class="headerlink" title="可重定位目标文件"></a>可重定位目标文件</h2><p>一个典型的可重定位目标文件(ELF)的格式如下：<br><img src="/assets/img/csapp/fig7.3.png" alt>  </p>
+<ul>
+<li>ELF头：包含生成该文件的系统的字的大小和字节顺序，以及帮助连接器分析和解释的目标文件的信息。</li>
+<li>.text: 已编译程序的机器代码</li>
+<li>.rodata: 只读数据，比如printf语句中的格式串和开关语句的跳转表</li>
+<li>.data: <em>已初始化的全局C变量</em>。局部C变量在运行时保存在栈中。</li>
+<li>.bass: <em>未初始化的全局C变量</em>。它仅仅是一个占位符，不占用磁盘空间。</li>
+<li>.symtab: 一个<em>符号表</em>。它存放在程序中定义和引用的函数和全局变量的信息。</li>
+<li>.rel.text: 一个.text节中位置的列表，当连接器把这个目标文件和其他文件结合时，需要修改这些位置。</li>
+<li>.rel.data: 被模块引用或定义的任何全局变量和重定位信息。</li>
+<li>.debug: 一个调试符号表。</li>
+<li>.line: 原始C源程序中的行号和.text节中机器指令之间的映射。</li>
+<li>.strtab:一个字符串表，其内容包括.symtab和.debug节中的符号表，及节头部中的节名字。<br>其中，每个部分都称为节**</li>
+</ul>
+<h2 id="符号和符号表-symtab"><a href="#符号和符号表-symtab" class="headerlink" title="符号和符号表(.symtab)"></a>符号和符号表(.symtab)</h2><p>链接器的上下文中有三种不同的符号：</p>
+<ul>
+<li>由m定义并能被其他模块引用的全局符号。对应C语言中具有文件作用域并具有外部链接的变量</li>
+<li>由其他模块定义并被模块m引用的全局符号。对应C语言中的变量与上面一样，并在本文件中用external声明</li>
+<li>只被模块m定义和引用的本地符号。对应C语言中具有文件作用域但是具有内部链接的变量，如被static声明的全局变量。</li>
+</ul>
+<p>符号表包含一个数组，每个元素的结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">    int name; //字符串表(strtab)中的字节偏移。</span><br><span class="line">    int value; //符号地址，是距定义目标的节的起始位置的偏移。对可执行文件来说是一个绝对运行时地址。</span><br><span class="line">    int size; //目标大小</span><br><span class="line">    int type:4, //是变量或者函数</span><br><span class="line">        binding:4; //表示是本地的还是全局的</span><br><span class="line">    char reserved; //保留的</span><br><span class="line">    char section; //表示符号和目标文件的某个节相关联,也就是这个符号在那个节中</span><br><span class="line">&#125; Elf_Symbol;</span><br></pre></td></tr></table></figure><br>看一下main.o的符号表中最后三个条目:</p>
+<table>
+<thead>
+<tr>
+<th>Num(name):</th>
+<th>Value</th>
+<th>Size</th>
+<th>Type</th>
+<th>Bind</th>
+<th>Ot</th>
+<th>Ndx(section)</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8:</td>
+<td>0(偏移为0)</td>
+<td>8(8字节大小)</td>
+<td>OBJECT(变量对象)</td>
+<td>GLOBAL(全局的符号)</td>
+<td>0</td>
+<td>3(表示第三个节.data)</td>
+<td>buf(符号名)</td>
+</tr>
+<tr>
+<td>9:</td>
+<td>0(偏移为0)</td>
+<td>17(17字节大小)</td>
+<td>FUNC(函数对象)</td>
+<td>GLOBAL(全局的符号)</td>
+<td>0</td>
+<td>1(表示第一个节.text)</td>
+<td>main(符号名)</td>
+</tr>
+<tr>
+<td>10:</td>
+<td>0</td>
+<td>0</td>
+<td>NOTYPE</td>
+<td>GLOBAL</td>
+<td>0</td>
+<td>UND(表示外部符号引用)</td>
+<td>swap(符号名)</td>
+</tr>
+</tbody>
+</table>
+<p>这个地方有点晕，因为前面说第一个是自己偏移，下面这个变成了name, 最有一个是符号名Name,但是上面结构中并没有说有这个字段, 表格中和结构中的字段写法不一样，实在是太难理解～<br>总而言之，符号表就是对每个符号的信息描述，这个符号表什么时候用呢？符号解析的时候。</p>
+<h2 id="符号解析"><a href="#符号解析" class="headerlink" title="符号解析"></a>符号解析</h2><p>链接器对多个可重定位目标文件进行解析的时候，读取每个文件的符号表，然后根据符号表的信息，与这个符号在代码中的确定的定义联系起来，目的是为了把所有的符号都合并在一起，形成一个完整的符号表，再加上其他信息，就变成了可执行文件。</p>
+<p>这个过程在这里详细介绍一下，因为这里设计的链接器最核心的部分：如何变成可执行文件。</p>
+<h3 id="链接器如何解析多重定义的全局符号"><a href="#链接器如何解析多重定义的全局符号" class="headerlink" title="链接器如何解析多重定义的全局符号"></a>链接器如何解析多重定义的全局符号</h3><p>把符号分为强和弱。对于函数和已初始化的全局变量是<em>强符号</em>， 对于未初始化的变量是<em>弱符号</em>。unix链接器使用下面的规则来处理<em>多重定义</em>的符号：</p>
+<ul>
+<li>不允许有多个强符号</li>
+<li>如果一个强符号和多个弱符号，那么选择强符号。</li>
+<li>如果有多个弱符号，那么从这些弱符号中任意选择一个。</li>
+</ul>
+<h2 id="重定位"><a href="#重定位" class="headerlink" title="重定位"></a>重定位</h2><p>一旦链接器完成了符号解析这一步，它就把代码中的每个符号引用和确定的一个符号定义（即它的一个输入目标模块中的一个符号表条目）联系起来。链接器根据输入目标模块中的代码节和数据节的确切大小，就可以开始重定位了：</p>
+<ul>
+<li>重定位节和符号定义：链接器将所有相同类型的节合并为同一类型的新的聚合节。然后链接器将<em>运行时存储器地址</em>赋给新的聚合节，赋给输入模块定义的每个节，以及赋给输入模块定义的每个符号。当这一步完成时，程序中的每个指令和全局变量都有唯一的运行时存储器地址了。</li>
+<li>重定位节中的符号引用。在这一步中，链接器修改代码节和数据节中对每个符号的引用，使得它们指向正确的运行时地址。为了执行这一步，链接器严重依赖称为<em>重定位条目</em>的可重定位目标模块中的数据结构。</li>
+</ul>
+<h3 id="重定位条目"><a href="#重定位条目" class="headerlink" title="重定位条目"></a>重定位条目</h3><p>由于汇编器生成目标模块时，并不知道数据和代码最终将存放在存储器中的什么位置，所以，无论何时汇编器遇到对最终位置未知的目标引用，它就会生成一个<em>重定位条目</em>，告诉链接器将目标文件合成可执行文件时如何修改这个引用。<br>代码的重定位条目放在.rel.text中。已初始化的数据重定位条目放在.rel.data中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct&#123;</span><br><span class="line">    int offset; //偏移位置</span><br><span class="line">    in symbol:24, //指向引用的节</span><br><span class="line">        type:8; //重定位类型</span><br><span class="line">&#125;Elf32_Rel;</span><br></pre></td></tr></table></figure><br>重定位类型有11种，没种的实现方式不一样，这里只介绍两种最基本的：</p>
+<ul>
+<li>R_386_PC32: 使用一个32位PC（程序计数器）相对地址的引用。当CPU执行一条使用PC相对寻址的指令时，它就将在指令中编码的32位值加上PC的当前运行值，得到<em>有效地址</em>。</li>
+<li>R_386_32: 重定位一个使用32位绝地地址的引用。通过绝对寻址，CPU直接使用在指令种编码 的32位值作为有效地址，不需要进一步修改。</li>
+</ul>
+<p>通过反汇编可执行文件，我们可看到重定位后的.text节的内容。</p>
+<h2 id="可执行目标文件"><a href="#可执行目标文件" class="headerlink" title="可执行目标文件"></a>可执行目标文件</h2><p>已经知道链接器将多个目标模块合并成一个可执行目标文件的。我们的C程序已经从ASCII码转化成了一个二进制文件，且这个二进制文件包含加载程序到存储器并运行它所需的所有信息。下图是一个典型的ELF可执行文件中的各类信息。<br><img src="/assets/img/csapp/fig7.11.png" alt><br>由于可执行文件是完全链接的(已被重定位)，所以它不再需要.rel节。我们发现还多了一个.init节，这个节定义了一个小函数，叫做_init,程序的初始化代码会调用它。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/CSAPP/">CSAPP</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/05/18/csapp-chapter6/"><span>csapp chapter6:存储器层次结构</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/18/csapp-chapter6/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-17T16:00:00.000Z">
+          2014-05-18
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>存储器系统(memory system)是一个具有不同容量、成本和访问时间的存储设备的层次结构。程序如何利用存储器的特性提高性能呢？这将是本章主要探讨的内容。</p>
+</blockquote>
+<h2 id="存储技术"><a href="#存储技术" class="headerlink" title="存储技术"></a>存储技术</h2><p>计算机的的成功很大程度上源自于存储技术的巨大进步。下面这幅图是存储器的层次结构：<br><img src="/assets/img/csapp/fig6.23.png" alt>  </p>
+<p>从上到下，存储的速度越慢，容量越大。<br>关于存储器内部是实现方式这就不介绍了，重点介绍一下计算机存储器的运行方式。<br>存储器层次结构的中心思想，对于每个<em>k</em>层，位于<em>k</em>层的更快更小的存储设备作为位于<em>k+1</em>层的跟大更慢的存储设备的缓存。也就是说层次结构中的<em>k</em>层的数据都是来自<em>k+1</em>层的。数据在每层之间的传送是以块大小为传送单元的。不同层之间的块大小可以不一样。程序运行过程中，对存储器的运用分为两种情况：</p>
+<ul>
+<li>缓存命中: 当程序需要数据时，最先从最高的层开始查找，如果没有找到了所需的数据，就是缓存命中。</li>
+<li>缓存不命中: 当所需的数据从当前层没有找到，就叫缓存不命中。这时候就会从下一层开始查找，直到找到所需的数据为止。当找到所需的数据后，数据会再次经过上面的层，把找到的数据保存到上面的层中，这时就要覆盖上面层的数据，如何覆盖，这涉及到替换策略，不再详述。</li>
+</ul>
+<p>通过上面存储器的使用方式，可以看出，要想提高程序的性能，就必须利用<em>时间局部性</em>和<em>空间局部性</em>。</p>
+<ul>
+<li>时间局部性: 如果一个数据被加载到了最上层，那么如果连续多次调用这个数据就不需要去其他层寻找，减少了数据寻找和写缓存的过程，大大提高到了利用效率。</li>
+<li>空间局部性： 但一个数被加载的最上层时，由于数据时以块大小进行传递的，所以这个数据相邻的地址数据也会被传递，所以如果这时候访问相邻的数据话，很有可能就在这一层，而不需要去其他层寻找数据，也大大提高了利用率。 </li>
+</ul>
+<p>下面通过一个程序来说明一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int sum1(int a[M][N])</span><br><span class="line">&#123;</span><br><span class="line">    int i, j, sum = 0;</span><br><span class="line"></span><br><span class="line">    for(i = 0; i &lt; M; i++)</span><br><span class="line">        for(j = 0; j &lt; N; j++)</span><br><span class="line">            sum += a[i][j];</span><br><span class="line">    return sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int sum2(int a[M][N])</span><br><span class="line">&#123;</span><br><span class="line">    int i, j, sum = 0;</span><br><span class="line"></span><br><span class="line">    for(j = 0; j &lt; M; j++)</span><br><span class="line">        for(i = 0; i &lt; N; i++)</span><br><span class="line">            sum += a[i][j];</span><br><span class="line">    return sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于sum1和sum2两个程序都时求一个二纬数组的和，唯一不同的是循环变量，也就是数组的下标顺序不一样。对于sum1，由于二纬数组是顺序存储的，而求和的时候也是按照递增的地址顺序求和的，这很好的利用了<em>空间局部性</em>这个原理，而sum2，同样是求和，但是二维数组的顺序并不是顺序访问的，又跳跃，所以每次访问的地址不是连续的，没有很好的利用<em>空间局部性</em>的原理，效率要低很多。<br>另一方面，两个程序的循环的过程中都使用了一个auto变量sum，每次循环都访问这个变量的值，这很好的利用了<em>时间局部性</em>原理。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/CSAPP/">CSAPP</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/05/13/coreseek-install-doc/"><span>中文搜索引擎coreseek的安装使用</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/13/coreseek-install-doc/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-12T16:00:00.000Z">
+          2014-05-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>项目中原来使用的是solr,由于solr是java写的，团队中没有java的经验，并且原来维护的人离职了，所以改用<a href="http://sphinxsearch.com/" target="_blank" rel="noopener">sphinx search</a>来做项目的内部检索服务，由于中文的特殊性，我们选择了<a href="http://www.coreseek.cn/" target="_blank" rel="noopener">coreseek</a>这个基于sphinx的中文搜索引擎。但是好像这个好久没人维护了～一直停留在了4.1beta版本～</p>
+</blockquote>
+<h2 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h2><p>源码下载地址<a href="http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz" target="_blank" rel="noopener">oreseek-3.1-beta.tar.gz</a>;<br>解压下载的文件,进入目录<code>cd coreseek-4.1-beta</code>;</p>
+<h2 id="安装中文分词库mmseg"><a href="#安装中文分词库mmseg" class="headerlink" title="安装中文分词库mmseg"></a>安装中文分词库mmseg</h2><ul>
+<li><code>cd mmseg-3.2.14/</code></li>
+<li><code>./bootstrap</code></li>
+<li><code>./configure --prefix=/usr/local/mmseg3</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<p>如果你幸运的话，这时候会提示错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’  </span><br></pre></td></tr></table></figure><br>可能是编译器的要求太严格导致的，只有更改源码了：<br>将rc/css/SynonymsDict.cpp文件94行的代码<code>char txtHead[3] = {239,187,191};</code>改为如下的形式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>会发现又出现了错误提示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">mmseg_main.cpp: In function ‘int segment(const char*, css::Segmenter*)’:</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’</span><br></pre></td></tr></table></figure><br>同样的办法修改<code>src/mmseg_main.cpp</code>文件的254行<code>char txtHead[3] = {239,187,191};</code>为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>，终于成功了～<br>到这里mmseg就算安装成功了</p>
+<h2 id="安装coreseek"><a href="#安装coreseek" class="headerlink" title="安装coreseek"></a>安装coreseek</h2><ul>
+<li><code>cd csft-4.1/</code></li>
+<li><code>sh buildconf.sh</code></li>
+<li><code>./configure --prefix=/usr/local/coreseek  --without-unixodbc   
+--with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/   
+--with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<h2 id="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）"><a href="#测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）" class="headerlink" title="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）"></a>测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd testpack</span><br><span class="line">$ cat var/test/test.xml    #此时应该正确显示中文</span><br><span class="line">$ /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc var/test/test.xml</span><br><span class="line">$ /usr/local/coreseek/bin/indexer -c etc/csft.conf --all</span><br><span class="line">$ /usr/local/coreseek/bin/search -c etc/csft.conf 网络搜索</span><br></pre></td></tr></table></figure>
+<p>上面是官方文档给的，需要说明的是，csft.conf是由sphinx.conf.dist复制而来的，里面的关于mysql的配置，自己按照实际情况修改。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/05/10/stdarg-function/"><span>C语言：可变参数函数</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/10/stdarg-function/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-09T16:00:00.000Z">
+          2014-05-10
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>函数一般的参数都是固定的，但是有些时候我们需要让函数的参数是可变的，为了满足这个需求，C语言提供了库函数stdarg.h来满足要求。</p>
+</blockquote>
+<h2 id="可变参数参数简介"><a href="#可变参数参数简介" class="headerlink" title="可变参数参数简介"></a>可变参数参数简介</h2><h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><p>可变参数函数的使用要求比较严谨，必须按照下面的方法进行使用：</p>
+<ol>
+<li>在函数原型中使用省略号。</li>
+<li>在函数定义中创建一个va_list类型的变量。</li>
+<li>用宏将改变量初始化为一个参数列表。</li>
+<li>用宏访问这个参数列表。</li>
+<li>用宏完成清理工作。</li>
+</ol>
+<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void f1(int n, ...); //合法</span><br><span class="line">int f2(int n, const char *s, ...);  //合法</span><br><span class="line">char f3(char c1, ..., char c2); //无效，省略号必须是最后一个参量</span><br><span class="line">doubel f3(); //无效，没有任何参量</span><br></pre></td></tr></table></figure>
+<h2 id="程序举例"><a href="#程序举例" class="headerlink" title="程序举例"></a>程序举例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line"># include &lt;stdarg.h&gt;</span><br><span class="line"></span><br><span class="line">double sum(int , ...);</span><br><span class="line">void printSth(int, const char *, ...);</span><br><span class="line"></span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">    double s, t;</span><br><span class="line"></span><br><span class="line">    s = sum(3, 1.1, 2.5, 13.3);</span><br><span class="line">    t = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    u = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(3, 1.1, 2.5, 13.3):    %g\n&quot;,s);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1)  %g\n&quot;, t); </span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">double sum(int lim, ...)</span><br><span class="line">&#123;</span><br><span class="line">    va_list ap; //声明用户存放参数的变量</span><br><span class="line">    double tot = 0;</span><br><span class="line">    int i;</span><br><span class="line">    va_start(ap, lim);  //把ap初始化为参数列表</span><br><span class="line">    for(i = 0; i &lt; lim; i++)</span><br><span class="line">        tot += va_arg(ap, double); //访问参数列表中的每一个项目</span><br><span class="line">    va_end(ap); //清理工作</span><br><span class="line">    return tot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><ul>
+<li>具有可变参数的函数<code>sum</code>的第一个参数是表示一共有多少个不确定的参数，在调用的时候传递。这个参数主要是高数<code>var_arg</code>能够取多少次传递的参数。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_start.htm" target="_blank" rel="noopener"><code>va_start()</code></a>第一个参数是va_list类型的，第二个参数是这个函数确定的参数中最有一个参数，var_start()函数的作用就是把最有一个确定参数后面的所有不确定参数做一个参数列表存储到va_list类型的变量中。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_arg.htm" target="_blank" rel="noopener"><code>va_arg</code></a>的目的是从未知参数列表中取出参数，每次调用取一个，按照参数顺序取。第一个参数是存储参数列表的变量，第二个参数标识要去的参数的类型，类型决定了要从内存栈中读取多少位。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_end.htm" target="_blank" rel="noopener"><code>va_end</code></a>函数主要是做清理工作,主要是释放动态分配的用于存放参数的内存。</li>
+</ul>
+<h2 id="运用"><a href="#运用" class="headerlink" title="运用"></a>运用</h2><p>我在学了《C Primer Plus》这本书之后打算看看redis源码的时候发现redis的源码中，所有的系统log的记录都是通过这中函数来实现的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void redisLog(int level, const char *fmt, ...) &#123;</span><br><span class="line">    va_list ap;                </span><br><span class="line">    char msg[REDIS_MAX_LOGMSG_LEN]; </span><br><span class="line">    </span><br><span class="line">    if ((level&amp;0xff) &lt; server.verbosity) return;</span><br><span class="line">    </span><br><span class="line">    va_start(ap, fmt);         </span><br><span class="line">    vsnprintf(msg, sizeof(msg), fmt, ap);</span><br><span class="line">    va_end(ap);                </span><br><span class="line">    </span><br><span class="line">    redisLogRaw(level,msg);    </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/C/">C</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+
+<nav class="pagination">
+  
+  <a href="/page/2/" class="pagination-prev">Prev</a>
+  
+  
+  <a href="/page/4/" class="pagination-next">Next</a>
+  
+</nav>
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

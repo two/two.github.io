@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>中文搜索引擎coreseek的安装使用 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="中文搜索引擎coreseek的安装使用">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="中文搜索引擎coreseek的安装使用">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>中文搜索引擎coreseek的安装使用</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/13/coreseek-install-doc/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-12T16:00:00.000Z">
+          2014-05-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>项目中原来使用的是solr,由于solr是java写的，团队中没有java的经验，并且原来维护的人离职了，所以改用<a href="http://sphinxsearch.com/" target="_blank" rel="noopener">sphinx search</a>来做项目的内部检索服务，由于中文的特殊性，我们选择了<a href="http://www.coreseek.cn/" target="_blank" rel="noopener">coreseek</a>这个基于sphinx的中文搜索引擎。但是好像这个好久没人维护了～一直停留在了4.1beta版本～</p>
+</blockquote>
+<h2 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h2><p>源码下载地址<a href="http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz" target="_blank" rel="noopener">oreseek-3.1-beta.tar.gz</a>;<br>解压下载的文件,进入目录<code>cd coreseek-4.1-beta</code>;</p>
+<h2 id="安装中文分词库mmseg"><a href="#安装中文分词库mmseg" class="headerlink" title="安装中文分词库mmseg"></a>安装中文分词库mmseg</h2><ul>
+<li><code>cd mmseg-3.2.14/</code></li>
+<li><code>./bootstrap</code></li>
+<li><code>./configure --prefix=/usr/local/mmseg3</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<p>如果你幸运的话，这时候会提示错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’  </span><br></pre></td></tr></table></figure><br>可能是编译器的要求太严格导致的，只有更改源码了：<br>将rc/css/SynonymsDict.cpp文件94行的代码<code>char txtHead[3] = {239,187,191};</code>改为如下的形式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>会发现又出现了错误提示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">mmseg_main.cpp: In function ‘int segment(const char*, css::Segmenter*)’:</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’</span><br></pre></td></tr></table></figure><br>同样的办法修改<code>src/mmseg_main.cpp</code>文件的254行<code>char txtHead[3] = {239,187,191};</code>为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>，终于成功了～<br>到这里mmseg就算安装成功了</p>
+<h2 id="安装coreseek"><a href="#安装coreseek" class="headerlink" title="安装coreseek"></a>安装coreseek</h2><ul>
+<li><code>cd csft-4.1/</code></li>
+<li><code>sh buildconf.sh</code></li>
+<li><code>./configure --prefix=/usr/local/coreseek  --without-unixodbc   
+--with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/   
+--with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<h2 id="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）"><a href="#测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）" class="headerlink" title="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）"></a>测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd testpack</span><br><span class="line">$ cat var/test/test.xml    #此时应该正确显示中文</span><br><span class="line">$ /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc var/test/test.xml</span><br><span class="line">$ /usr/local/coreseek/bin/indexer -c etc/csft.conf --all</span><br><span class="line">$ /usr/local/coreseek/bin/search -c etc/csft.conf 网络搜索</span><br></pre></td></tr></table></figure>
+<p>上面是官方文档给的，需要说明的是，csft.conf是由sphinx.conf.dist复制而来的，里面的关于mysql的配置，自己按照实际情况修改。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

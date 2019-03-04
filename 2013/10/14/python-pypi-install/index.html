@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python pypi 私有源搭建 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="今天学习了pypi的私有源的搭建。过程很曲折，出现了很多问题，这里做个记录，希望以后的人能有所借鉴，自己也做一下总结……
+
+什么是pypi这个问题可以从官方文档得到答案。pypi的全称是：The Python Package Index，翻译过来就是一个python包的索引，python包存储在一个">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="python pypi 私有源搭建">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>python pypi 私有源搭建</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/10/14/python-pypi-install/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-10-13T16:00:00.000Z">
+          2013-10-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>今天学习了pypi的私有源的搭建。过程很曲折，出现了很多问题，这里做个记录，希望以后的人能有所借鉴，自己也做一下总结……</em></p>
+</blockquote>
+<h2 id="什么是pypi"><a href="#什么是pypi" class="headerlink" title="什么是pypi"></a>什么是pypi</h2><p>这个问题可以从<a href="https://pypi.python.org/pypi" target="_blank" rel="noopener">官方文档</a>得到答案。pypi的全称是：The Python Package Index，翻译过来就是一个python包的索引，python包存储在一个统一管理的仓库中，然后为所有在这个仓库的软件生成一个列表,这就是pypi.</p>
+<h2 id="如何使用pypi"><a href="#如何使用pypi" class="headerlink" title="如何使用pypi"></a>如何使用pypi</h2><p>用过python的同学都知道，通过下面三个命令都可以安装python包。但是它们之间的区别又是什么呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. python setup.py  install</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2. pip install packagename</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. easy_install packagename</span><br></pre></td></tr></table></figure><br>第一种方式就是先把要安装的包的模块下载到本地，然后进入解压目录，执行上面的命令。<br>第二种和第三种都是直接输入命令，就会自动从pipy库中下载相应的包然后安装的预先定义好的路径。<br>如果不是要修改源码，第二种和第三种方式无疑是最好的。这里先不深入他们的原理，以后再讲。</p>
+<h2 id="为什么要搭建pypi私有源"><a href="#为什么要搭建pypi私有源" class="headerlink" title="为什么要搭建pypi私有源"></a>为什么要搭建pypi私有源</h2><p>既然有了官方的pypi源，为什么我们还要搭建自己的私有源呢？这个问题其实很好理解。公司内部开发的软件包希望能够通过这种方式让大家安装，但如果上传到官方的源无疑是公司所不希望的，这时私有源就发挥作用了。它只在公司内部服务器上存在，安装方式和官方的源一样，既简单有安全，何乐而不为呢~</p>
+<h2 id="如何搭建自己的私有源"><a href="#如何搭建自己的私有源" class="headerlink" title="如何搭建自己的私有源"></a>如何搭建自己的私有源</h2><p>终于到了正题了，如何搭建我们自己的私有源呢？这里我主要参考了<a href="http://yijingping.github.io/2013/07/25/setting-up-your-own-pypi-server.html" target="_blank" rel="noopener">易先生的世界</a>这篇博客。<br>从中我们可以得知python的私有源解决方案有很多种，这些解决方案可以在python关于私有源的<a href="https://wiki.python.org/moin/PyPiImplementations" target="_blank" rel="noopener">官方文档</a>中找到。这里我们选择了据说是最简单好用的一个<a href="https://pypi.python.org/pypi/pypiserver" target="_blank" rel="noopener">pypiserver</a>,下面就这个私有源的安装过程进行一个说明(ps:我的软件都是用virtualenv方式安装的）：<br><strong>顺利的安装方式</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 进入virtualenv目录。执行：</span><br><span class="line">virtualenv pypienv</span><br><span class="line"># 然后进入pypienv环境</span><br><span class="line">source pypienv/bin/activate</span><br><span class="line"># 安装pypiserver</span><br><span class="line">pip install pypiserver</span><br><span class="line"># 建立一个存放软件包的目录,这个目录路径可按照自己的需求建立</span><br><span class="line">mkdir /PATH/packages</span><br><span class="line"># 启动pypi-server 端口号自定义 后接包的上传地址</span><br><span class="line">exec pypi-server -p 3141 /search/ziyuan/pypiserver/packages</span><br></pre></td></tr></table></figure><br>到这里其实pypi-server的安装已经完成了。但是我们安装好了要用，这才是重点。<br><strong>上传package</strong><br>假设我们已经做好了一个package，如何上传到指定的私有源呢？<br>首先上传需要用户名和密码，这个需要在服务端生成，密码文件使用命令htpasswd生成。首先安装passlib模块<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install passlib</span><br></pre></td></tr></table></figure><br>然后安装apache2-utils模块。由于我使用的readhat,并没有在yum中找到apache2-utils源，只有自己下载安装了。<a href="http://download.opensuse.org/factory/repo/src-oss/suse/src/apache2-2.4.6-7.3.src.rpm" target="_blank" rel="noopener">下载地址</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh apache2-2.4.6-7.3.src.rpm</span><br></pre></td></tr></table></figure><br>最后生成用户名和密码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">htpasswd -sc /PATH/.htaccess user #回车输入密码。输入：123</span><br></pre></td></tr></table></figure><br>用户名密码都生成了，接下来就是从新启动pypiserver，让他读入设置好的用户名密码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec pypi-server -p 3141 -P /PATH/.htaccess /search/ziyuan/pypiserver/packages</span><br></pre></td></tr></table></figure><br>用户上传软件包之前要指定上传的的地址，否则就会传到官方的默认路径去，执行路径的配置文件要放在用户主目录下，文件名.pypirc,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[distutils]</span><br><span class="line">index-servers =</span><br><span class="line">   local #注意：这个缩进必须要有，不然就会报错，解析不了配置文件 </span><br><span class="line"></span><br><span class="line">[local]</span><br><span class="line">repository:http://127.0.0.1:3141</span><br><span class="line">username:user</span><br><span class="line">password:123 </span><br></pre></td></tr></table></figure><br>这是就可以在和发布的软件包中域名命令上传软件包到私有源了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py sdist upload -r local </span><br></pre></td></tr></table></figure><br><strong>下载package</strong><br>前面也提到了有两种下载方式可以直接从源中下载，根据打包的方式不同。它们分别是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install -i http://localhost:3141/simple/ packagename</span><br><span class="line">easy_install -i http://localhost:3141/simple/ packagename</span><br></pre></td></tr></table></figure><br>到这里，pypiserver的安装和使用已经完成了，但是其原理还需要研究，以后要做到定制一些功能~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/pypi/">pypi</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

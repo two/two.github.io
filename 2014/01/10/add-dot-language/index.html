@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Jekyll 添加DOT language支持 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="plantuml是基于graphviz来做的，而graphviz支持DOT language,所以可不可以直接用plantuml支持DOT language来进行画图呢？这样的话岂不是更爽了～，折腾吧，骚年！
+
+DOT language的介绍及文档。在plantuml的官网找到了有关plantuml">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Jekyll 添加DOT language支持">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>Jekyll 添加DOT language支持</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/01/10/add-dot-language/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-01-09T16:00:00.000Z">
+          2014-01-10
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>plantuml是基于graphviz来做的，而graphviz支持DOT language,所以可不可以直接用plantuml支持DOT language来进行画图呢？这样的话岂不是更爽了～，折腾吧，骚年！</em></p>
+</blockquote>
+<p>DOT language的<a href="http://www.graphviz.org/doc/info/lang.html" target="_blank" rel="noopener">介绍</a>及<a href="http://www.graphviz.org/Documentation/dotguide.pdf" target="_blank" rel="noopener">文档</a>。在plantuml的官网找到了有关plantuml支持DOT的<a href="http://plantuml.sourceforge.net/dot.html" target="_blank" rel="noopener">说明</a>。根据这个说明的意思，开头的<code>@startuml</code>和结尾的<code>@enduml</code>需要换成<code>@startdot</code>和<code>@enddot</code>就可以了，然后用<code>plantuml.jar</code>生产图片，官网上说只支持png格式，但是我试了一下svg也是支持的,可能是文档没有更新的原因。  </p>
+<p>但是jekyll能不能支持DOT呢？我原来想可能要改一下插件，可以在<a href="http://www.plantuml.com/plantuml/form" target="_blank" rel="noopener">http://www.plantuml.com/plantuml/form</a>试了一下DOT是可以生成图片的，也就是说我用的JS插件生成图片是原生就支持的。所以我直接用下面的的写法放到了jekyll里：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line">digraph G &#123;</span><br><span class="line">    subgraph cluster0 &#123;</span><br><span class="line">        node [style=filled,color=white];</span><br><span class="line">        style=filled;</span><br><span class="line">        color=lightgrey;</span><br><span class="line">        a0 -&gt; a1 -&gt; a2 -&gt; a3;</span><br><span class="line">        label = &quot;process #1&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    subgraph cluster1 &#123;</span><br><span class="line">        node [style=filled];</span><br><span class="line">        b0 -&gt; b1 -&gt; b2 -&gt; b3;</span><br><span class="line">        label = &quot;process #2&quot;;</span><br><span class="line">        color=blue</span><br><span class="line">    &#125;</span><br><span class="line">    start -&gt; a0;</span><br><span class="line">    start -&gt; b0;</span><br><span class="line">    a1 -&gt; b3;</span><br><span class="line">    b2 -&gt; a3;</span><br><span class="line">    a3 -&gt; a0;</span><br><span class="line">    a3 -&gt; end;</span><br><span class="line">    b3 -&gt; end;</span><br><span class="line">    start [shape=Mdiamond];</span><br><span class="line">    end [shape=Msquare];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="http://www.plantuml.com/plantuml/svg/VL713e8m3Btx5GrUDG4v6hnwyWk8XnOgBAaCjn5Z3F-kRYXWZ3qqwNjlUwzRgIg3RGrxk2_WMRQZ01JIMSSc7l1NDRfaoAsx2MSd9SBbgj2YJNQjbUFZzYESIaOqQ4LLjQiCtqO2OrZl01FVDxwd8oj8B911r1fTiBMmJAB0zZyJ9tyJJrAIjoLlIzwM_jfkekzTI3gU9d5ed8yVR-S03K3OyMr3irqndHuD4pV3-z5y31VdjiQMiqEfyAoRzsfFqOUnbmxDwsVw1m00"><br>成功了～</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

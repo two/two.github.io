@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>phpenv安装自定义配置 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="自定义配置在使用phpenv安装php是，有时候需要对内置扩展进行自定义控制是否开启，比如我要开启zts模块, 源码安装我么可以用./configure --enable-maintainer-zts来安装，但是phpenv不支持直接这么写，这时候就要phpenv自己的方式来安装了。可以在phpen">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="phpenv安装自定义配置">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>phpenv安装自定义配置</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2016/08/23/phpenv-configuration-options/" rel="bookmark">
+        <time class="entry-date published" datetime="2016-08-23T08:45:47.000Z">
+          2016-08-23
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="自定义配置"><a href="#自定义配置" class="headerlink" title="自定义配置"></a>自定义配置</h2><p>在使用phpenv安装php是，有时候需要对内置扩展进行自定义控制是否开启，比如我要开启<code>zts</code>模块, 源码安装我么可以用<code>./configure --enable-maintainer-zts</code>来安装，但是phpenv不支持直接这么写，这时候就要phpenv自己的方式来安装了。可以在phpenv安装的路径里找到下面这个文件：<code>~/.phpenv/plugins/php-build/bin/php-build</code>, 这个文件就是phpenv install时运行的脚本，可以找到如下内容:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">CONFIGURE_OPTIONS=$(cat <span class="string">"$PHP_BUILD_ROOT/share/php-build/default_configure_options"</span>)</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> [ -n <span class="string">"$PHP_BUILD_CONFIGURE_OPTS"</span> ]; then</span><br><span class="line">    CONFIGURE_OPTIONS=<span class="string">"$CONFIGURE_OPTIONS $PHP_BUILD_CONFIGURE_OPTS"</span></span><br><span class="line">fi</span><br><span class="line">...</span><br><span class="line">local append_default_libdir=<span class="string">'yes'</span></span><br><span class="line"><span class="keyword">for</span> option in $CONFIGURE_OPTIONS; <span class="keyword">do</span></span><br><span class="line">  <span class="keyword">case</span> <span class="string">"$option"</span> in</span><br><span class="line">    <span class="string">"--with-libdir"</span>*) append_default_libdir=<span class="string">'no'</span> ;;</span><br><span class="line">  esac</span><br><span class="line">done</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"$(uname -p)"</span> = <span class="string">"x86_64"</span> ] &amp;&amp; [ <span class="string">"$&#123;append_default_libdir&#125;"</span> = <span class="string">'yes'</span> ]; then</span><br><span class="line">    argv=<span class="string">"$argv --with-libdir=lib64"</span></span><br><span class="line">fi</span><br><span class="line">...</span><br><span class="line">./configure $argv &gt; /dev/<span class="keyword">null</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>可见，默认会读取<code>~/.phpenv/plugins/php-build/share/php-build/default_configure_options</code>里面的配置加到<code>./configure</code>的参数里，当存在变量<code>$PHP_BUILD_CONFIGURE_OPTS</code>时，会把这个变量的值也加到<code>./configure</code>的参数里。<br>所以就存在两种方式实现上面的安装方法：</p>
+<ol>
+<li><code>~/.phpenv/plugins/php-build/share/php-build/default_configure_options</code>文件末尾加上<code>--enable-maintainer-zts</code></li>
+<li>运行<code>PHP_BUILD_CONFIGURE_OPTS=--enable-maintainer-zts phpenv install 5.6.2</code></li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

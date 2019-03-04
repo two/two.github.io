@@ -1,0 +1,633 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Page 7 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/14/pip-and-easy_install/"><span>python打包高级进阶:pip and easy_install</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/14/pip-and-easy_install/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-13T16:00:00.000Z">
+          2013-11-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="如何选择已经安装的不同版本？"><a href="#如何选择已经安装的不同版本？" class="headerlink" title="如何选择已经安装的不同版本？"></a>如何选择已经安装的不同版本？</h2><p>其实很简单。以myproject为例：<code>easy_install myproject==version</code> 就可以了，默认是先从本地开始找，如果本地找不到就会从远程源上找。</p>
+<h2 id="能不能指定安装路径？"><a href="#能不能指定安装路径？" class="headerlink" title="能不能指定安装路径？"></a>能不能指定安装路径？</h2><p>经过再次了解，发现其实是可以的,<code>easy_install -h</code>命令可以看到有以下两条：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--install-dir (-d)             install package to DIR</span><br><span class="line">--script-dir (-s)              install scripts to DIR</span><br><span class="line">--prefix                       installation prefix </span><br></pre></td></tr></table></figure><br>第一个其实就是可以指定默认搜索路径的。第二个是可以指定二进制脚本的安装路径，如果指定了第一个而没有指定第二个那就会默认都安装到第一个,第三个是实际包的安装路径，但是只是路径前缀，默认会加上lib/python2.6/site-packages<br>还有一个问题，如果按照路径不在PYTHONPATH里，那么就会报错，可以通过先把你要制定的路径加入进去：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/python/packages&quot;</span><br><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/lib/python2.6/site-packages&quot;</span><br><span class="line">export PYTHONPATH</span><br></pre></td></tr></table></figure><br>然后再次安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">easy_install -d /search/sean/python/packages/ -s /search/sean/python/ --prefix /search/sean  myproject==1.9</span><br></pre></td></tr></table></figure><br>可以看到-d需要PYTHONPATH 而-s并不需要，安装完后可以在两个目录中找到安装后的文件<br>更正：之前说安装多版本的时候会有一个去掉版本的文件夹，其实这个是pip的实现方式，而easy_install的实现方式是：每次安装都会把easy-install.pth路径修改了，python就会去找修改过的路径。<br>具体pip的版本选择和安装路径的问题时间限制先不发了，研究后再补充~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/13/django-nginx-fastcgi/"><span>django+nginx+fastcgi 配置</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/13/django-nginx-fastcgi/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-12T16:00:00.000Z">
+          2013-11-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>我们知道刚开始学习django的时候使用的是django内置的服务器，当然这个是为了能够快速的搭建django的运行环境，并不能运用到实际的生产环境中。而</em>django book<em> 这本书中只接受了django+apache和django+lighttpd的配置。但是我们实际的生产环境中nginx使用的很广泛。于是django+nginx+fastcgi的配置方法就有比较了解一下了…</em></p>
+</blockquote>
+<h2 id="django配置"><a href="#django配置" class="headerlink" title="django配置"></a>django配置</h2><p>首先<em>django book</em>这本书中介绍了如何在生产过程中配置<code>setting.py</code>这个文件,其中提到变量<code>DJANGO_SETTINGS_MODULE</code>的值其实就是网站的配置文件的路径,我们可以根据环境的不同选择不同的配置文件，例如开发环境、测试环境和线上环境等。这个变量的设置其实就在网站的根目录下<code>wsgi.py</code>这个文件中。其内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">wsgi.py</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">os.environ.setdefault(&quot;DJANGO_SETTINGS_MODULE&quot;, &quot;djsite.settings_dev&quot;)</span><br><span class="line"></span><br><span class="line">#  This application object is used by any WSGI server configured to use this</span><br><span class="line">#  file. This includes Django&apos;s development server, if the WSGI_APPLICATION</span><br><span class="line">#  setting points here.</span><br><span class="line">from django.core.wsgi import get_wsgi_application</span><br><span class="line">application = get_wsgi_application()</span><br></pre></td></tr></table></figure><br>这里设置的默认加载配置文件为：<code>settings_dev.py</code>，这是开发环境的配置文件,用户可以根据需求选择不同的配置文件。</p>
+<h2 id="uwsig配置文件"><a href="#uwsig配置文件" class="headerlink" title="uwsig配置文件"></a>uwsig配置文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$cat uwsig.xml </span><br><span class="line">&lt;uwsgi&gt;  </span><br><span class="line">    &lt;socket&gt;0.0.0.0:3001&lt;/socket&gt;  </span><br><span class="line">    &lt;listen&gt;20&lt;/listen&gt;  </span><br><span class="line">    &lt;master&gt;true&lt;/master&gt;  </span><br><span class="line">    &lt;pidfile&gt;/etc/nginx/uwsgi.pid&lt;/pidfile&gt;  </span><br><span class="line">    &lt;processes&gt;2&lt;/processes&gt;  </span><br><span class="line">    &lt;module&gt;wsgi&lt;/module&gt;</span><br><span class="line">    &lt;pythonpath&gt;/search/sean/python/djsite/djsite&lt;/pythonpath&gt;  </span><br><span class="line">    &lt;profiler&gt;true&lt;/profiler&gt;  </span><br><span class="line">    &lt;memory-report&gt;true&lt;/memory-report&gt;</span><br><span class="line">    &lt;enable-threads&gt;true&lt;/enable-threads&gt;</span><br><span class="line">    &lt;logdate&gt;true&lt;/logdate&gt;</span><br><span class="line">    &lt;limit_as&gt;6048&lt;/limit_as&gt;</span><br><span class="line">&lt;/uwsgi&gt;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/django/">django</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/04/python-packing-command-line-script/"><span>python命令行程序打包</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/04/python-packing-command-line-script/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-03T16:00:00.000Z">
+          2013-11-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>我们知道在linux下通过命令行调用程序其实就是先把程序编译生成二进制文件，然后再把文件放入到PATH中，就可以直接通过文件名进行调用了，这里python程序也不例外。前面讲过了如何将一个python程序打包并发布，这里就讲一下命令行的python打包发布和下载安装过程。</em></p>
+</blockquote>
+<p>我们还是利用前面博客中的myproject为例，在原来的基础上添加一些代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── setup.py</span><br><span class="line">└── src</span><br><span class="line">    ├── bin</span><br><span class="line">    │   ├── command-line</span><br><span class="line">    │   └── myproject</span><br><span class="line">    └── myproject</span><br><span class="line">        ├── cmds.py</span><br><span class="line">        ├── __init__.py</span><br><span class="line">        └── __init__.pyc</span><br><span class="line"></span><br><span class="line">3 directories, 6 files</span><br></pre></td></tr></table></figure><br>可以看出，比myproject一共多了三个文件command-line, myproject, cmds.py三个文件和bin这个文件夹。下面对他们进行详细的介绍：<br>command-line，mypreject文件<br>这两个文件的内容很简单<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cat command-line </span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  import myproject</span><br><span class="line">  myproject.test()</span><br><span class="line">$ cat myproject</span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  print &apos;welcome to command line mod!\n&apos;</span><br></pre></td></tr></table></figure><br>可以看出，command-line文件只是调用了myproject的test函数，二myproject只是输出了一个字符串，为了能够执行这两个文件，并且是通过命令行的方式，我们需要在setup.py这个文件中添加下面这个配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts=[&apos;src/bin/command-line&apos;, &apos;src/bin/myproject&apos;],</span><br></pre></td></tr></table></figure><br>然后安装修改后的源码包:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">...</span><br><span class="line">Installing command-line script to /search/virtual/pypienv/bin</span><br><span class="line">Installing myproject script to /search/virtual/pypienv/bin</span><br><span class="line">...</span><br></pre></td></tr></table></figure><br>我们可以看到上面的输出，其含义就是把这两个脚本安装在了bin目录下，由于这个路径是PATH路径，所以可以直接通过命令进行执行了，下面是执行的效果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ command-line </span><br><span class="line">  Hello World!</span><br><span class="line">$ myproject</span><br><span class="line">  welcome to command line mod!</span><br></pre></td></tr></table></figure><br>还有一个文件是cmds.py这个文件也是可以通过命令行直接运行的，只不过是通过另外一种方式进行安装的<br>先看一下cmds.py的内容吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cat cmds.py </span><br><span class="line">  import myproject </span><br><span class="line">  def main():</span><br><span class="line">      myproject.test()</span><br></pre></td></tr></table></figure><br>可以看出，其实这个文件和command-line一样，引用了myproject并输出，唯一不同的是他自己顶一个了一个函数main来调用。<br>同样setup.py中也要添加一个配置，来找到这个文件并对其进行编译：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">entry_points = &#123;</span><br><span class="line">                 &apos;console_scripts&apos;: [&apos;cmds=myproject.cmds:main&apos;],</span><br><span class="line">                &#125;</span><br></pre></td></tr></table></figure><br>这个配置和前面的不一样，并且里面指定了要执行的脚本的函数名，通过从新安装我们可以看：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">  ...</span><br><span class="line">  Installing cmds script to /search/virtual/pypienv/bin</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure><br>同样，这个文件编译后也放到在PATH下，通过命令行可以运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cmds </span><br><span class="line">  Hello World!</span><br></pre></td></tr></table></figure><br>到这里一个通过命令行运行的包就介绍完了.<br>同样我们可以这个写好的包上传到私有源，然后在其他机器上下载安装，同样可以运行~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/setuptools/">setuptools</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/04/setuptools-setuppy-config/"><span>setuptools配置文件参数详解</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/04/setuptools-setuppy-config/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-03T16:00:00.000Z">
+          2013-11-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>前面介绍了python的打包工具setuptools的用法，这里对其配置文件setup.py进行一个详细的介绍，以便以后使用的时候能够找到相应的配置。</em></p>
+</blockquote>
+<h2 id="常见的参数"><a href="#常见的参数" class="headerlink" title="常见的参数"></a>常见的参数</h2><p>这里的参数主要是参考<a href="http://pythonhosted.org/setuptools/setuptools.html#new-and-changed-setup-keywords" target="_blank" rel="noopener">setuptools官方文档</a>而来，下面经常用到的参数进行一个详细的介绍，以后要是有其他的参数，再做补充。<br><strong>name</strong><br>这个参数主要是标识工程的名字。这个名字就是打包后的包的名字。<br><strong>version</strong><br>这个参数主要是标识工程的版本号，打包后的名字包含这个版本号。<br>在安装同一个包的不同版本是可以用如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install -i http://10.11.215.61:3141/simple/ myproject==1.1.7 </span><br></pre></td></tr></table></figure><br><strong>packages</strong><br>这个参数主要是说明要打包的工程的源代码路径，默认不写的话是从本工程的根目录开始，也可自定义，要引入find_packages函数，函数参数是包的相对路径.。<br><strong>package_dir</strong><br>这个主要是为了说明包的路径<br><strong>zip_safe</strong><br><strong>scripts</strong><br><strong>entry_points</strong><br><strong>include_package_data</strong><br>这个参数是为了表示打包是需要包含的文件，如果值为True，表示setuptools打包时会自动包含package目录下的所有文件，这些文件可能是在版本控制下或者在MANIFEST.in文件中表明的文件。详情请参考<a href="http://pythonhosted.org/setuptools/setuptools.html#including-data-files" target="_blank" rel="noopener">文档</a><br>注意MANIFEST.ini的写法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">include README.rst #包含具体的文件</span><br><span class="line">...</span><br><span class="line">include django/dispatch/license.txt #包含相对目录的文件</span><br><span class="line">recursive-include docs * #循环包含某个文件夹下所有的文件</span><br></pre></td></tr></table></figure><br>ps:亲测，版本控制这个好像不太靠谱，还是自己写都包含哪些文件吧~<br><strong>package_data</strong><br>跟上面的参数意思差不多，只不过这里表示粒度比较小的文件，上面没有包含到的文件可以在这里包含，一边表示比较具体的文件。<br><strong>description</strong><br><strong>long_description</strong><br><strong>author</strong><br><strong>author_email</strong><br><strong>license</strong><br><strong>keywords</strong><br><strong>platforms</strong><br><strong>url</strong>  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/10/15/python-packaging/"><span>python打包</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/10/15/python-packaging/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-10-14T16:00:00.000Z">
+          2013-10-15
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>python的打包方式有很多种，而且针对不同的平台又有很多不同的方式，这里指针对linux平台进行介绍……</em></p>
+</blockquote>
+<h2 id="1-python打包工具选择"><a href="#1-python打包工具选择" class="headerlink" title="1 python打包工具选择"></a>1 python打包工具选择</h2><p>关于python打包相关的工具，这篇文档有一个<a href="https://python-packaging-user-guide.readthedocs.org/en/latest/projects.html#" target="_blank" rel="noopener">列表</a>，其中打包工具主要分为pip, dislib, setuptools, distribute(已经于setuptools合并）。还有博客也是关于python 打包工具的，<a href="http://www.ituring.com.cn/article/19090" target="_blank" rel="noopener">这篇博客</a>对于python的各种打包工具，及其优缺点写的很详细，里面说的Distutils2是更为先进的打包工具，但是适用范围还不是太广泛，这里先不做研究了。经过综合对比，目前选中setuptools和pip这两个个比较成熟的打包工具，下面就对他们用法和原理分别进行详细的介绍。  </p>
+<h3 id="2-setuptools"><a href="#2-setuptools" class="headerlink" title="2 setuptools"></a>2 setuptools</h3><p><a href="http://peak.telecommunity.com/DevCenter/setuptools" target="_blank" rel="noopener">setuptools的官方文档地址</a><br>首先来一个简单的上手过程，通过这个过程可以快速了解setuptools怎么用的，详情请移步博客<a href="http://www.worldhello.net/2010/12/08/2178.html" target="_blank" rel="noopener">python egg 学习笔记</a><br>看完这个教程就能自己做一个简单的包了，但是这里只是涉及了一种包，就是python import 引过来，然后调用其中的函数，还有一种也很普遍的方式就是命令行方式，例如jekyll命令，sentry命令等，这种方式其实可以参考<a href="http://www.scotttorborg.com/python-packaging/index.html" target="_blank" rel="noopener">这篇文档</a>。跟随这两篇博客基本就可以满足我们的需求了<br>这里对其安装步骤进行一下总结：  </p>
+<h4 id="2-1-安装setuptools"><a href="#2-1-安装setuptools" class="headerlink" title="2.1, 安装setuptools"></a>2.1, 安装setuptools</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://peak.telecommunity.com/dist/ez_setup.py</span><br><span class="line">$ sudo python ez_setup.py</span><br></pre></td></tr></table></figure>
+<p>其实安装的方式有很多种，具体方法参见前面提到的博客  </p>
+<h4 id="2-2-建立一个工程"><a href="#2-2-建立一个工程" class="headerlink" title="2.2, 建立一个工程"></a>2.2, 建立一个工程</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir mypackage </span><br><span class="line">$ cd mypackage</span><br><span class="line">$ touch setup.py</span><br></pre></td></tr></table></figure>
+<p>setup.py的内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> 1 #setup.py</span><br><span class="line"> 2 #!/usr/bin/env python</span><br><span class="line"> 3 #-*- coding:utf-8 -*-</span><br><span class="line"> 4 </span><br><span class="line"> 5 from setuptools import setup, find_packages</span><br><span class="line"> 6 </span><br><span class="line"> 7 setup(</span><br><span class="line"> 8         name = &quot;myproject&quot;,</span><br><span class="line"> 9         version=&quot;0.1.0&quot;,</span><br><span class="line">10         packages = find_packages(),</span><br><span class="line">11         zip_safe = False,</span><br><span class="line">12 </span><br><span class="line">13         description = &quot;egg test demo.&quot;,</span><br><span class="line">14         long_description = &quot;egg test demo, haha.&quot;,</span><br><span class="line">15         author = &quot;sean&quot;,</span><br><span class="line">16         author_email = &quot;seanerchen@gmail.com&quot;,</span><br><span class="line">17 </span><br><span class="line">18         license = &quot;GPL&quot;,</span><br><span class="line">19         keywords = (&quot;test&quot;, &quot;egg&quot;),</span><br><span class="line">20         platforms = &quot;Independant&quot;,</span><br><span class="line">21         url = &quot;&quot;,</span><br><span class="line">22         )</span><br></pre></td></tr></table></figure><br>第8行表示这个工程的名称，第9行是这个工程的版本号，第10行表示对指定目录的文件打包，其他信息请查看相关文档，这里先对用到的配置项进行讲解  </p>
+<h4 id="2-3-通过命令行打包到本地"><a href="#2-3-通过命令行打包到本地" class="headerlink" title="2.3, 通过命令行打包到本地"></a>2.3, 通过命令行打包到本地</h4><p>这是一个空的工程就建好了，我们可以通过一条简单的命令对它进行打包了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python setup.py bdist_egg </span><br><span class="line">#python setup.py bdist 命令也可以。它们之间的区别?</span><br></pre></td></tr></table></figure><br>命令执行后，myproject目录的的结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── build</span><br><span class="line">│   └── bdist.linux-x86_64</span><br><span class="line">├── dist</span><br><span class="line">│   └── myproject-0.1.0-py2.6.egg</span><br><span class="line">├── myproject.egg-info</span><br><span class="line">│   ├── dependency_links.txt</span><br><span class="line">│   ├── not-zip-safe</span><br><span class="line">│   ├── PKG-INFO</span><br><span class="line">│   ├── SOURCES.txt</span><br><span class="line">│   └── top_level.txt</span><br><span class="line">└── setup.py</span><br></pre></td></tr></table></figure><br>我们可以看到在dist文件夹下生成了一个egg文件，通过使用命令file可以查看这个文件的格式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ file dist/myproject-0.1.0-py2.6.egg</span><br><span class="line">dist/myproject-0.1.0-py2.6.egg: Zip archive data, at least v2.0 to extract</span><br></pre></td></tr></table></figure><br>其实egg文件就一个压缩包,关于egg的介绍请参考<a href="http://peak.telecommunity.com/DevCenter/PythonEggs" target="_blank" rel="noopener">这篇博客</a>  </p>
+<h4 id="2-4-写自己的程序并打包到本地"><a href="#2-4-写自己的程序并打包到本地" class="headerlink" title="2.4, 写自己的程序并打包到本地"></a>2.4, 写自己的程序并打包到本地</h4><p>在当前目录下建立一个文件夹，名字与setup.py里写的name字段保持一致,然后在进入目录，创建<strong>init</strong>.py文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir myproject</span><br><span class="line">$ cd myproject</span><br><span class="line">$ touch __init__.py</span><br></pre></td></tr></table></figure><br>文件__init__.py内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1 #!/usr/bin/env python</span><br><span class="line">2 #-*-coding:utf-8-*-</span><br><span class="line">3 </span><br><span class="line">4 def test():</span><br><span class="line">5     print &quot;Hello World!&quot;</span><br><span class="line">6 if __name__ == &apos;__main__&apos;:</span><br><span class="line">7     test()</span><br></pre></td></tr></table></figure><br>再次运行生成egg的命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py bdist_egg </span><br></pre></td></tr></table></figure>
+<p>这时整个目录结构变成了下面的情况：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── build</span><br><span class="line">│   ├── bdist.linux-x86_64</span><br><span class="line">│   └── lib</span><br><span class="line">│       └── myproject</span><br><span class="line">│           └── __init__.py</span><br><span class="line">├── dist</span><br><span class="line">│   └── myproject-0.1.0-py2.6.egg</span><br><span class="line">├── myproject</span><br><span class="line">│   └── __init__.py</span><br><span class="line">├── myproject.egg-info</span><br><span class="line">│   ├── dependency_links.txt</span><br><span class="line">│   ├── not-zip-safe</span><br><span class="line">│   ├── PKG-INFO</span><br><span class="line">│   ├── SOURCES.txt</span><br><span class="line">│   └── top_level.txt</span><br><span class="line">└── setup.py</span><br></pre></td></tr></table></figure><br>可以看一下这个egg文件的内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ unzip -l dist/myproject-0.1.0-py2.6.egg </span><br><span class="line">  Archive:  dist/myproject-0.1.0-py2.6.egg</span><br><span class="line">    Length      Date    Time    Name</span><br><span class="line">  ---------  ---------- -----   ----</span><br><span class="line">        118  11-01-2013 14:35   myproject/__init__.py</span><br><span class="line">        354  11-01-2013 14:35   myproject/__init__.pyc</span><br><span class="line">        232  11-01-2013 14:35   EGG-INFO/PKG-INFO</span><br><span class="line">        194  11-01-2013 14:35   EGG-INFO/SOURCES.txt</span><br><span class="line">          1  11-01-2013 14:35   EGG-INFO/dependency_links.txt</span><br><span class="line">          1  10-21-2013 12:29   EGG-INFO/not-zip-safe</span><br><span class="line">         10  11-01-2013 14:35   EGG-INFO/top_level.txt</span><br><span class="line">  ---------                     -------</span><br><span class="line">        910                     7 files</span><br></pre></td></tr></table></figure><br>可以看到里面多出来一个myproject文件夹和它所包含的文件，正是我们刚才创建的。  </p>
+<h4 id="2-5-打包到远程"><a href="#2-5-打包到远程" class="headerlink" title="2.5, 打包到远程"></a>2.5, 打包到远程</h4><p>这里我们只是把打的包放在了本地, 也可以根据前面讲的打包到远程的源中，这里结合前面的博客把这个包发送到私有源，命令如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py sdist upload -r local </span><br><span class="line">running sdist</span><br><span class="line">running egg_info</span><br><span class="line">...</span><br><span class="line">removing &apos;myproject-0.1.0&apos; (and everything under it)</span><br><span class="line">running upload</span><br><span class="line">Submitting dist/myproject-0.1.0.tar.gz to http://127.0.0.1:3141</span><br><span class="line">Server response (200): OK</span><br></pre></td></tr></table></figure><br>这样我们就可以把本地的包上传到了远程的私有源<code>local</code>上供其他人使用了。</p>
+<h4 id="2-6-安装和使用"><a href="#2-6-安装和使用" class="headerlink" title="2.6, 安装和使用"></a>2.6, 安装和使用</h4><p>安装可以分为本地安装和远程安装。这个和之前私有源建立的博客中讲的一样，具体方式如下：<br>  <strong>1,本地安装:</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ sudo python setup.py install</span><br><span class="line">  running install</span><br><span class="line">  running bdist_egg</span><br><span class="line">  running egg_info</span><br><span class="line">  ... </span><br><span class="line">  ... </span><br><span class="line">  Installed /root/.local/lib/python2.6/site-packages/myproject-0.1.0-py2.6.egg</span><br><span class="line">  Processing dependencies for myproject==0.1.0</span><br><span class="line">  Finished processing dependencies for myproject==0.1.0</span><br><span class="line">$ python -c &quot;from myproject import test; test()&quot;</span><br><span class="line">  Hello World!</span><br></pre></td></tr></table></figure><br>可以看到我们的包已经被安装了，并且可以运行我们之前在包里封装的方法。<br> <strong>2,远程安装:</strong><br>我们可以安装远程私有源的包到本地:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 安装远程包到本地</span><br><span class="line">$ easy_install -i http://10.11.215.61:3141/simple/ myproject  </span><br><span class="line">  Searching for myproject</span><br><span class="line">  Reading http://10.11.215.61:3141/simple/myproject/</span><br><span class="line">  Best match: myproject 0.1.0</span><br><span class="line">  Downloading http://10.11.215.61:3141/packages/myproject-0.1.0.tar.gz</span><br><span class="line">  Processing myproject-0.1.0.tar.gz</span><br><span class="line">  Writing /tmp/easy_install-szH61Z/myproject-0.1.0/setup.cfg</span><br><span class="line">  Running myproject-0.1.0/setup.py -q bdist_egg --dist-dir /tmp/easy_install-szH61Z/myproject-0.1.0/egg-dist-tmp-aI8vPL</span><br><span class="line">  Adding myproject 0.1.0 to easy-install.pth file</span><br><span class="line"></span><br><span class="line">  Installed /usr/lib/python2.6/site-packages/myproject-0.1.0-py2.6.egg</span><br><span class="line">  Processing dependencies for myproject</span><br><span class="line">  Finished processing dependencies for myproject</span><br></pre></td></tr></table></figure><br>这时刚才上传到私有源的包就安装在了本地，安装路径可以从安装的信息中看到。安装的路径为：<code>/usr/lib/python2.6/site-packages/myproject-0.1.0-py2.6.egg</code>  </p>
+<h4 id="2-7-代码结构规划"><a href="#2-7-代码结构规划" class="headerlink" title="2.7, 代码结构规划"></a>2.7, 代码结构规划</h4><p>一般情况下为了使代码看起来更加有条理，我们把源代码放到src文件夹下。首先把myproject文件夹移动到src中，然后删除以前产生的文件，只保留自己写的问文件，其结构大致如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">   ├── setup.py</span><br><span class="line">└── src</span><br><span class="line">    └── myproject</span><br><span class="line">        ├── __init__.py</span><br><span class="line">        └── __init__.pyc </span><br></pre></td></tr></table></figure>
+<p>setup.py内容也要修改，修改默认的搜索路径为src，而不是从根目录开始，内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"># setup.py</span><br><span class="line"># !/usr/bin/env python</span><br><span class="line"># -*- coding:utf-8 -*-</span><br><span class="line"></span><br><span class="line">from setuptools import setup, find_packages</span><br><span class="line"></span><br><span class="line">setup(</span><br><span class="line">        name = &quot;myproject&quot;,        </span><br><span class="line">        version=&quot;0.1.0&quot;, </span><br><span class="line">        packages = find_packages(&apos;src&apos;), </span><br><span class="line">        package_dir = &#123;&apos;&apos;:&apos;src&apos;&#125;,</span><br><span class="line">        zip_safe = False,</span><br><span class="line"></span><br><span class="line">        description = &quot;egg test demo.&quot;, </span><br><span class="line">        long_description = &quot;egg test demo, haha.&quot;, </span><br><span class="line">        author = &quot;sean&quot;,</span><br><span class="line">        author_email = &quot;seanerchen@gmail.com&quot;,</span><br><span class="line"></span><br><span class="line">        license = &quot;GPL&quot;,</span><br><span class="line">        keywords = (&quot;test&quot;, &quot;egg&quot;),</span><br><span class="line">        platforms = &quot;Independant&quot;,</span><br><span class="line">        url = &quot;&quot;,</span><br><span class="line">        )</span><br></pre></td></tr></table></figure><br>然后运行命令生成egg等文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py bdist_egg</span><br><span class="line"></span><br><span class="line">$ tree</span><br><span class="line">.</span><br><span class="line">├── build</span><br><span class="line">│   ├── bdist.linux-x86_64</span><br><span class="line">│   └── lib</span><br><span class="line">│       └── myproject</span><br><span class="line">│           └── __init__.py</span><br><span class="line">├── dist</span><br><span class="line">│   └── myproject-0.1.0-py2.6.egg</span><br><span class="line">├── setup.py</span><br><span class="line">└── src</span><br><span class="line">    ├── myproject</span><br><span class="line">    │   ├── __init__.py</span><br><span class="line">    │   └── __init__.pyc</span><br><span class="line">    └── myproject.egg-info</span><br><span class="line">        ├── dependency_links.txt</span><br><span class="line">        ├── not-zip-safe</span><br><span class="line">        ├── PKG-INFO</span><br><span class="line">        ├── SOURCES.txt</span><br><span class="line">        └── top_level.txt</span><br><span class="line"></span><br><span class="line">8 directories, 10 files</span><br></pre></td></tr></table></figure><br>然后用同样的方式进行安装运行，依然没有问题。  </p>
+<h4 id="2-8-卸载程序"><a href="#2-8-卸载程序" class="headerlink" title="2.8, 卸载程序"></a>2.8, 卸载程序</h4><p>安装过的python包，如果要删除该如何做呢？<br>首先要找到easy-install.pth文件,这个文件是自动查询安装包的路径的文件，如果把安装包的路径从这个文件中去掉，将找不到要使用的包<br>当运行安装程序发现最后几行信息:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">  ...</span><br><span class="line">  Processing myproject-0.1.0-py2.6.egg</span><br><span class="line">  creating /root/.local/lib/python2.6/site-packages/myproject-0.1.0-py2.6.egg</span><br><span class="line">  Extracting myproject-0.1.0-py2.6.egg to /root/.local/lib/python2.6/site-packages</span><br><span class="line">  Adding myproject 0.1.0 to easy-install.pth file</span><br><span class="line"></span><br><span class="line">  Installed /root/.local/lib/python2.6/site-packages/myproject-0.1.0-py2.6.egg</span><br><span class="line">  Processing dependencies for myproject==0.1.0</span><br><span class="line">  Finished processing dependencies for myproject==0.1.0</span><br></pre></td></tr></table></figure><br>可以看出包的安装路径和包的路径信息都能找到，删除相应的包和路径就会发现无法使用该包了。<br>打开文件easy-install.pth，删除./myproject-0.1.0-py2.6.egg这一行，或者直接删除安装好的egg包,再次运行python时就会提示找不到该包<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from myproject import test</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</span><br><span class="line">ImportError: No module named myproject</span><br></pre></td></tr></table></figure><br>到这里整个配置文件的写法，源代码的写法，打包到本地和打包到远程，本地安装和远程安装都介绍完了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/setuptools/">setuptools</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/10/14/python-pypi-install/"><span>python pypi 私有源搭建</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/10/14/python-pypi-install/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-10-13T16:00:00.000Z">
+          2013-10-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>今天学习了pypi的私有源的搭建。过程很曲折，出现了很多问题，这里做个记录，希望以后的人能有所借鉴，自己也做一下总结……</em></p>
+</blockquote>
+<h2 id="什么是pypi"><a href="#什么是pypi" class="headerlink" title="什么是pypi"></a>什么是pypi</h2><p>这个问题可以从<a href="https://pypi.python.org/pypi" target="_blank" rel="noopener">官方文档</a>得到答案。pypi的全称是：The Python Package Index，翻译过来就是一个python包的索引，python包存储在一个统一管理的仓库中，然后为所有在这个仓库的软件生成一个列表,这就是pypi.</p>
+<h2 id="如何使用pypi"><a href="#如何使用pypi" class="headerlink" title="如何使用pypi"></a>如何使用pypi</h2><p>用过python的同学都知道，通过下面三个命令都可以安装python包。但是它们之间的区别又是什么呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. python setup.py  install</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2. pip install packagename</span><br></pre></td></tr></table></figure><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3. easy_install packagename</span><br></pre></td></tr></table></figure><br>第一种方式就是先把要安装的包的模块下载到本地，然后进入解压目录，执行上面的命令。<br>第二种和第三种都是直接输入命令，就会自动从pipy库中下载相应的包然后安装的预先定义好的路径。<br>如果不是要修改源码，第二种和第三种方式无疑是最好的。这里先不深入他们的原理，以后再讲。</p>
+<h2 id="为什么要搭建pypi私有源"><a href="#为什么要搭建pypi私有源" class="headerlink" title="为什么要搭建pypi私有源"></a>为什么要搭建pypi私有源</h2><p>既然有了官方的pypi源，为什么我们还要搭建自己的私有源呢？这个问题其实很好理解。公司内部开发的软件包希望能够通过这种方式让大家安装，但如果上传到官方的源无疑是公司所不希望的，这时私有源就发挥作用了。它只在公司内部服务器上存在，安装方式和官方的源一样，既简单有安全，何乐而不为呢~</p>
+<h2 id="如何搭建自己的私有源"><a href="#如何搭建自己的私有源" class="headerlink" title="如何搭建自己的私有源"></a>如何搭建自己的私有源</h2><p>终于到了正题了，如何搭建我们自己的私有源呢？这里我主要参考了<a href="http://yijingping.github.io/2013/07/25/setting-up-your-own-pypi-server.html" target="_blank" rel="noopener">易先生的世界</a>这篇博客。<br>从中我们可以得知python的私有源解决方案有很多种，这些解决方案可以在python关于私有源的<a href="https://wiki.python.org/moin/PyPiImplementations" target="_blank" rel="noopener">官方文档</a>中找到。这里我们选择了据说是最简单好用的一个<a href="https://pypi.python.org/pypi/pypiserver" target="_blank" rel="noopener">pypiserver</a>,下面就这个私有源的安装过程进行一个说明(ps:我的软件都是用virtualenv方式安装的）：<br><strong>顺利的安装方式</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 进入virtualenv目录。执行：</span><br><span class="line">virtualenv pypienv</span><br><span class="line"># 然后进入pypienv环境</span><br><span class="line">source pypienv/bin/activate</span><br><span class="line"># 安装pypiserver</span><br><span class="line">pip install pypiserver</span><br><span class="line"># 建立一个存放软件包的目录,这个目录路径可按照自己的需求建立</span><br><span class="line">mkdir /PATH/packages</span><br><span class="line"># 启动pypi-server 端口号自定义 后接包的上传地址</span><br><span class="line">exec pypi-server -p 3141 /search/ziyuan/pypiserver/packages</span><br></pre></td></tr></table></figure><br>到这里其实pypi-server的安装已经完成了。但是我们安装好了要用，这才是重点。<br><strong>上传package</strong><br>假设我们已经做好了一个package，如何上传到指定的私有源呢？<br>首先上传需要用户名和密码，这个需要在服务端生成，密码文件使用命令htpasswd生成。首先安装passlib模块<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install passlib</span><br></pre></td></tr></table></figure><br>然后安装apache2-utils模块。由于我使用的readhat,并没有在yum中找到apache2-utils源，只有自己下载安装了。<a href="http://download.opensuse.org/factory/repo/src-oss/suse/src/apache2-2.4.6-7.3.src.rpm" target="_blank" rel="noopener">下载地址</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh apache2-2.4.6-7.3.src.rpm</span><br></pre></td></tr></table></figure><br>最后生成用户名和密码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">htpasswd -sc /PATH/.htaccess user #回车输入密码。输入：123</span><br></pre></td></tr></table></figure><br>用户名密码都生成了，接下来就是从新启动pypiserver，让他读入设置好的用户名密码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec pypi-server -p 3141 -P /PATH/.htaccess /search/ziyuan/pypiserver/packages</span><br></pre></td></tr></table></figure><br>用户上传软件包之前要指定上传的的地址，否则就会传到官方的默认路径去，执行路径的配置文件要放在用户主目录下，文件名.pypirc,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[distutils]</span><br><span class="line">index-servers =</span><br><span class="line">   local #注意：这个缩进必须要有，不然就会报错，解析不了配置文件 </span><br><span class="line"></span><br><span class="line">[local]</span><br><span class="line">repository:http://127.0.0.1:3141</span><br><span class="line">username:user</span><br><span class="line">password:123 </span><br></pre></td></tr></table></figure><br>这是就可以在和发布的软件包中域名命令上传软件包到私有源了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py sdist upload -r local </span><br></pre></td></tr></table></figure><br><strong>下载package</strong><br>前面也提到了有两种下载方式可以直接从源中下载，根据打包的方式不同。它们分别是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install -i http://localhost:3141/simple/ packagename</span><br><span class="line">easy_install -i http://localhost:3141/simple/ packagename</span><br></pre></td></tr></table></figure><br>到这里，pypiserver的安装和使用已经完成了，但是其原理还需要研究，以后要做到定制一些功能~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/pypi/">pypi</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/10/13/study-liquid/"><span>study liquid</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/10/13/study-liquid/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-10-12T16:00:00.000Z">
+          2013-10-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这篇博客主要讲学习liquid这个语言的语法</em></p>
+</blockquote>
+<p>下面还会讲学习markdown的语法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    $arr = (1,3,4);</span><br><span class="line">    $var = &apos;testfasdfasdfasdfasdfasdfasdfasdasdfasdfasdasdfasdfasfasdfasdfasdfasfasfadfsdfasdfasdfasdfasdfasdfasdfasdfasdaff&apos;;</span><br><span class="line">    echo $var;</span><br><span class="line">    print_r($arr);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/liquid/">liquid</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/10/12/install-theme/"><span>安装新主题</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/10/12/install-theme/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-10-11T16:00:00.000Z">
+          2013-10-12
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>安装完jekyll后很是兴奋，对于一向是外貌协会的我自然希望能找一个好的博客主题，这个主题一定要高端大气上档次，并且体现黑客的风格，这样才好装B啊，于是一天的时间都花在这上面了~ </em> </p>
+</blockquote>
+<h2 id="心血来潮"><a href="#心血来潮" class="headerlink" title="心血来潮"></a>心血来潮</h2><p>对于一个新手来说，安装好jekyll后，我第一件事就是希望能够找到一个漂亮的主题，切合我博客的内容，于是我开始了忙碌的寻找……<br>在学习jekyll boostrapy的过程中看到了可以<a href="http://jekyllbootstrap.com/usage/jekyll-theming.html" target="_blank" rel="noopener">自定义主题</a>，并且通过简单的命令就可以安装，实在是太爽了，于是我毫不犹豫的操作了起来<br><strong>添加远程主题</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rake theme:install git=&quot;https://github.com/jekyllbootstrap/twitter.git&quot;</span><br></pre></td></tr></table></figure><br><strong>安装本地主题</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rake theme:package title=&quot;twitter&quot;</span><br></pre></td></tr></table></figure><br><strong>切换主题</strong>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rake theme:switch title=&quot;twitter&quot;</span><br></pre></td></tr></table></figure><br>到这里其实可以结束了，但是总是感觉自带的主题和我自己的审美有冲突</p>
+<h2 id="痛苦挣扎"><a href="#痛苦挣扎" class="headerlink" title="痛苦挣扎"></a>痛苦挣扎</h2><h2 id="失败告终"><a href="#失败告终" class="headerlink" title="失败告终"></a>失败告终</h2><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/blog/">blog</a>, <a href="/categories/blog/jekyll/">jekyll</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/jekyll/">jekyll</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+
+<nav class="pagination">
+  
+  <a href="/page/6/" class="pagination-prev">Prev</a>
+  
+  
+</nav>
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

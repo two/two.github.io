@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>【译】 Go 语言机制之栈和指针 (1) | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="前言这个系列的文章主要是帮助你理解指针，栈，堆，逃逸分析和值/指针语义的设计和机制。本系列一共有四篇，这是第一篇。本篇主要是介绍栈和指针。
+本系列文章索引:1) Go 语言机制之栈和指针2) Go 语言机制之逃逸分析3) Go 语言机制之内存性能分析4) Go 语言机制之数据和语义的使用原则
+简介我并不打算美化指针，因为指针真的很难理解。如果我们使用不当，指针能够产生很难理解的 bug 甚至影响性能。 在写并发程序或者多线程程序时这种问题更为明显。这也难怪很多语言试图对开发者隐藏指针的使用。尽管如此，如果你是用 Go 来开发程序，你是没有办法避免使用指针的。相对于深入的理解指针，你更应该关注如何写出干净，简单并且有效的代码。">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="【译】 Go 语言机制之栈和指针 (1)">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>【译】 Go 语言机制之栈和指针 (1)</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2019/03/04/Language-Mechanics-On-Stacks-And-Pointers/" rel="bookmark">
+        <time class="entry-date published" datetime="2019-03-04T05:29:19.000Z">
+          2019-03-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这个系列的文章主要是帮助你理解指针，栈，堆，逃逸分析和值/指针语义的设计和机制。本系列一共有四篇，这是第一篇。本篇主要是介绍栈和指针。</p>
+<p>本系列文章索引:<br>1) Go 语言机制之栈和指针<br>2) Go 语言机制之逃逸分析<br>3) Go 语言机制之内存性能分析<br>4) Go 语言机制之数据和语义的使用原则</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>我并不打算美化指针，因为指针真的很难理解。如果我们使用不当，指针能够产生很难理解的 bug 甚至影响性能。 在写并发程序或者多线程程序时这种问题更为明显。这也难怪很多语言试图对开发者隐藏指针的使用。尽管如此，如果你是用 Go 来开发程序，你是没有办法避免使用指针的。相对于深入的理解指针，你更应该关注如何写出干净，简单并且有效的代码。</p>
+<a id="more"></a>
+<h1 id="帧边界"><a href="#帧边界" class="headerlink" title="帧边界"></a>帧边界</h1><p>帧边界为每个函数提供了独立的内存空间的，这些函数都运行在自己的内存空间中。每个帧都允许他自己的函数操作他的上下文并且能够提供流程控制。一个函数可以通过帧指针直接访问它所在帧的内存，但如果要访问帧外的内存就需要间接访问。为了能够让函数访问所在帧外的内存, 这个内存需要在函数之间共享。帧边界之间的这种限制和原则是需要首先明白的。<br>当一个函数被调用时在两个帧之间就会出现上下文切换。代码会从调用的函数所在的帧切换到被调用函数所在的帧。如果函数调用需要传递数据，这个数据必须要从一个帧传输到另一个帧。两个帧之间的数据传递在 Go 中是通过”值传递”来完成的。<br>通过”值传递”来传输数据的优点是可读性好。你说看到的值就是函数调用被复制和接收到的值。这就是我为什么说”值传递”是 WYSIWYG(what you see is what you get)，所见即所得。所有这些都使你在编写两个函数 调用时不会隐藏上下文切换的成本。”值传递”会帮助你很好的理解当函数调用时所产生的影响。</p>
+<p>下面这段代码就是函数通过”值传递”来传输整形数据的例子:</p>
+<p>list 1:<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Declare variable of type int with a value of 10.</span></span><br><span class="line">   count := <span class="number">10</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Display the "value of" and "address of" count.</span></span><br><span class="line">   <span class="built_in">println</span>(<span class="string">"count:\tValue Of["</span>, count, <span class="string">"]\tAddr Of["</span>, &amp;count, <span class="string">"]"</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Pass the "value of" the count.</span></span><br><span class="line">   increment(count)</span><br><span class="line"></span><br><span class="line">   <span class="built_in">println</span>(<span class="string">"count:\tValue Of["</span>, count, <span class="string">"]\tAddr Of["</span>, &amp;count, <span class="string">"]"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//go:noinline</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">increment</span><span class="params">(inc <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Increment the "value of" inc.</span></span><br><span class="line">   inc++</span><br><span class="line">   <span class="built_in">println</span>(<span class="string">"inc:\tValue Of["</span>, inc, <span class="string">"]\tAddr Of["</span>, &amp;inc, <span class="string">"]"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当你的程序启动的时候, runtime 就会创建 main goroutine 开始初始化main 函数中的代码。一个 goroutine 就是存在于操作系统线程（ 最终会运行在一些核上）的一个执行路径。Go 1.8版本以后每个 goroutine 回初始化2048字节(byte)的栈空间。这个初始化栈空间在过去几年发生过几次变化了， 未来也可能会再次修改。<br>栈非常重要，因为它为每个独立的函数提供了祯边界之间的物理内存空间。当 list 1 的 main 函数执行的时候，goroutine 的栈空间如下图所示:</p>
+<p>Figure 1:<br><img src="/assets/img/golang/80_figure1.png" alt></p>
+<p>在 Figure 1 中你可以看到，<code>main</code>函数对应的栈已经被创建出来了。 这块儿空间被成为『栈帧』, 这个框表示的是<code>main</code>函数的堆边界。当函数被调用的时候，这个帧是正在执行的代码的一部分。可以看到变量<code>count</code>被放到了<code>main</code>函数的帧中地址为<code>0x10429fa4</code> 的地方。</p>
+<p>Figure 1 同样也表明了一个非常有趣的点。 当前活动的帧下面所有堆内存都是不可用的，但是从这个帧开始上面的地址是可用的。我需要清晰的知道堆中可用和不可用的部分的边界。</p>
+<h1 id="地址"><a href="#地址" class="headerlink" title="地址"></a>地址</h1>
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/Go/">Go</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

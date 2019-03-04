@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>垃圾回收算法总结 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="最近研读了《垃圾回收的算法与实现》这本书， 对来垃圾回收(GC)的来龙去脉及理论和实践有了一个概括性，深入性的了解，这里分多篇进行总结。首先本文先对GC的理论来一个总览性的回顾.
+
+什么是垃圾回收我们知道一台服务器的内存是有限的，而程序的运行需要占用内存空间，一个程序内部可能有些内存空间使用后不再使">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="垃圾回收算法总结">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>垃圾回收算法总结</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/01/22/gc/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-01-22T06:56:28.000Z">
+          2017-01-22
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近研读了《垃圾回收的算法与实现》这本书， 对来垃圾回收(<code>GC</code>)的来龙去脉及理论和实践有了一个概括性，深入性的了解，这里分多篇进行总结。首先本文先对GC的理论来一个总览性的回顾.</p>
+</blockquote>
+<h2 id="什么是垃圾回收"><a href="#什么是垃圾回收" class="headerlink" title="什么是垃圾回收"></a>什么是垃圾回收</h2><p>我们知道一台服务器的内存是有限的，而程序的运行需要占用内存空间，一个程序内部可能有些内存空间使用后不再使用，这部分不再使用的内从空间就被视为<code>垃圾</code>。而GC就是要</p>
+<ol>
+<li>找到内存空间里的垃圾</li>
+<li>回收垃圾，让程序员能够再次利用这部分空间</li>
+</ol>
+<p>如果没有GC的情况下需要程序员自己手动管理内存，例如C/C++等程序。这个过程将会非常麻烦，如果管理不当就会照成内存泄露引起系统崩溃，引发各种恶性bug和安全问题。有了GC就会省去很大一部分精力，降低了开发的难度。</p>
+<h2 id="垃圾回收基本概念"><a href="#垃圾回收基本概念" class="headerlink" title="垃圾回收基本概念"></a>垃圾回收基本概念</h2><p>要深入了解垃圾回收的理论知识，下面这些关键件信息比必要掌握:</p>
+<ul>
+<li>对象/头/域: 这里对象是由头(heder)和域(field)构成的。头是指保持对象本身信息的部分，主要包括<strong>对象的大小</strong>和<strong>对象的种类</strong>;域是对象使用者可以访问的部分，域的数据类型主要分为指针和非指针两种。</li>
+<li>指针: GC根据对象的指针指向去搜寻其他对象，对于非指针不进行任何操作。</li>
+<li>mutator: 程序运行过程中关系的改变，主要包括<strong>生成对象</strong>和<strong>更新指针</strong>等操作。</li>
+<li>堆: 用于动态存放对象的内存空间。当mutator申请存放对象时，所需的内从空间就是从这个堆中被分配给mutator的。</li>
+<li>活动对象/非活动对象: 内存空间中可以通过mutator引用的对象是”活动对象”, 不能通过程序引用的称为”非活动对象”。非活动对象无法重新被引用，所以就是”垃圾”。</li>
+<li>分配: 内存空间中分配(allocatio)对象。当mutator需要新对象时，就会向分配器(allocator)申请一个大小合适的空间。</li>
+<li>分块: 未利用对象而事先准备的空间。初始状态堆就是一个大分块，根据mutator的需求而分割成合适的大小。</li>
+<li>根: 跟是指向对象的指针的起点，通过mutator可以直接调用的调用栈(call stack),寄存器和全局变量都是根。但是调用栈和寄存器中的值是不是指针，需要再做判断。</li>
+<li>评价标准: GC算法的性能评价标准主要有<ol>
+<li>吞吐量: 单位时间内的处理能力。</li>
+<li>最大暂停时间: 因执行GC和停止mutator的最长时间。</li>
+<li>堆使用效率</li>
+<li>访问的局部性: 局部性原理，数据离得越近越好处理。</li>
+</ol>
+</li>
+</ul>
+<h2 id="垃圾回收算法总览"><a href="#垃圾回收算法总览" class="headerlink" title="垃圾回收算法总览"></a>垃圾回收算法总览</h2><p>首先先上一张垃圾回收算法的总概括图:<br><img src="/assets/img/gc/GC.png" alt="垃圾回收算法总览"><br>上面列举和好多算法及对应的细节。其实GC最基本的思想就是三种算法(GC标记-清除法, 引用计数法, GC复制算法), 其他算法都算是这几个算法的延伸和组合。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/gc/">gc</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>chapter4:面向资源的架构 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="这一章说的是一个具体的REST式架构——面向资源的架构(Resource-Oriented Architecture, ROA)">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="chapter4:面向资源的架构">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>chapter4:面向资源的架构</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/04/restful-web-services-chapter4/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-03T16:00:00.000Z">
+          2013-12-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这一章说的是一个具体的REST式架构——面向资源的架构(Resource-Oriented Architecture, ROA)。ROA是一种把实际问题转换为REST式Web服务的方法：它令URI、HTTP和XML具有跟其他Web应用一样的工作方式，令程序员们容易是用它们。<br>这一章将面向资源的架构(ROA)的功能分成：资源、资源名称、资源的表示、资源间的链接。还将介绍ROA的特性：可寻址性(addressability)、无状态性(statelessness)、连通性(connectedness)和统一接口(uniform interface)。</em></p>
+</blockquote>
+<p>这里有一个容易混淆的地方：为什么有REST了还要用一个ROA呢？<strong>REST</strong>就是一个指导原则，只要满足REST原则，任何具体的设计都可以成为REST式架构。而<strong>ROA</strong>就是REST的一个具体的设计架构，可以称之为具体的架构。关于REST的设计原则请参考Roy Fielding的博士论文：《架构风格与基于网络的软件架构设计》及博客：<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a>。其中总结REST的架构的6个主要的特性如下：</p>
+<ul>
+<li><p>客户-服务器（Client-Server）<br>通信只能由客户端单方面发起，表现为请求-响应的形式。</p>
+</li>
+<li><p>无状态（Stateless）<br>通信的会话状态（Session State）应该全部由客户端负责维护。</p>
+</li>
+<li><p>缓存（Cache）<br>响应内容可以在通信链的某处被缓存，以改善网络效率。</p>
+</li>
+<li><p>统一接口（Uniform Interface）<br>通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</p>
+</li>
+<li><p>分层系统（Layered System）<br>通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</p>
+</li>
+<li><p>按需代码（Code-On-Demand，可选）<br>支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</p>
+</li>
+</ul>
+<p>这些特性在介绍ROA的时候也会具体详细的介绍。<br>REST并不依赖于HTTP机制或URI结构，对于特定的服务来说比如Web服务来说明REST，则其具体的表现形式就是HTTP与URI，这些具体的架构形式就称之为ROA架构。如果一个REST式的服务不是基于Web的则可能不叫ROA,但是其遵循的原则都是一致的，只不过表现形式会有一些差别。</p>
+<h2 id="什么是资源"><a href="#什么是资源" class="headerlink" title="什么是资源"></a>什么是资源</h2><p>这里的定义是：任何事物，只要具有被引用的必要，它就是一个资源(resource)。<br>资源的具体形式在计算机里就是体现为比特流的事物，如文档、数据库的记录、某程序的运行结果。</p>
+<h2 id="URIs"><a href="#URIs" class="headerlink" title="URIs"></a>URIs</h2><p>在web里是什么令资源称得上为一个资源呢？那就是它必须至少有一个URI。URI既是资源的地址又是资源的名称，如果一则信息没有URI,那就不能称之为一个资源，而只能算是描述另一个资源的一些数据。<br>资源与URI的关系式：<br><strong>URI:资源——&gt; N:1</strong></p>
+<h2 id="可寻址性"><a href="#可寻址性" class="headerlink" title="可寻址性"></a>可寻址性</h2><p><strong>ROA的第一个特性</strong>.这个很好理解，就是每个资源都有自己的URI,这个URI在一定时间内是固定不变的，在有效的时间内用户可以通过URI来找到该资源。</p>
+<h2 id="无状态性"><a href="#无状态性" class="headerlink" title="无状态性"></a>无状态性</h2><p><strong>ROA的第二个特性</strong>.意味着每个HTTP请求都是完全孤立的。这个应该很好理解。<br>这里还有两个概念：<code>应用状态</code>和<code>资源状态</code>。应用状态是要保存到客户端的，资源状态是保存在服务端的。其实这两个状态是资源与客户端所拥有的资源的状态，每个资源之间是孤立的。</p>
+<h2 id="连通性"><a href="#连通性" class="headerlink" title="连通性"></a>连通性</h2><p>这个特性是要求资源之间通过它们的表示彼此链接起来。这个特性主要是体现web的易用性。</p>
+<h2 id="统一接口"><a href="#统一接口" class="headerlink" title="统一接口"></a>统一接口</h2><p>统一接口的意思就是要求对资源的操作要按照REST的要求进行，也就是特定的操作要使用对应的操作方法，而不是混乱的使用。<br>常用的HTTP方法已经介绍过了，但是有几点需要注意的是</p>
+<ul>
+<li><p>PUT与POST该用哪个？这个是很容易混淆的地方，一般来说POST表示的是增加新的资源，PUT表示修改已有的资源。但是还有下面几个原则：</p>
+<ul>
+<li>客户端负责决定新资源采用什么URI，就用PUT;服务器负责新资源采用什么URI,那就用POST。</li>
+<li>对现有资源进行追加信息的时候采用POST。</li>
+</ul>
+</li>
+<li><p>重载的POST不符合统一接口。<br>这点并不好理解。其实大部分的时候我们见到的都是这种：它们用POST向一个数据加工处理程序提供数据块（a block of data ）。其中一个最常见的例子就是form表单的提交。这种方法是通过单个HTTP方法表达无数个非HTTP方法。这种重载的POST不应该被用于掩饰拙略的资源设计，这个时候可以通过调整资源设计来做到统一接口。具体如何做，还要等了解再补充。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

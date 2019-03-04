@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>设计模式-观察者模式 | OohCode | ooh my code</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="观察者模式">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="设计模式-观察者模式">
+
+  <meta property="og:site_name" content="OohCode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="OohCode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">OohCode</a>
+    </h1>
+    <p class="site-description">ooh my code</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+        <li><a href="/categories">Categories</a></li>
+      
+        <li><a href="/tags">Tags</a></li>
+      
+        <li><a href="/atom.xml">RSS</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>设计模式-观察者模式</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/27/observer-pattern/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-26T16:00:00.000Z">
+          2014-11-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>在学习js事件的时候，说js事件其实就是观察者模式，所以打算先把观察者模式了解一下，这样就能更好的理解事件机制了。</p>
+</blockquote>
+<p>由于观察者模式，其实比较好理解，这里就举<a href="http://zh.wikipedia.org/wiki/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">wikipedia的例子</a><br>观察者模式的UML类图如下:</p>
+<img src="http://www.plantuml.com/plantuml/svg/Iyv9B2vMy4ygJYqgIorIgERIpiiloKohrD3agkLA1ai6boPbfIQNWEGIKr9WIe4Aj5DISr9BKf5589gHH626EEVd9HSXANP4jieQfp8d_CgWJaCo38_LKCLEE1HZkb2tj42tnWuUE5oOZiEb0kukg08edml3AMZoy7ZGrSt7fSbHGK_F3ZCyCSt6fio92m00">
+<p>分析一下这个类图。主要分为两种类。一个是观察者类(Observer), 一个是被观察者类(Subject), 被观察者类有三种方法分别是：</p>
+<ul>
+<li><code>addObserver()</code>: 添加观察者到被观察者类中</li>
+<li><code>deleteObserver()</code>: 从被观察者类中删除观察者</li>
+<li><code>notifyObserver()</code>: 通知已经注册过的观察者</li>
+</ul>
+<p>这里<code>ConcreteSubjectA</code>和<code>ConcreteSubjectB</code>是继承<code>Subject</code>的。当有多个被观察者类时可以用这种方式，当只有一个被观察者类时，可以直接用<code>Subject</code>进行实例话，不需要派生类。<br><code>Observer</code>是观察者的抽象类。所有的观察者都继承自这个类。每个观察者类都要实现一个<code>notify()</code>函数。这个函数是当被观察者发生变化需要通知观察者的时候调用的，也就是<code>notifyObserver()</code>调用的。</p>
+<h2 id="代码事例"><a href="#代码事例" class="headerlink" title="代码事例:"></a>代码事例:</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Student"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I'm a student of "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Teacher"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I teach in "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Subject</span> <span class="keyword">implements</span> <span class="title">SplSubject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $nome_materia;</span><br><span class="line">    <span class="keyword">private</span> $_observadores = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">private</span> $_log = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_materia</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome_materia;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">SET_log</span><span class="params">($valor)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = $valor ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">GET_log</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;_log;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome_materia = $nome;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" Subject $nome was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Adiciona um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">attach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_classes[] = $classes;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Remove um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">detach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $key =&gt; $obj) &#123;</span><br><span class="line">            <span class="keyword">if</span> ($obj == $classes) &#123;</span><br><span class="line">                <span class="keyword">unset</span>(<span class="keyword">$this</span>-&gt;_classes[$key]);</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was removed"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Notifica os observadores */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">notify</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $classes) &#123;</span><br><span class="line">            $classes-&gt;update(<span class="keyword">$this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the math Subject</span></span><br><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br><span class="line"> </span><br><span class="line">$subject2 = <span class="keyword">new</span> Subject(<span class="string">"English"</span>);</span><br><span class="line">$renato = <span class="keyword">new</span> Teacher(<span class="string">"Renato"</span>);</span><br><span class="line">$fabio = <span class="keyword">new</span> Student(<span class="string">"Fabio"</span>);</span><br><span class="line">$tiago = <span class="keyword">new</span> Student(<span class="string">"tiago"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the english Subject</span></span><br><span class="line">$subject2-&gt;attach($renato);</span><br><span class="line">$subject2-&gt;attach($vinicius);</span><br><span class="line">$subject2-&gt;attach($fabio);</span><br><span class="line">$subject2-&gt;attach($tiago);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Remove the instance "Rafael from subject"</span></span><br><span class="line">$subject-&gt;detach($rafael);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Notify both subjects</span></span><br><span class="line">$subject-&gt;notify();</span><br><span class="line">$subject2-&gt;notify();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">echo</span> <span class="string">"First Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;hr&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"Second Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject2-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br></pre></td></tr></table></figure>
+<p>输出结果:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//First Subject</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">//Second Subject</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Array (</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">   [0] =&gt;  Subject English was included</span></span><br><span class="line"><span class="string">   [1] =&gt;  The Teacher Renato was included</span></span><br><span class="line"><span class="string">   [2] =&gt;  The Student Vinicius was included</span></span><br><span class="line"><span class="string">   [3] =&gt;  The Student Fabio was included</span></span><br><span class="line"><span class="string">   [4] =&gt;  The Student tiago was included</span></span><br><span class="line"><span class="string">   [5] =&gt; Comes from Renato: I teach in English</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Vinicius: I'</span>m a student of English</span><br><span class="line">   [<span class="number">7</span>] =&gt; Comes from Fabio: I<span class="string">'m a student of English</span></span><br><span class="line"><span class="string">   [8] =&gt; Comes from tiago: I'</span>m a student of English</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>结合代码我们再具体分析。上面的代码中有<code>SplObserver</code>是观察者基类,观察者类<code>Student</code>和<code>Teacher</code>都继承它。被观察者<code>Subject</code>继承自<code>SplSubject</code>基类,实现了三个函数:添加观察者的<code>attach</code>、删除观察者的<code>detach</code>及通知观察者的<code>notify</code>。我们还注意到每个观察者类都有一个<code>update</code>函数，这个函数是被观察者通知观察者时的接口，由<code>notify</code>函数调用并传递被观察者的信息到观察者。这就是一个完整的观察者模式的代码实例。</p>
+<p>我们再看如何使用:<br>开始的时候初始化观察者和被观察者类:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br></pre></td></tr></table></figure>
+<p>然后把观察者注册到被观察者中:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br></pre></td></tr></table></figure>
+<p>接着又把<code>$rafael</code>从观察者类中删除了:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;detach($rafael);</span><br></pre></td></tr></table></figure>
+<p>最后由被观察者通知注册的观察者做出改变:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;notify();</span><br></pre></td></tr></table></figure>
+<p>所以最后的结果如下:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br></pre></td></tr></table></figure>
+<p>第二个分析方法相同,不在赘述了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/设计模式/">设计模式</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
