@@ -112,7 +112,8 @@
 <p>这个函数完整的输出入下:<br>Listing 9<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">count:  Value Of[ 10 ]  Addr Of[ 0x10429fa4 ]</span><br><span class="line">inc:    Value Of[ 11 ]  Addr Of[ 0x10429f98 ]</span><br><span class="line">count:  Value Of[ 10 ]  Addr Of[ 0x10429fa4 ]</span><br></pre></td></tr></table></figure></p>
 <p>在函数<code>increment</code>函数调用前和调用后，变量<code>count</code>的值在<code>main</code>函数所在的帧中值是一样的。</p>
 <p>函数返回值<br>在内存栈中当被调用的函数把控制权返还给调用函数的时候到底发生了什么？一句话来回答就是:什么也没发生。下面就是当<code>increment</code>函数返回后栈的结构:<br>Figure 4<br><img src="/assets/img/golang/80_figure4.png" alt><br>这个栈结构和<code>Figure 3</code>的结构一模一样，唯一的区别就是函数<code>increment</code>所在的帧现在是无法访问的内存了。因为现在<code>main</code>函数是工作的帧, 为函数<code>increment</code>创建的帧是无法访问的。<br>为被调用的函数返回后帧所占用的内存进行清除是一个比较费时间的，因为你不知道这些内存是否会被再次用到。所以当函数调用时这些帧需要被再次用到时帧所占用的内存才会被清除，否则就会放在那不管。<br>通常在每次函数调用中，栈都会进行清除，一般都是在帧中进行变量初始化的时候完成的，因为每个变量都会被初始化，即使是使用默认值, 初始化的时候就需要占用内存。</p>
-<h1 id="共享值"><a href="#共享值" class="headerlink" title="共享值"></a>共享值</h1>
+<h1 id="共享值"><a href="#共享值" class="headerlink" title="共享值"></a>共享值</h1><p>如果我们想让函数<code>increment</code>直接操作<code>main</code>函数中的变量<code>count</code>该怎么做呢？这时候就需要指针了。指针存在的目的就是为了让函数共享一个值以便能够读写变量的值, 及时这个值不在它自己的帧中。<br>如果你不需要共享，那就不需要用到指针。学习指针的时候重要的是清晰的词汇而不是语法或者操作符。所以记住指针是为了共享，读代码的时候不要用操作符<code>&amp;</code>来代替共享的意思。</p>
+
       
     </div>
 

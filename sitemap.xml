@@ -4,7 +4,7 @@
   <url>
     <loc>http://oohcode.com/2019/03/04/Language-Mechanics-On-Stacks-And-Pointers/</loc>
     
-    <lastmod>2019-03-12T12:01:35.874Z</lastmod>
+    <lastmod>2019-03-12T12:11:15.913Z</lastmod>
     
   </url>
   
@@ -135,14 +135,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/05/28/http-cache/</loc>
+    <loc>http://oohcode.com/2015/01/27/php-internals-1/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/01/27/php-internals-1/</loc>
+    <loc>http://oohcode.com/2015/05/28/http-cache/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
@@ -198,14 +198,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/05/21/csapp-chapter7/</loc>
+    <loc>http://oohcode.com/2014/07/05/coreseek-manual/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/07/05/coreseek-manual/</loc>
+    <loc>http://oohcode.com/2014/05/21/csapp-chapter7/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
@@ -226,6 +226,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2014/05/18/csapp-chapter6/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2014/03/22/linux-shell-programe1/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
@@ -234,13 +241,6 @@
   
   <url>
     <loc>http://oohcode.com/2014/05/13/coreseek-install-doc/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2014/05/18/csapp-chapter6/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
     
@@ -261,7 +261,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/02/06/apue-chapter2/</loc>
+    <loc>http://oohcode.com/2014/02/11/csapp-chapter4/</loc>
     
     <lastmod>2019-03-04T04:37:02.963Z</lastmod>
     
@@ -275,7 +275,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/02/11/csapp-chapter4/</loc>
+    <loc>http://oohcode.com/2014/02/06/apue-chapter2/</loc>
     
     <lastmod>2019-03-04T04:37:02.963Z</lastmod>
     
@@ -289,14 +289,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/24/markdown-to-pdf/</loc>
+    <loc>http://oohcode.com/2013/12/29/my-tools/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/29/my-tools/</loc>
+    <loc>http://oohcode.com/2013/12/24/markdown-to-pdf/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
     
@@ -338,14 +338,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter5/</loc>
+    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter6/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter6/</loc>
+    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter5/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -366,6 +366,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2013/11/25/select-poll-epoll/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/11/25/synchronous-asynchronous-blocking-non-blocking/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
@@ -374,13 +381,6 @@
   
   <url>
     <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter0/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2013/11/25/select-poll-epoll/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
@@ -443,14 +443,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2013/11/04/python-packing-command-line-script/</loc>
+    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
@@ -464,7 +457,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
+    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
@@ -472,6 +465,13 @@
   
   <url>
     <loc>http://oohcode.com/2013/11/19/apue-chapter0/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/11/04/python-packing-command-line-script/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
