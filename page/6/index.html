@@ -67,15 +67,15 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
+    <h3 class="article-title"><a href="/2013/11/27/restful-web-services-chapter2/"><span>chapter2:编写Web服务客户端</span></a></h3>
     
   
 
   <div class="article-top-meta">
     <span class="posted-on">
-      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
-          2013-11-26
+      <a href="/2013/11/27/restful-web-services-chapter2/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-26T16:00:00.000Z">
+          2013-11-27
         </time>
       </a>
     </span>
@@ -88,8 +88,32 @@
     <div class="entry">
       
         <blockquote>
-<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
+<p><em>本章主要是介绍如何编写一个简单的Web Service客户端服务，但是其中涉及到一些知识是之前我没有注意和研究过的，所以这一章学习一下还是很有用的。</em></p>
 </blockquote>
+<h2 id="封装库、WADL和ActiveResource"><a href="#封装库、WADL和ActiveResource" class="headerlink" title="封装库、WADL和ActiveResource"></a>封装库、WADL和ActiveResource</h2><p>web服务用的是HTTP请求，但是HTTP请求的过程却是大同小异的，所以如果每次请求都要自己写整个过程的话确实比较麻烦，而且容易出bug。最好的方法是对它们进行封装，<code>封装库</code>确实简化了web服务编程，但是还有一个问题就是这个封装库有很多种，没有一个统一的标准，于是又一个想法冒出来了：可不可以抽象服务间的差异，使一个封装库能够用于所有的REST式和混合式架构？答案当然是可以，了解SOAP的都知道有一个WSDL转本用来描述服务的格式。而REST社区就这个标准还没达成一致，这里作者推荐的是WADL作为面向资源的描述语言。</p>
+<h2 id="用HTTP库发送请求"><a href="#用HTTP库发送请求" class="headerlink" title="用HTTP库发送请求"></a>用HTTP库发送请求</h2><p>不同的语言有不同的HTTP库来封装底层的HTTP请求，这里如果要构建一个完全通用的Web客户端，HTTP库需要具有以下特征：</p>
+<ul>
+<li>必须支持HTTPS和SSL证书验证。主要是为了安全传输。</li>
+<li>必须支持至少五个主要的HTTP方法：GET/HEAD/PUT/POST/DELETE。因为这是REST风格所必须的。</li>
+<li>必须允许定制PUT或POST请求的实体主体数据。</li>
+<li>必须允许定制请求的HTTP报头。</li>
+<li>必须能够获取HTTP响应的响应代码及报头。</li>
+<li>必须支持通过HTTP代理进行HTTP通信。</li>
+</ul>
+<p>可选特性：</p>
+<ul>
+<li>为了节省带宽，需要支持压缩的报头(Encoding)</li>
+<li>HTTP库能够自动把返回的响应缓存起来</li>
+<li>HTTP库应该透明的支持常见的HTTP认证形式</li>
+<li>HTTP库应该能够透明地作HTTP重定向</li>
+<li>HTTP库能够解析并创建HTTP cookie字符串</li>
+</ul>
+<h2 id="用XML解析器处理相应"><a href="#用XML解析器处理相应" class="headerlink" title="用XML解析器处理相应"></a>用XML解析器处理相应</h2><p>这里重点的内容是XML的解析器的几种不同的原理。<br>有两种XML的解析策略：</p>
+<ul>
+<li>基于文档的(document-based)策略（如DOM等树式解析器）</li>
+<li>基于事件的(event-based)策略（如SAX及“拖”式解析器）</li>
+</ul>
+<p><strong>基于文档的策略</strong><br>这种策略是最简单的,先把整个文档加载进来，然后根据XPath等把整个文档转换为树式结构，然后就可以处理所需的节点了。这种方案的缺点就是必须要有完整的XML文档才行。<br><strong>SAX式或拖式（pull）解析器</strong><br>这种是把XML文档转换为事件流，而不是数据结构。首标签（staring tag）、尾标签（closing tag）、XML注释（comments）及实体声明（entity declaration）等都是事件（event）。<br>如果每个事件都要处理则拖式解析器是很有用的。拖式解析器允许一次处理一个事件，处理完一个事件后再从事件流拖出下一个事件，是一个类似先进先出的链表。<br>如果只关心部分事件，那么SAX则更有用。向SAX解析器注册一些回调方法。一旦定义好回调方法，解析器将按照既定的、跟文档无关的步骤执行下去：解析器将把XML文档转换为一系列事件，并连接处理文档中的每个事件；每当一个事件与回调方法所对应的事件匹配时，解析器就会触发该回调方法，执行你定义的代码；回调方法执行结束后，SAX解析器将接着继续处理事件序列。关于PHP的基于事件的XML解析器可以参考<a href="http://us3.php.net/manual/en/ref.xml.php" target="_blank" rel="noopener">php文档</a>中的说明。<br>基于文档的解析器优点是：可以随机访问文档中的内容；而对于基于事件的解析器，事件触发以后就没有机会再处理了。如果XML格式有问题，基于事件的解析器直到遇到错误的地方才会报错和崩溃。<br>实际使用过程中可以根据自己的需求选择不同的XML文档解析器。</p>
 
       
     </div>
@@ -104,7 +128,7 @@
 
     <span class="post-categories">
       <i class="icon-categories"></i>
-        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+        <a href="/categories/restful-web-services/">restful web services</a>
     </span>
     
 
@@ -173,6 +197,61 @@
 <h2 id="作用域信息"><a href="#作用域信息" class="headerlink" title="作用域信息"></a>作用域信息</h2><p>客户端如何告诉服务器对那些数据进行操作，这种信息就是作用域信息。作用域信息的放置也可以是URI或者SOAP服务的实体主体里。</p>
 <h2 id="相互竞争的服务架构"><a href="#相互竞争的服务架构" class="headerlink" title="相互竞争的服务架构"></a>相互竞争的服务架构</h2><p>常见的web服务架构有三种：REST式架构、RPC式架构和RPC-REST式架构。</p>
 <p><strong>REST式面向资源的架构</strong><br>REST结构意味着,方法信息都在HTTP方法里；面向资源的架构（SOA)意味着，作用域信息都在URI里。REST的具体细节将在后面进行详细的介绍。<br><strong>RPC式架构</strong><br>RPC式web服务通常从客户端收到一个充满数据的信封，然后发回一个同样充满数据的信封。RPC式架构意味着：方法信息和作用域信息都在信封里或报头里。HTTP是一种常见的信封格式，SOAP也是一种常见的信封格式，但是SOAP是通过HTTP进行传输的。<br><strong>REST-RPC式架构</strong><br>混合式的架构是指不是彻底的贯彻REST风格的架构，既有一部分是符合REST架构的要求，又有一部分是RPC架构的要求，这些或者是有意的，或者是无意的。  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
+          2013-11-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
+</blockquote>
 
       
     </div>
@@ -680,126 +759,6 @@
     <span class="post-tags">
       <i class="icon-tags"></i>
         <a href="/tags/unix/">unix</a><a href="/tags/linux/">linux</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/19/apue-chapter1/"><span>apue chapter1:UNIX基础知识</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/19/apue-chapter1/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-18T16:00:00.000Z">
-          2013-11-19
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章主要是从程序设计人员角度对UNIX系统的一些术语和概念有一个大概的印象。</em></p>
-</blockquote>
-<h2 id="UNIX体系结构"><a href="#UNIX体系结构" class="headerlink" title="UNIX体系结构"></a>UNIX体系结构</h2><p>首先看下UNIX操作系统的体系及构图:<br><!-- retina屏幕下截图尺寸太大了，不得不限制一下图片的大小，但是markdown貌似现在还不支持图片的大小，只能用html代码来写了～--><br><img class="img-rounded, center-block" src="/assets/img/apue/fig1.1.png" alt="UNIX操作系统体系结构" width="320px"><br>从图的内往外看</p>
-<ol>
-<li>第一层是内核(kernel)，它是系统软件，控制计算机的硬件资源，提供程序运行环境。</li>
-<li><p>第二层是系统调用(system call)，所有的系统调用都要通过它来实现。</p>
-</li>
-<li><p>第三层比较复杂了，主要有库函数(library routines)，shell和应用软件(application)。应用软件可以调用库函数，也可以直接调用系统函数，shell则是一种特殊的应用软件。</p>
-</li>
-</ol>
-<h2 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h2><p>用过unix系统的都知道，当开机首先会让输入用户名和密码才能进入系统，其实在unix系统开机后首先运行登录程序<code>/bin/login</code>（关于unix从开机到进入系统的过程，先参考阮一峰的这篇博客：<a href="http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html" target="_blank" rel="noopener">linux的启动流程</a>, 稍后做一下补充）,然后读取<code>/etc/passwd</code>文件，验证用户名密码是否正确。<br>这个passwd文件由7个以冒号分割的字段组成，举个例子：<br><code>sean:x:504:505::/home/sean:/bin/bash</code><br>这七个字段分别是：<br>登录名:加密口令:数值用户ID:数值组ID:注释字段:起始目录:shell程序<br>ps:加密口令单数放在一个文件里面，第六章会对其进行介绍</p>
-<h2 id="输入和输出"><a href="#输入和输出" class="headerlink" title="输入和输出"></a>输入和输出</h2><ol>
-<li><strong>文件描述符</strong>:内核用来标识一个特定进程正在访问的文件的非负整数。</li>
-<li><strong>标准输入、标准输出和标准出错</strong>:运行一个新程序shell都会为其打开这三个文件描述符。</li>
-<li><strong>不用缓冲的I/O</strong>:程序直接对输入输出进行处理。</li>
-<li><strong>标准I/O</strong>:需要先输入输出到缓冲区，然后按照某种策略中缓冲区中输出。</li>
-</ol>
-<p>ps:具体的过程后面会讲到。</p>
-<h2 id="程序和进程"><a href="#程序和进程" class="headerlink" title="程序和进程"></a>程序和进程</h2><ul>
-<li><strong>程序</strong>:是存放在磁盘上、处于某个目录中的一个可执行文件。使用6个exec函数中的一个由内核将程序读入存储器，并使其执行。</li>
-<li><p><strong>进程和进程ID</strong>:程序的执行实例被称为<em>进程(process)</em>。某些操作系统使用<em>任务(task)</em>表示。UNIX系统确保每个进程都有一个唯一的数字标志符，称为<em>进程ID(process ID)</em>。进程ID总是非负数。</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;apue.h&quot;</span><br><span class="line"></span><br><span class="line">int </span><br><span class="line">main(void)</span><br><span class="line">&#123;</span><br><span class="line">    printf(&quot;hello world from process ID %d\n&quot;, getpid());</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ./a.out</span><br><span class="line">hello world from precess ID 851</span><br><span class="line">$ ./a.out</span><br><span class="line">hello world from precess ID 854</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-<li><strong>进程控制</strong>:有三个用于进程控制的主要函数：fork, exec和waitpid。<ul>
-<li>fork:调用fork创建一个新进程。新进程是调用进程的复制品，我们称调用进程为父进程，新创建的进程为子进程。fork向父进程返回新子进程的进程ID,对子进程返回0。因为fork创建一新进程，所以它被调用一次（由父进程），但返回两次（分别是在父进程及子进程中）。</li>
-</ul>
-</li>
-<li><strong>线程和线程ID</strong>:为了充分利用对处理器系统的并行性，可以使用多线程(thread)。在一个进程内的所有线程同享统一地址空间、文件描述符、栈以及于进程相关的属性。因为它们能访问统一存储区，所以各线程在访问共享数据时需要采取同步措施以避免不一致性。与进程相同，线程也用ID标识，但是，线程ID只在它所属的进程内起作用。</li>
-</ul>
-<h2 id="出错处理"><a href="#出错处理" class="headerlink" title="出错处理"></a>出错处理</h2><p>  当UNIX函数出错时，常常返回一个负值，而且整型变量errno通常被设置为含有附加信息的一个值。例如open函数如果执行错误则返回－1。在open出错时，有大约15种不同的errno值(文件不存在、权限问题等)。某些函数并不返回负值而是使用另一种约定。<br>  可以将<code>&lt;errno.h&gt;</code>中定义的各种出错分成致命性的和非致命性的两类。对于致命性的错误，无法执行恢复动作，最多只能在用户屏幕上打印出一条出错消息，或者将一条出错消息写如日志文件中，然后终止。对于非致命性的出错，有时可以较妥善地进行处理。大多数非致命性的出错在本质上时暂时的，例如资源短缺，当系统中的活动较少时，这种出错很可能不会发生。</p>
-<h2 id="用户标识"><a href="#用户标识" class="headerlink" title="用户标识"></a>用户标识</h2><ul>
-<li><strong>用户ID</strong>:口令文件登录项中的<em>用户ID(user ID)</em>是一个数值，它向系统标识各个不同的用户。用户ID为0的用户为<em>根(root)</em>或<em>超级用户(superuser)</em>。</li>
-<li><strong>组ID</strong>:口令文件登录项也包括用户的<em>组ID(group ID)</em>,它是一个数值。组ID也是由系统管理员在指定用户登录名时分配的。下面就是获取用户ID和组ID的例子：  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># include &quot;apue.h&quot;</span><br><span class="line"></span><br><span class="line">int</span><br><span class="line">main(void)</span><br><span class="line">&#123;</span><br><span class="line">    printf(&quot;uid = %d, gid = %d\n&quot;, getuid(), getgid());</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ./a.out</span><br><span class="line">uid = 205, gid = 105</span><br></pre></td></tr></table></figure></li>
-<li><strong>附加组ID</strong>:除了在口令文件中对一个登录名执行一个组ID外，大多数UNIX系统版本还允许一个用户属于另外的组。这就是<em>附加组ID(supplementary group ID)</em>。通过读取<code>/etc/group</code>获得。</li>
-</ul>
-<h2 id="信号"><a href="#信号" class="headerlink" title="信号"></a>信号</h2><p><em>信号(signal)</em>是通知进程已经发生某种情况的一种技术。进程如何处理信号由三种选择：  </p>
-<ul>
-<li>忽略该信号。</li>
-<li>按系统默认方式处理。</li>
-<li>提供一个函数，信号发生时则调用该函数，这被称为捕捉该信号。使用这种方式，我们要提供自编的函数就将能知道什么时候产生了信号，并按所希望的方式处理它。</li>
-</ul>
-<p>很多情况会产生信号，比如终端键盘上有两种产生信号的方法，分别称为<em>中断键(interrupt key, 通常是Delete键或Ctrl+ C)</em>和<em>退出键(quit key, 通常是Ctrl＋)</em>。另外一种产生信号的方法是调用名为<code>kill</code>的函数，在一个进程中调用该函数就可以向另外一个进程发送一个信号。</p>
-<h2 id="时间值"><a href="#时间值" class="headerlink" title="时间值"></a>时间值</h2><p>UNIX系统一直使用两种不同的时间值：</p>
-<ul>
-<li>日历时间:该值是自1970年1月1日00:00:00以来国际标准时间（UTC）所经过的秒数累计值。系统基本数据类型为time_t用户保存这种时间值。</li>
-<li>进程时间:这也被称为CPU时间，用以度量进程使用的中央处理机资源。进程时间以时钟滴答计算，历史上曾经取50、60和100个滴答。系统基本数据类型clock_t用于保存这种时间值。</li>
-</ul>
-<p>当度量一个进程的执行时间时，UNIX系统使用三个进程时间值：</p>
-<ul>
-<li>时钟时间:又称为墙上时钟时间(wall clock time)。它是进程运行的时间总量，其值与系统中同时运行的进程数有关。</li>
-<li>用户CPU时间:是执行用户指令所用的时间。</li>
-<li>系统CPU时间:是为该进程执行内核程序所经历的时间。</li>
-</ul>
-<p>用户CPU时间 ＋ 系统CPU时间 ＝ CPU时间。<br>时钟时间 ＝ CPU时间 ＋ 其它等待的时间。</p>
-<h2 id="系统调用和库函数"><a href="#系统调用和库函数" class="headerlink" title="系统调用和库函数"></a>系统调用和库函数</h2><p>所有的操作系统都提供多种服务的入口点，程序由此向内核请求服务。这些入口点被称为<em>系统调用</em>。<br>UNIX所使用的技术是为每个系统调用在标准C库中设置一个具有同样名字的函数。用户进程用标准C调用序列来调用这些函数，然后，函数又用系统所要求的技术调用相应的内核服务。从应用的角度考虑，可将系统调用视作为C函数。从实现者的角度观察，系统调用和库函数之间有重大区别；但从用户角度看，其区别并不非常重要。系统调用通常提供一种最小接口，而库函数通常提供比较复杂的功能。<br><img src="http://www.plantuml.com/plantuml/svg/IybCBqeio51mLwZcKe22lFoKL4E5wEACn89K1Lk5fFmAXPp4fDGS85lfwQufpwUiUBwY--ck_YUx5pzVqAYa48kYqmYNphKpdZQjUDhHzhArzsdxtcTJDyJavIRcvEGdevjWZCE4ugIYx9YyvvjtFzyz_yM6Pg0xb20QYqkJ8Bv8pYajBaajCa3oJ759PKwgRKf-IKbg2feFTUrW3auiAielBqdCpB5Loiil0hfAIG4ib96Qc88GIiaiiatAByc8LO0R17SRq37FEhQ_s3yR63HArc3vMYwiZZD42sbZJCEUjhK-Mx03RWmYPA4kDYR3nRK0"><br><em>图1-2 malloc函数和sbrk系统调用</em><br><img src="http://www.plantuml.com/plantuml/svg/IybCBqeio51mLwZcKe22lFoKL4E5wEACn89K1Lk5fFmAXPp4fDGS85lfwQufpwUiUBwY--ck_YUx5pzVqAYa48kYqmY7JkUdkoO_RT_xREe6T1t6E7Gytxpx-UxvBpOq0srKWcWfBas2k3SvfxIu9BN80CdPnIMLEQcsAVab9QafQ7xHjOCvBR6eAB-y934pnrOfBxyeDp57IG4ib96Qc88GIiaiiatAByc8LO0RX73Lb1NFEhQ_s3yR60XArc3vMYwiZZD42rDZJCEUjhK-Mx03RWo6Yut9T374jnGOKWi0"><br><em>图1-3 C库函数和系统调用之间的差别</em></p>
-<h2 id="习题"><a href="#习题" class="headerlink" title="习题"></a>习题</h2><blockquote>
-<p><strong>1.3</strong> 在1.7节中,perror的参数是用ISO C的属性const定义的，而strerror的整型参数则没有用此属性定义，为什么？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># include &lt;string.h&gt;</span><br><span class="line">char *strerror(int errnum);</span><br><span class="line"></span><br><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line">void perror(const char *msg);</span><br></pre></td></tr></table></figure><br>下面先看这两个函数的使用方式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">/* perror example */</span><br><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main ()</span><br><span class="line">&#123;</span><br><span class="line">    FILE * pFile;</span><br><span class="line">    pFile=fopen (&quot;unexist.ent&quot;,&quot;rb&quot;);</span><br><span class="line">    if (pFile==NULL)</span><br><span class="line">        perror (&quot;The following error occurred&quot;);</span><br><span class="line">    else</span><br><span class="line">        fclose (pFile);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">/*</span><br><span class="line">out put;</span><br><span class="line">The following error occurred: No such file or directory</span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">/* strerror example : error list */</span><br><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line"># include &lt;string.h&gt;</span><br><span class="line"># include &lt;errno.h&gt;</span><br><span class="line"></span><br><span class="line">int main ()</span><br><span class="line">&#123;</span><br><span class="line">    FILE * pFile;</span><br><span class="line">    pFile = fopen (&quot;unexist.ent&quot;,&quot;r&quot;);</span><br><span class="line">    if (pFile == NULL)</span><br><span class="line">        printf (&quot;Error opening file unexist.ent: %s\n&quot;,strerror(errno));</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">/*</span><br><span class="line">out put: </span><br><span class="line">Error opening file unexist.ent: No such file or directory</span><br><span class="line">*/</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<p>可见<code>perror</code>的参数是程序运行前就定义好的，其输出是先输出<code>msg</code>指向的字符串，然后加上errno值对应的出错信息。<br>而<code>strerror</code>的参数是运行时确定的，是一个errno的值，其输出是errno对应的出错信息.<br>所以perror的参数带<code>const</code>而strerror的参数不带<code>const</code>。</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/APUE/">APUE</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/UNIX/">UNIX</a>
     </span>
     
 

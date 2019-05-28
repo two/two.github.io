@@ -67,6 +67,78 @@
 
   
     
+    <h3 class="article-title"><a href="/2015/01/27/php-internals-1/"><span>php内核系列1:PHP程序运行的入口</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/01/27/php-internals-1/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-01-26T16:00:00.000Z">
+          2015-01-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近看了<a href="http://www.php-internals.com/book/" target="_blank" rel="noopener">深入理解PHP内核</a>这本书，并结合源码进行阅读。发现刚开始入门的时候很难，往往看了有点儿不知所云，因为虽然说了运行的周期，过程等，但是始终不明白的是:PHP程度的入口到底在哪里？不知道入口就没有起步，我始终走不下去。直到后来看<a href="http://www.php-internals.com/book/?p=chapt02/02-02-01-apache-php-module" target="_blank" rel="noopener">Apache模块</a>这章内容的时候才恍然大悟。这里就PHP的入口问题进行总结一下。</p>
+</blockquote>
+<h2 id="PHP入口"><a href="#PHP入口" class="headerlink" title="PHP入口"></a>PHP入口</h2><p>首先回顾一下，我们使用PHP的方式有哪些?最常用的无非两种情况：</p>
+<ul>
+<li>与WEB服务器结合，在浏览器下运行。</li>
+<li>命令行下直接运行PHP脚本文件。</li>
+</ul>
+<p>这两种方式的入口分别是什么呢？其实总结一下，就是下面三种入口。这点还可以从我们的PHP编译后的二进制文件找打足丝马迹，编译完PHP后我们会发现有一下几种二进制文件<code>php</code>, <code>php-cgi</code>等，没错，这些二进制文件就是PHP程序的入口。</p>
+<h2 id="CLI"><a href="#CLI" class="headerlink" title="CLI"></a>CLI</h2><p>我们知道PHP脚本可以直接在命令行下运行，像下面这样:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$php test.php</span><br></pre></td></tr></table></figure><br>其中<code>php</code>是PHP源代码编译后的二进制文件，当命令行执行php脚本时，其实是执行了源码<code>sapi/cli/php_cli.c</code>下的<code>main</code>函数, 这个函数大概内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"># ifdef PHP_CLI_WIN32_NO_CONSOLE</span><br><span class="line">int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)</span><br><span class="line"># else</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line"># endif</span><br><span class="line">&#123;</span><br><span class="line"># ifdef ZTS</span><br><span class="line">    void ***tsrm_ls;</span><br><span class="line"># endif</span><br><span class="line"># ifdef PHP_CLI_WIN32_NO_CONSOLE</span><br><span class="line">    int argc = __argc;</span><br><span class="line">    char **argv = __argv;</span><br><span class="line"># endif</span><br><span class="line"></span><br><span class="line">    int c;</span><br><span class="line">    int exit_status = SUCCESS;</span><br><span class="line">    int module_started = 0, sapi_started = 0; </span><br><span class="line">    char *php_optarg = NULL;</span><br><span class="line">    int php_optind = 1, use_extended_info = 0; </span><br><span class="line">    char *ini_path_override = NULL;</span><br><span class="line">    char *ini_entries = NULL;</span><br><span class="line">    int ini_entries_len = 0; </span><br><span class="line">    int ini_ignore = 0; </span><br><span class="line">    sapi_module_struct *sapi_module = &amp;cli_sapi_module; //sapi结构</span><br><span class="line"></span><br><span class="line">    /*   </span><br><span class="line">     * Do not move this initialization. It needs to happen before argv is used</span><br><span class="line">     * in any way.</span><br><span class="line">     */</span><br><span class="line">    argv = save_ps_args(argc, argv);</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">//根据参数选择处理程序</span><br><span class="line">    while ((c = php_getopt(argc, argv, OPTIONS, &amp;php_optarg, &amp;php_optind, 0, 2))!=-1) &#123;</span><br><span class="line">        switch (c) &#123;</span><br><span class="line">            case &apos;c&apos;:</span><br><span class="line">                if (ini_path_override) &#123;</span><br><span class="line">                    free(ini_path_override);</span><br><span class="line">                &#125;</span><br><span class="line">                ini_path_override = strdup(php_optarg);</span><br><span class="line">                break;</span><br><span class="line">            case &apos;n&apos;:</span><br><span class="line">                ini_ignore = 1;</span><br><span class="line">                break;</span><br><span class="line">            case &apos;d&apos;: &#123;</span><br><span class="line">                /* define ini entries on command line */</span><br><span class="line">                int len = strlen(php_optarg);</span><br><span class="line">                char *val;</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">     * Do not move this de-initialization. It needs to happen right before</span><br><span class="line">     * exiting.</span><br><span class="line">     */</span><br><span class="line">    cleanup_ps_args(argv);</span><br><span class="line">    exit(exit_status);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>具体这个函数是怎么执行的，我们先不关心，我们只是知道这个就是命令行下PHP代码执行的入口程序。</p>
+<h2 id="Apache-Module"><a href="#Apache-Module" class="headerlink" title="Apache Module"></a>Apache Module</h2><p>Apache Module是按照Apache的编码规范，给Apapche写的module, 这些module在Apache服务器启动时会加载进来，并且加载进来的module可以执行执行的代码。关于这点<a href="http://www.php-internals.com/book/?p=chapt02/02-02-01-apache-php-module" target="_blank" rel="noopener">Apache模块</a>这里讲的更清楚。Apahce启动时其实就加载了mod_php5这个module,然后把请求传递给这个module进行处理，这就是PHP程序的入口。在<code>sapi</code>下我们可以发现一共有几个跟apache相关的目录<code>apache</code>, <code>apache2filter</code>, <code>apache2handler</code>, <code>apache_hooks</code>。这些都是apache相关的module，都会被apache调用。</p>
+<h2 id="CGI"><a href="#CGI" class="headerlink" title="CGI"></a>CGI</h2><p>上面说了apache调用php的方式，但是还有一种常见的方式就是cgi。我们知道cgi是通用网关接口，其实就是一种通信的协议。我们经常用的另外一个服务器nginx并没有专门的php module，那么这种服务器是怎么调用PHP处理程序的呢？就是用的CGI。<br>我们在使用nginx的会配置cgi，最常见的就是<code>fastcgi_pass   127.0.0.1:9000;</code>这个配置。其实nginx收到请求之后就会根据配置把请求都转发到了这个端口上，然后等处理完了返回时再交给nginx处理(epoll方式，参见nginx的网络模型)。其实真正调用php脚本的是cgi。php编译后会有一个<code>php-cgi</code>的二进制文件，这个就是php的cgi入口。但是一般情况下我们不是直接使用这个，主要是因为处理的请求很多，一个进程肯定处理不过来，需要对php-cgi进程进行管理财型，所以一般情况下我们使用的是<code>spawn-cgi</code>或<code>php-fpm</code>等，这些程序最大的作用就是管理cgi进程，关于他们的不同，这里就不说了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>开篇讲的就是PHP的入口，知道这个等于是入门了，以后阅读源码就是顺藤摸瓜了。根据PHP源码，我们可以看到，这些入口都放在一个<code>sapi</code>目录下，其实PHP的所有代码的执行都是通过SAPI(Server Application Programming Interface指的是PHP具体应用的编程接口)这个抽象层来完成的。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/PHP/">PHP</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2014/11/27/observer-pattern/"><span>设计模式-观察者模式</span></a></h3>
     
   
@@ -853,78 +925,6 @@
   <div class="article-footer">
     <div class="article-meta pull-left">
 
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/05/10/stdarg-function/"><span>C语言：可变参数函数</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/05/10/stdarg-function/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-05-09T16:00:00.000Z">
-          2014-05-10
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>函数一般的参数都是固定的，但是有些时候我们需要让函数的参数是可变的，为了满足这个需求，C语言提供了库函数stdarg.h来满足要求。</p>
-</blockquote>
-<h2 id="可变参数参数简介"><a href="#可变参数参数简介" class="headerlink" title="可变参数参数简介"></a>可变参数参数简介</h2><h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><p>可变参数函数的使用要求比较严谨，必须按照下面的方法进行使用：</p>
-<ol>
-<li>在函数原型中使用省略号。</li>
-<li>在函数定义中创建一个va_list类型的变量。</li>
-<li>用宏将改变量初始化为一个参数列表。</li>
-<li>用宏访问这个参数列表。</li>
-<li>用宏完成清理工作。</li>
-</ol>
-<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void f1(int n, ...); //合法</span><br><span class="line">int f2(int n, const char *s, ...);  //合法</span><br><span class="line">char f3(char c1, ..., char c2); //无效，省略号必须是最后一个参量</span><br><span class="line">doubel f3(); //无效，没有任何参量</span><br></pre></td></tr></table></figure>
-<h2 id="程序举例"><a href="#程序举例" class="headerlink" title="程序举例"></a>程序举例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line"># include &lt;stdarg.h&gt;</span><br><span class="line"></span><br><span class="line">double sum(int , ...);</span><br><span class="line">void printSth(int, const char *, ...);</span><br><span class="line"></span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">    double s, t;</span><br><span class="line"></span><br><span class="line">    s = sum(3, 1.1, 2.5, 13.3);</span><br><span class="line">    t = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    u = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(3, 1.1, 2.5, 13.3):    %g\n&quot;,s);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1)  %g\n&quot;, t); </span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">double sum(int lim, ...)</span><br><span class="line">&#123;</span><br><span class="line">    va_list ap; //声明用户存放参数的变量</span><br><span class="line">    double tot = 0;</span><br><span class="line">    int i;</span><br><span class="line">    va_start(ap, lim);  //把ap初始化为参数列表</span><br><span class="line">    for(i = 0; i &lt; lim; i++)</span><br><span class="line">        tot += va_arg(ap, double); //访问参数列表中的每一个项目</span><br><span class="line">    va_end(ap); //清理工作</span><br><span class="line">    return tot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><ul>
-<li>具有可变参数的函数<code>sum</code>的第一个参数是表示一共有多少个不确定的参数，在调用的时候传递。这个参数主要是高数<code>var_arg</code>能够取多少次传递的参数。</li>
-<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_start.htm" target="_blank" rel="noopener"><code>va_start()</code></a>第一个参数是va_list类型的，第二个参数是这个函数确定的参数中最有一个参数，var_start()函数的作用就是把最有一个确定参数后面的所有不确定参数做一个参数列表存储到va_list类型的变量中。</li>
-<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_arg.htm" target="_blank" rel="noopener"><code>va_arg</code></a>的目的是从未知参数列表中取出参数，每次调用取一个，按照参数顺序取。第一个参数是存储参数列表的变量，第二个参数标识要去的参数的类型，类型决定了要从内存栈中读取多少位。</li>
-<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_end.htm" target="_blank" rel="noopener"><code>va_end</code></a>函数主要是做清理工作,主要是释放动态分配的用于存放参数的内存。</li>
-</ul>
-<h2 id="运用"><a href="#运用" class="headerlink" title="运用"></a>运用</h2><p>我在学了《C Primer Plus》这本书之后打算看看redis源码的时候发现redis的源码中，所有的系统log的记录都是通过这中函数来实现的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void redisLog(int level, const char *fmt, ...) &#123;</span><br><span class="line">    va_list ap;                </span><br><span class="line">    char msg[REDIS_MAX_LOGMSG_LEN]; </span><br><span class="line">    </span><br><span class="line">    if ((level&amp;0xff) &lt; server.verbosity) return;</span><br><span class="line">    </span><br><span class="line">    va_start(ap, fmt);         </span><br><span class="line">    vsnprintf(msg, sizeof(msg), fmt, ap);</span><br><span class="line">    va_end(ap);                </span><br><span class="line">    </span><br><span class="line">    redisLogRaw(level,msg);    </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/C/">C</a>
-    </span>
     
 
     
