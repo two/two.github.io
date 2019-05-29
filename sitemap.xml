@@ -4,7 +4,7 @@
   <url>
     <loc>http://oohcode.com/2019/05/28/go-scheduler-preemption/</loc>
     
-    <lastmod>2019-05-28T03:55:08.147Z</lastmod>
+    <lastmod>2019-05-29T02:56:21.167Z</lastmod>
     
   </url>
   
@@ -51,14 +51,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
+    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
+    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
@@ -156,14 +156,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/09/15/PHP-array-hash-key-overflow/</loc>
+    <loc>http://oohcode.com/2015/10/09/apache-and-nginx/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/10/09/apache-and-nginx/</loc>
+    <loc>http://oohcode.com/2015/09/15/PHP-array-hash-key-overflow/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
@@ -191,13 +191,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/11/21/factory-pattern/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.965Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2014/11/19/uml-class-diagram/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
@@ -205,7 +198,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/07/05/coreseek-manual/</loc>
+    <loc>http://oohcode.com/2014/11/21/factory-pattern/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
@@ -219,14 +212,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/03/22/linux-shell-command-line-control-key/</loc>
+    <loc>http://oohcode.com/2014/07/05/coreseek-manual/</loc>
     
-    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
+    <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/05/13/coreseek-install-doc/</loc>
+    <loc>http://oohcode.com/2014/03/22/linux-shell-command-line-control-key/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
     
@@ -240,7 +233,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/05/18/csapp-chapter6/</loc>
+    <loc>http://oohcode.com/2014/05/13/coreseek-install-doc/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
     
@@ -254,6 +247,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2014/05/18/csapp-chapter6/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2014/02/13/csapp-chapter5/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
@@ -261,14 +261,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/02/06/apue-chapter2/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.963Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2014/02/11/csapp-chapter4/</loc>
+    <loc>http://oohcode.com/2014/01/10/add-dot-language/</loc>
     
     <lastmod>2019-03-04T04:37:02.963Z</lastmod>
     
@@ -282,7 +275,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/01/10/add-dot-language/</loc>
+    <loc>http://oohcode.com/2014/02/06/apue-chapter2/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.963Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2014/02/11/csapp-chapter4/</loc>
     
     <lastmod>2019-03-04T04:37:02.963Z</lastmod>
     
@@ -303,13 +303,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/30/jekyll-and-plugin-plantuml/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.962Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/12/29/my-tools/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
@@ -318,6 +311,13 @@
   
   <url>
     <loc>http://oohcode.com/2013/12/29/plantuml-chinese-garbled/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.962Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/12/30/jekyll-and-plugin-plantuml/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
     
@@ -338,14 +338,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter5/</loc>
+    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/06/restful-web-services-chapter7/</loc>
+    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter5/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -359,7 +359,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
+    <loc>http://oohcode.com/2013/12/06/restful-web-services-chapter7/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -380,20 +380,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter0/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2013/11/27/restful-web-services-chapter2/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/11/25/synchronous-asynchronous-blocking-non-blocking/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
@@ -401,7 +387,21 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter0/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter1/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.960Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/11/27/restful-web-services-chapter2/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
@@ -429,6 +429,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2013/11/20/csapp-chapter1/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.959Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/11/21/soap-and-rest/</loc>
     
     <lastmod>2019-03-04T04:37:02.959Z</lastmod>
@@ -436,9 +443,9 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/20/csapp-chapter1/</loc>
+    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
     
-    <lastmod>2019-03-04T04:37:02.959Z</lastmod>
+    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
   </url>
   
@@ -457,13 +464,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/11/13/django-nginx-fastcgi/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
@@ -471,14 +471,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
+    <loc>http://oohcode.com/2013/11/19/apue-chapter0/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/19/apue-chapter0/</loc>
+    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     

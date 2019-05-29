@@ -312,69 +312,6 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/11/04/python-packing-command-line-script/"><span>python命令行程序打包</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/04/python-packing-command-line-script/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-03T16:00:00.000Z">
-          2013-11-04
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>我们知道在linux下通过命令行调用程序其实就是先把程序编译生成二进制文件，然后再把文件放入到PATH中，就可以直接通过文件名进行调用了，这里python程序也不例外。前面讲过了如何将一个python程序打包并发布，这里就讲一下命令行的python打包发布和下载安装过程。</em></p>
-</blockquote>
-<p>我们还是利用前面博客中的myproject为例，在原来的基础上添加一些代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── setup.py</span><br><span class="line">└── src</span><br><span class="line">    ├── bin</span><br><span class="line">    │   ├── command-line</span><br><span class="line">    │   └── myproject</span><br><span class="line">    └── myproject</span><br><span class="line">        ├── cmds.py</span><br><span class="line">        ├── __init__.py</span><br><span class="line">        └── __init__.pyc</span><br><span class="line"></span><br><span class="line">3 directories, 6 files</span><br></pre></td></tr></table></figure><br>可以看出，比myproject一共多了三个文件command-line, myproject, cmds.py三个文件和bin这个文件夹。下面对他们进行详细的介绍：<br>command-line，mypreject文件<br>这两个文件的内容很简单<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cat command-line </span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  import myproject</span><br><span class="line">  myproject.test()</span><br><span class="line">$ cat myproject</span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  print &apos;welcome to command line mod!\n&apos;</span><br></pre></td></tr></table></figure><br>可以看出，command-line文件只是调用了myproject的test函数，二myproject只是输出了一个字符串，为了能够执行这两个文件，并且是通过命令行的方式，我们需要在setup.py这个文件中添加下面这个配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts=[&apos;src/bin/command-line&apos;, &apos;src/bin/myproject&apos;],</span><br></pre></td></tr></table></figure><br>然后安装修改后的源码包:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">...</span><br><span class="line">Installing command-line script to /search/virtual/pypienv/bin</span><br><span class="line">Installing myproject script to /search/virtual/pypienv/bin</span><br><span class="line">...</span><br></pre></td></tr></table></figure><br>我们可以看到上面的输出，其含义就是把这两个脚本安装在了bin目录下，由于这个路径是PATH路径，所以可以直接通过命令进行执行了，下面是执行的效果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ command-line </span><br><span class="line">  Hello World!</span><br><span class="line">$ myproject</span><br><span class="line">  welcome to command line mod!</span><br></pre></td></tr></table></figure><br>还有一个文件是cmds.py这个文件也是可以通过命令行直接运行的，只不过是通过另外一种方式进行安装的<br>先看一下cmds.py的内容吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cat cmds.py </span><br><span class="line">  import myproject </span><br><span class="line">  def main():</span><br><span class="line">      myproject.test()</span><br></pre></td></tr></table></figure><br>可以看出，其实这个文件和command-line一样，引用了myproject并输出，唯一不同的是他自己顶一个了一个函数main来调用。<br>同样setup.py中也要添加一个配置，来找到这个文件并对其进行编译：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">entry_points = &#123;</span><br><span class="line">                 &apos;console_scripts&apos;: [&apos;cmds=myproject.cmds:main&apos;],</span><br><span class="line">                &#125;</span><br></pre></td></tr></table></figure><br>这个配置和前面的不一样，并且里面指定了要执行的脚本的函数名，通过从新安装我们可以看：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">  ...</span><br><span class="line">  Installing cmds script to /search/virtual/pypienv/bin</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure><br>同样，这个文件编译后也放到在PATH下，通过命令行可以运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cmds </span><br><span class="line">  Hello World!</span><br></pre></td></tr></table></figure><br>到这里一个通过命令行运行的包就介绍完了.<br>同样我们可以这个写好的包上传到私有源，然后在其他机器上下载安装，同样可以运行~</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/python/">python</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/python/">python</a><a href="/tags/setuptools/">setuptools</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
     <h3 class="article-title"><a href="/2013/11/04/setuptools-setuppy-config/"><span>setuptools配置文件参数详解</span></a></h3>
     
   
@@ -423,6 +360,69 @@
     <span class="post-tags">
       <i class="icon-tags"></i>
         <a href="/tags/python/">python</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/04/python-packing-command-line-script/"><span>python命令行程序打包</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/04/python-packing-command-line-script/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-03T16:00:00.000Z">
+          2013-11-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>我们知道在linux下通过命令行调用程序其实就是先把程序编译生成二进制文件，然后再把文件放入到PATH中，就可以直接通过文件名进行调用了，这里python程序也不例外。前面讲过了如何将一个python程序打包并发布，这里就讲一下命令行的python打包发布和下载安装过程。</em></p>
+</blockquote>
+<p>我们还是利用前面博客中的myproject为例，在原来的基础上添加一些代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── setup.py</span><br><span class="line">└── src</span><br><span class="line">    ├── bin</span><br><span class="line">    │   ├── command-line</span><br><span class="line">    │   └── myproject</span><br><span class="line">    └── myproject</span><br><span class="line">        ├── cmds.py</span><br><span class="line">        ├── __init__.py</span><br><span class="line">        └── __init__.pyc</span><br><span class="line"></span><br><span class="line">3 directories, 6 files</span><br></pre></td></tr></table></figure><br>可以看出，比myproject一共多了三个文件command-line, myproject, cmds.py三个文件和bin这个文件夹。下面对他们进行详细的介绍：<br>command-line，mypreject文件<br>这两个文件的内容很简单<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ cat command-line </span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  import myproject</span><br><span class="line">  myproject.test()</span><br><span class="line">$ cat myproject</span><br><span class="line">  #!/usr/bin/env python</span><br><span class="line">  print &apos;welcome to command line mod!\n&apos;</span><br></pre></td></tr></table></figure><br>可以看出，command-line文件只是调用了myproject的test函数，二myproject只是输出了一个字符串，为了能够执行这两个文件，并且是通过命令行的方式，我们需要在setup.py这个文件中添加下面这个配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scripts=[&apos;src/bin/command-line&apos;, &apos;src/bin/myproject&apos;],</span><br></pre></td></tr></table></figure><br>然后安装修改后的源码包:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">...</span><br><span class="line">Installing command-line script to /search/virtual/pypienv/bin</span><br><span class="line">Installing myproject script to /search/virtual/pypienv/bin</span><br><span class="line">...</span><br></pre></td></tr></table></figure><br>我们可以看到上面的输出，其含义就是把这两个脚本安装在了bin目录下，由于这个路径是PATH路径，所以可以直接通过命令进行执行了，下面是执行的效果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ command-line </span><br><span class="line">  Hello World!</span><br><span class="line">$ myproject</span><br><span class="line">  welcome to command line mod!</span><br></pre></td></tr></table></figure><br>还有一个文件是cmds.py这个文件也是可以通过命令行直接运行的，只不过是通过另外一种方式进行安装的<br>先看一下cmds.py的内容吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cat cmds.py </span><br><span class="line">  import myproject </span><br><span class="line">  def main():</span><br><span class="line">      myproject.test()</span><br></pre></td></tr></table></figure><br>可以看出，其实这个文件和command-line一样，引用了myproject并输出，唯一不同的是他自己顶一个了一个函数main来调用。<br>同样setup.py中也要添加一个配置，来找到这个文件并对其进行编译：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">entry_points = &#123;</span><br><span class="line">                 &apos;console_scripts&apos;: [&apos;cmds=myproject.cmds:main&apos;],</span><br><span class="line">                &#125;</span><br></pre></td></tr></table></figure><br>这个配置和前面的不一样，并且里面指定了要执行的脚本的函数名，通过从新安装我们可以看：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python setup.py install</span><br><span class="line">  ...</span><br><span class="line">  Installing cmds script to /search/virtual/pypienv/bin</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure><br>同样，这个文件编译后也放到在PATH下，通过命令行可以运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cmds </span><br><span class="line">  Hello World!</span><br></pre></td></tr></table></figure><br>到这里一个通过命令行运行的包就介绍完了.<br>同样我们可以这个写好的包上传到私有源，然后在其他机器上下载安装，同样可以运行~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/setuptools/">setuptools</a>
     </span>
     
 
