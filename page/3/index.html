@@ -67,6 +67,93 @@
 
   
     
+    <h3 class="article-title"><a href="/2015/05/12/jekyll-to-hexo/"><span>从jekyll到hexo</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/05/12/jekyll-to-hexo/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-05-12T06:20:44.000Z">
+          2015-05-12
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>最近把博客从jekyll迁移到了hexo，告一段落后写个总结，給后来的人一个参考。</p>
+</blockquote>
+<h2 id="为什么要迁移"><a href="#为什么要迁移" class="headerlink" title="为什么要迁移"></a>为什么要迁移</h2><p>关于为什么把博客从 jekyll迁移到hexo，其原因其实跟这两个的优劣没有任何关系。每个人都有自己爱好，只要你用好了，其实本质上没什么差别，而我的原因则是因为最近团队前端人员极度缺人，只好让后台开发的人员也开始写js代码，不过自从写了js代码后我才发现js的天地是多么的广阔。通过写js代码我了解了的js语言的特性，以及前端的各种框架，比如<a href="http://requirejs.org/" target="_blank" rel="noopener">require.js</a>, <a href="http://www.gruntjs.net/" target="_blank" rel="noopener">grunt</a>, <a href="https://angularjs.org/" target="_blank" rel="noopener">angular</a>,<a href="http://expressjs.com/zh/" target="_blank" rel="noopener">express</a>等等，以及<a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a>开发平台和包管理工具<a href="https://www.npmjs.com/" target="_blank" rel="noopener">npm</a>.最后当然还有本博客平台<a href="http://hexo.io/zh-cn/" target="_blank" rel="noopener">hexo</a>。<br>说回原因，其实就是因为我最近在学习js，而且对ruby不熟悉，所有我把博客迁移到了js的博客框架hexo。</p>
+<h2 id="迁移过程中有哪些坑"><a href="#迁移过程中有哪些坑" class="headerlink" title="迁移过程中有哪些坑"></a>迁移过程中有哪些坑</h2><p>根据hexo官方文档的<a href="http://hexo.io/zh-cn/docs/migration.html" target="_blank" rel="noopener">迁移说明</a>，其实很简单，只不过是把之前的<code>_posts/*</code>下的md文件都copy到hexo的<code>_post</code>下，然后把<code>new_post_name</code>改为<code>new_post_name: :year-:month-:day-:title.md</code>。看似很简单，但是实际情况却比这个要复杂些，主要是之前jekyll写博客的时候md文件会有很多内容在hexo平台不被识别，特别是jekyll用过某些插件后，hexo更不认识了。</p>
+<h3 id="问题一-高亮代码标签不兼容"><a href="#问题一-高亮代码标签不兼容" class="headerlink" title="问题一: 高亮代码标签不兼容"></a>问题一: 高亮代码标签不兼容</h3><p>jekyll中代码的高亮的tag是这样的:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight %&#125;</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而hexo中，高亮代码的tag是这样的:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% codeblock %&#125;</span><br><span class="line">&#123;% endcodeblock %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个问题有两种解决方案，一种是用<code>sed</code>命令替换所有的jekyll高亮tag;第二种是自己写一个解析jekyll的tag插件.显然第一种方案更合适一些，所有我替换了所有的标签。  但是如果你想挑战自己，写一个插件也不错，可以copy hexo的codeblock插件代码，直接用到jekyll的tag上。</p>
+<h3 id="问题二-plantuml不支持"><a href="#问题二-plantuml不支持" class="headerlink" title="问题二: plantuml不支持"></a>问题二: plantuml不支持</h3><p>为了画流程图我用了开源的流程图解决方案<a href="http://www.plantuml.com/" target="_blank" rel="noopener">plantuml</a>。但是jekyll其实原生也是不支持plantuml的，可以通过插件来解决，关于jekyll如何使用 plantuml的方法我也写过一篇介绍:<a href="http://oohcode.com/2013/12/30/jekyll-and-plugin-plantuml/">jekyll添加plantuml模块</a>.仍在使用jekyll的同学可以参考一下。<br>显然hexo原生也是不支持plantuml的，但是我一时也找不到支持plantuml的插件，所以如果博客一定要支持流程图摆在面前的选择只有两条路了: </p>
+<ol>
+<li>先画好流程图，然后博客中引入。</li>
+<li>自己写一个支持plantuml的插件。<br>关于第一种解决方案，首先是麻烦，你需要提前生成各种图片，然后再引入进来，这会打断写博客的流程，同时也让人觉得很low。第二种解决方案，我研究了一下，发现并不难实现。下面就是plantuml插件实现的过程。  </li>
+</ol>
+<p>plantuml解析的两种方案:</p>
+<ol>
+<li>首先plantuml提供了java包，可以通过命令行把plantuml文件内容生成svg或png等格式的图片。</li>
+<li>plantuml还提供了一个很好的平台，可以吧plantuml编码后直接作为参数访问,比如:<a href="http://plantuml.com:80/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000" target="_blank" rel="noopener">http://plantuml.com:80/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000</a><br>这种方法是实时计算出来后在plantuml平台生成图片后返回过来的。<br>下面对比这两种方法:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>方法&amp;特点</th>
+<th>方法一：本地生成</th>
+<th>方法二 ：同步生成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优点</td>
+<td>页面展示速度快</td>
+<td>本地不需要保留任何图片</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>本地需要维护图片&amp;本地需要提前生产图片</td>
+<td>页面图片展示比较慢</td>
+</tr>
+</tbody>
+</table>
+<p>再结合我们写博客的目的，是为了快速方面的使用，所以为了不维护一堆图片，考虑图片的名字等细节问题，我们干脆全放到web端，而且自己的服务器不一定比plantuml的快，所以性能的考虑可以忽略。最终我选择了同步生成的方式来解析plantuml标签。</p>
+<p>hexo要添加tag的解析插件，可以参考hexo api文档<a href="http://hexo.io/zh-cn/api/tag.html" target="_blank" rel="noopener">标签插件</a>的介绍。其实就是注册插件，然后把tag里的内容当成参数传给tag处理函数，然后返回结果在页面上渲染。我们的这个hexo-tag-plantuml插件主要目的是把tag里的内容转化为plantuml的图片地址。正好plantuml提供了内容转化为图片的js <a href="http://www.plantuml.com/codejavascript.html" target="_blank" rel="noopener">API</a>，我其实就是把这些代码搬过来，然后根据hexo的tag插件写法实现的。具体源代码及用法请参考<a href="https://www.npmjs.com/package/hexo-tag-plantuml" target="_blank" rel="noopener">hexo-tag-plantuml</a>插件。</p>
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>有问题时再更新……</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2015/01/27/php-internals-1/"><span>php内核系列1:PHP程序运行的入口</span></a></h3>
     
   
@@ -859,72 +946,6 @@
       <i class="icon-categories"></i>
         <a href="/categories/CSAPP/">CSAPP</a>
     </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/05/13/coreseek-install-doc/"><span>中文搜索引擎coreseek的安装使用</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/05/13/coreseek-install-doc/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-05-12T16:00:00.000Z">
-          2014-05-13
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>项目中原来使用的是solr,由于solr是java写的，团队中没有java的经验，并且原来维护的人离职了，所以改用<a href="http://sphinxsearch.com/" target="_blank" rel="noopener">sphinx search</a>来做项目的内部检索服务，由于中文的特殊性，我们选择了<a href="http://www.coreseek.cn/" target="_blank" rel="noopener">coreseek</a>这个基于sphinx的中文搜索引擎。但是好像这个好久没人维护了～一直停留在了4.1beta版本～</p>
-</blockquote>
-<h2 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h2><p>源码下载地址<a href="http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz" target="_blank" rel="noopener">oreseek-3.1-beta.tar.gz</a>;<br>解压下载的文件,进入目录<code>cd coreseek-4.1-beta</code>;</p>
-<h2 id="安装中文分词库mmseg"><a href="#安装中文分词库mmseg" class="headerlink" title="安装中文分词库mmseg"></a>安装中文分词库mmseg</h2><ul>
-<li><code>cd mmseg-3.2.14/</code></li>
-<li><code>./bootstrap</code></li>
-<li><code>./configure --prefix=/usr/local/mmseg3</code></li>
-<li><code>make &amp;&amp; make install</code></li>
-</ul>
-<p>如果你幸运的话，这时候会提示错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’  </span><br></pre></td></tr></table></figure><br>可能是编译器的要求太严格导致的，只有更改源码了：<br>将rc/css/SynonymsDict.cpp文件94行的代码<code>char txtHead[3] = {239,187,191};</code>改为如下的形式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>会发现又出现了错误提示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">mmseg_main.cpp: In function ‘int segment(const char*, css::Segmenter*)’:</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’</span><br></pre></td></tr></table></figure><br>同样的办法修改<code>src/mmseg_main.cpp</code>文件的254行<code>char txtHead[3] = {239,187,191};</code>为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>，终于成功了～<br>到这里mmseg就算安装成功了</p>
-<h2 id="安装coreseek"><a href="#安装coreseek" class="headerlink" title="安装coreseek"></a>安装coreseek</h2><ul>
-<li><code>cd csft-4.1/</code></li>
-<li><code>sh buildconf.sh</code></li>
-<li><code>./configure --prefix=/usr/local/coreseek  --without-unixodbc   
---with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/   
---with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql</code></li>
-<li><code>make &amp;&amp; make install</code></li>
-</ul>
-<h2 id="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）"><a href="#测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）" class="headerlink" title="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）"></a>测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd testpack</span><br><span class="line">$ cat var/test/test.xml    #此时应该正确显示中文</span><br><span class="line">$ /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc var/test/test.xml</span><br><span class="line">$ /usr/local/coreseek/bin/indexer -c etc/csft.conf --all</span><br><span class="line">$ /usr/local/coreseek/bin/search -c etc/csft.conf 网络搜索</span><br></pre></td></tr></table></figure>
-<p>上面是官方文档给的，需要说明的是，csft.conf是由sphinx.conf.dist复制而来的，里面的关于mysql的配置，自己按照实际情况修改。</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
     
 
     

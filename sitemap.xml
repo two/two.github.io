@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://oohcode.com/2019/06/06/Dependency-inversion-principle-in-Go/</loc>
+    
+    <lastmod>2019-06-06T07:02:33.484Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2019/05/28/go-scheduler-preemption/</loc>
     
     <lastmod>2019-05-29T02:56:21.167Z</lastmod>
@@ -51,14 +58,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
+    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
+    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
@@ -86,13 +93,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/02/03/gc-advanced/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.968Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2017/03/05/The-Design-and-Implementation-of-Redis-2/</loc>
     
     <lastmod>2019-03-04T04:37:02.968Z</lastmod>
@@ -100,14 +100,21 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2016/08/23/phpenv-configuration-options/</loc>
+    <loc>http://oohcode.com/2017/02/03/gc-advanced/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.968Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2017/01/22/gc/</loc>
     
     <lastmod>2019-03-04T04:37:02.967Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/01/22/gc/</loc>
+    <loc>http://oohcode.com/2016/08/23/phpenv-configuration-options/</loc>
     
     <lastmod>2019-03-04T04:37:02.967Z</lastmod>
     
@@ -156,14 +163,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/10/09/apache-and-nginx/</loc>
+    <loc>http://oohcode.com/2015/09/15/PHP-array-hash-key-overflow/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2015/09/15/PHP-array-hash-key-overflow/</loc>
+    <loc>http://oohcode.com/2015/10/09/apache-and-nginx/</loc>
     
     <lastmod>2019-03-04T04:37:02.966Z</lastmod>
     
@@ -226,6 +233,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2014/03/22/linux-shell-programe1/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2014/05/10/stdarg-function/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
@@ -234,13 +248,6 @@
   
   <url>
     <loc>http://oohcode.com/2014/05/13/coreseek-install-doc/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2014/03/22/linux-shell-programe1/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
     
@@ -338,13 +345,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.961Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter5/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
@@ -360,6 +360,13 @@
   
   <url>
     <loc>http://oohcode.com/2013/12/06/restful-web-services-chapter7/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.961Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -394,14 +401,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter1/</loc>
+    <loc>http://oohcode.com/2013/11/27/restful-web-services-chapter2/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/27/restful-web-services-chapter2/</loc>
+    <loc>http://oohcode.com/2013/11/26/restful-web-services-chapter1/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
@@ -443,13 +450,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/10/14/python-pypi-install/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
@@ -464,7 +464,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/13/django-nginx-fastcgi/</loc>
+    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
@@ -478,7 +485,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
+    <loc>http://oohcode.com/2013/11/13/django-nginx-fastcgi/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     
