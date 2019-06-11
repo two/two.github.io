@@ -67,6 +67,150 @@
 
   
     
+    <h3 class="article-title"><a href="/2015/05/28/http-cache/"><span>HTTP缓存机制</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/05/28/http-cache/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-05-28T08:38:39.000Z">
+          2015-05-28
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>HTTP缓存是web开发中经常碰到的问题，但是之前虽然看过，那时候web开发刚开始做，概念有点儿模糊不清，所以重读了<a href="http://book.douban.com/subject/10746113/" target="_blank" rel="noopener">《HTTP权威指南》</a>的缓存部分。这里对自己的理解做一下记录。</p>
+</blockquote>
+<h2 id="为什么要缓存"><a href="#为什么要缓存" class="headerlink" title="为什么要缓存"></a>为什么要缓存</h2><p>为什么要做缓存?如果你看到了这篇文章，其实心中肯定有了一个作缓存的需求和目标。缓存的目的无非就是提高用户体验，节省资源两方面。 </p>
+<ul>
+<li>提高用户体验:<br>从提高用户体验来讲，就是用户能够看到反馈的时间越短越好，速度越快越好。那么如何才能提高速度呢？当然是数据和用户越近越好，最好就在本地；还有就是网速越快越好，最好连接网络就能访问。我们都知道本地应用是最快的，因为所有的都在你的电脑里了，不需要再费劲去网上下载了。缓存的目的就是为了尽量完成这个工作而设计的。</li>
+<li>节省资源:<br>这个怎么说呢，如果你要访问一个网站，第一次你肯定没有这些数据，但是如果访问后所有的数据都保存在了本地，或者离你很近的地方，就省得在网络的海洋漫游过来了，这当然就节省了不少流量，当然你的计费方式是按带宽来的，多少流量无所谓，可是对于提供网站服务的供应商来说这些都是白花花的银子啊，能剩就剩，<code>节约每一个铜板</code>嘛。  <h2 id="缓存的机制"><a href="#缓存的机制" class="headerlink" title="缓存的机制"></a>缓存的机制</h2>这里只介绍基于HTTP协议的缓存。也许做web开发的都听过<code>expires</code>,<code>cache-control</code>,<code>If-Modified-Since</code>等缓存控制的HTTP头，这些眼花缭乱的头真让让人头晕啊，到底他们之间是什么关系，写了那么多，但是缓存是不是生效了？怎么生效的啊？带着这些疑问我也仔细阅读了一下书里的内容。其实一幅图可以说明很多问题:</li>
+</ul>
+<img src="http://www.plantuml.com/plantuml/svg/RL9DRzD05BpxLwp49JsOtcsfI4W88S49ReY3iTVOmlL6zYB1BK7GfZHfoeVIjB44eI54HRQX498sqFmPxzh-5zZUnevftcdtlT6RsPd5EZOW2F-y9sxtzgq7aJ-XFrw6Hw_ek1wETadlWjEWf42B0qcf5je46iPLONqT8Kr62hmkeqqEcWguXDbOiZ0dHDuyFl14Zjy0zDCPRNbqt8w-DiZXY7PziZ-apWxZZEQzgDyaZG7jk2Adgw3206HooW0trW3Me0agBw2zbgaGw76DZdTfvtjywf3pePXrJOGXiFGd6iwkQSMresY-BKko1daPcTX2HZuZxvhmULMte1rC1y7qXBW7r1ilTAI8z57fqknI28j-_oI3ZupyghQq-8VN7XlFu2D-8sy9jBqVNFJ2sI7nFjF69FpcY_cmK2w0ODgAdLeqh8T_tuOpXyLHG6sCgaoSOKDGCL71AWJJFUgqo9j-OlAbgrkj-AGP-VLLN7ahhV33w8xAtqEAhkfGuU_BkYd34YBnwwvaunmJkZkCv7-6acqBwt8bIHx1-TPgtz974FyiJvvsjcd_EFsBYwGP8-tzIZfBZ5UyoEoOBTcnDo7jZbXcShlazHV6L5AlgrnnAdOdgTuq9Fbf6klAvIL0UVloYErT-I6oTFy1">
+<p>通过这个流程图我们可以看出有三个方向:</p>
+<ol>
+<li>未找到缓存(黑色线)<br>当没有找到缓存时，说明我们本地并没有这些数据，这种情况一般发生在我们首次访问网站，或者以前访问过，但是清除过缓存后。这时浏览器没有这些数据，浏览器就会先访问服务器，然后把服务器上的内容取回来，内容取回来以后，就要根据情况来决定是否要保留到缓存中了。这个地方与<code>cache-control</code>字段的内容有关系。</li>
+<li>缓存未过期(蓝色线)<br>缓存未过期，指的是本地缓存没有过期，不需要访问服务器了，直接就可以拿本地的缓存作为响应在本地使用了。这样节省了不少网络成本，提高了用户体验过。这个内容跟<code>expires</code>字段和<code>cache-control</code>有密切的联系。</li>
+<li>缓存已过期(红色线)<br>缓存过期，是根据<code>expires</code>和<code>cache-control</code>来判断的，当满足过期的条件时，会向服务器发送请求，发送的请求一般都会进行一个验证，目的是虽然缓存文档过期了，但是文档内容不一定会有什么改变，所以服务器返回的也许是一个新的文档，这时候的HTTP状态码是200,或者返回的只是一个最新的时间戳和304状态码。</li>
+</ol>
+<p>下面就针对这些情况和其对应的字段及字段的优先级进行性说明:<br>第一优先级<code>cache-control</code>(expires)。下面的表是从高到低的顺序优先级递减。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache-Control</td>
+<td>no-store</td>
+<td>不存储缓存数据，禁止对相应进行复制</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>no-cache</td>
+<td>可以存储在本地缓存区中，但是必须进行新鲜度再验证满足之后才能使用</td>
+</tr>
+<tr>
+<td>Pragma</td>
+<td>no-cache</td>
+<td>用在HTTP/1.0协议中，与Cache-control一样</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>must-revalidate</td>
+<td>表示必须进行新鲜度的再验证之后才能使用,与no-cache的区别是，这个是在过期之后才会进行强制校验，一般用在没有使用cache-control等字段明确规定的缓存时，这时会自动使用缓存策略，如果不想自动缓存，则使用这个字段值(实际测试跟no-cache没什么区别)</td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>max-age</td>
+<td>相对存活时间，相对与Last-Modified的时间，如果当前时间与Last时间只差小于这个值，则不用访问服务器，直接使用缓存，否者要进行新鲜度校验</td>
+</tr>
+<tr>
+<td>Expires</td>
+<td>date</td>
+<td>旧版本的使用方式，date是具体的过期时间,当没有cacche-control时使用</td>
+</tr>
+</tbody>
+</table>
+<p>上面这些主要是在本地进行的，主要作用就是决定用本地缓存还是用远程服务器的资源。下面有要介绍的是<code>新鲜度校验</code>阶段要用到的HTTP控制字段。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>If-Modified-Science</td>
+<td>date</td>
+<td>初始值与Last-Modified的值一样，当请求服务器时判断文件的Last-Modified，如果比现在的时间晚，证明做过修改，需要冲重新请求文档，返回的Last-Modified为最新的时间，下次次请求时，If-Modified-Science的值会更新到与Last-Modified一致,然后在发送请求.如果时间与现在的一样，证明那个没有更新，直接返回304状态码</td>
+</tr>
+<tr>
+<td>Last-Modified</td>
+<td>date</td>
+<td>表示的就是文档在服务器上的最后更新时间</td>
+</tr>
+<tr>
+<td>If-None-Match</td>
+<td>版本号</td>
+<td>前面的If-Modified-Science有一个缺点就是虽然文件的更新时间变了，但是内容并没有改变，也会重新发送文档，为了减少网络传输，这里就需要If-None-Match来判断了。主要是判断版本号与当前etag不一致时，更新文档，当Etag一致时只需更新文件更新时间就可以了</td>
+</tr>
+<tr>
+<td>Etag</td>
+<td>版本号</td>
+<td>标识当前文档内容</td>
+</tr>
+</tbody>
+</table>
+<p>优先级: Etag &gt; Last-Modified 也就是说如果有Etag，就用If-None-Match来验证，否者才能用If-Modified-Science验证.</p>
+<p>基本上常用的HTTP缓存功能就是这些。下面介绍一下在Nginx服务器先如何配置及前端页面如何访问和查看。</p>
+<h2 id="怎么使用"><a href="#怎么使用" class="headerlink" title="怎么使用"></a>怎么使用</h2><p>由于现在Nginx用的比较广泛，我用的也是Nginx，所以这里只介绍nginx的配置，其他服务器请google之。<br>首先是<code>expires</code>和<code>cache-control</code>的配置，参看<a href="http://nginx.org/en/docs/http/ngx_http_headers_module.html" target="_blank" rel="noopener">Nginx官方文档</a></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/http/">http</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2015/05/12/jekyll-to-hexo/"><span>从jekyll到hexo</span></a></h3>
     
   
@@ -862,74 +1006,6 @@
 </ul>
 <p>通过反汇编可执行文件，我们可看到重定位后的.text节的内容。</p>
 <h2 id="可执行目标文件"><a href="#可执行目标文件" class="headerlink" title="可执行目标文件"></a>可执行目标文件</h2><p>已经知道链接器将多个目标模块合并成一个可执行目标文件的。我们的C程序已经从ASCII码转化成了一个二进制文件，且这个二进制文件包含加载程序到存储器并运行它所需的所有信息。下图是一个典型的ELF可执行文件中的各类信息。<br><img src="/assets/img/csapp/fig7.11.png" alt><br>由于可执行文件是完全链接的(已被重定位)，所以它不再需要.rel节。我们发现还多了一个.init节，这个节定义了一个小函数，叫做_init,程序的初始化代码会调用它。</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/CSAPP/">CSAPP</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/05/18/csapp-chapter6/"><span>csapp chapter6:存储器层次结构</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/05/18/csapp-chapter6/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-05-17T16:00:00.000Z">
-          2014-05-18
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>存储器系统(memory system)是一个具有不同容量、成本和访问时间的存储设备的层次结构。程序如何利用存储器的特性提高性能呢？这将是本章主要探讨的内容。</p>
-</blockquote>
-<h2 id="存储技术"><a href="#存储技术" class="headerlink" title="存储技术"></a>存储技术</h2><p>计算机的的成功很大程度上源自于存储技术的巨大进步。下面这幅图是存储器的层次结构：<br><img src="/assets/img/csapp/fig6.23.png" alt>  </p>
-<p>从上到下，存储的速度越慢，容量越大。<br>关于存储器内部是实现方式这就不介绍了，重点介绍一下计算机存储器的运行方式。<br>存储器层次结构的中心思想，对于每个<em>k</em>层，位于<em>k</em>层的更快更小的存储设备作为位于<em>k+1</em>层的跟大更慢的存储设备的缓存。也就是说层次结构中的<em>k</em>层的数据都是来自<em>k+1</em>层的。数据在每层之间的传送是以块大小为传送单元的。不同层之间的块大小可以不一样。程序运行过程中，对存储器的运用分为两种情况：</p>
-<ul>
-<li>缓存命中: 当程序需要数据时，最先从最高的层开始查找，如果没有找到了所需的数据，就是缓存命中。</li>
-<li>缓存不命中: 当所需的数据从当前层没有找到，就叫缓存不命中。这时候就会从下一层开始查找，直到找到所需的数据为止。当找到所需的数据后，数据会再次经过上面的层，把找到的数据保存到上面的层中，这时就要覆盖上面层的数据，如何覆盖，这涉及到替换策略，不再详述。</li>
-</ul>
-<p>通过上面存储器的使用方式，可以看出，要想提高程序的性能，就必须利用<em>时间局部性</em>和<em>空间局部性</em>。</p>
-<ul>
-<li>时间局部性: 如果一个数据被加载到了最上层，那么如果连续多次调用这个数据就不需要去其他层寻找，减少了数据寻找和写缓存的过程，大大提高到了利用效率。</li>
-<li>空间局部性： 但一个数被加载的最上层时，由于数据时以块大小进行传递的，所以这个数据相邻的地址数据也会被传递，所以如果这时候访问相邻的数据话，很有可能就在这一层，而不需要去其他层寻找数据，也大大提高了利用率。 </li>
-</ul>
-<p>下面通过一个程序来说明一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int sum1(int a[M][N])</span><br><span class="line">&#123;</span><br><span class="line">    int i, j, sum = 0;</span><br><span class="line"></span><br><span class="line">    for(i = 0; i &lt; M; i++)</span><br><span class="line">        for(j = 0; j &lt; N; j++)</span><br><span class="line">            sum += a[i][j];</span><br><span class="line">    return sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int sum2(int a[M][N])</span><br><span class="line">&#123;</span><br><span class="line">    int i, j, sum = 0;</span><br><span class="line"></span><br><span class="line">    for(j = 0; j &lt; M; j++)</span><br><span class="line">        for(i = 0; i &lt; N; i++)</span><br><span class="line">            sum += a[i][j];</span><br><span class="line">    return sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>对于sum1和sum2两个程序都时求一个二纬数组的和，唯一不同的是循环变量，也就是数组的下标顺序不一样。对于sum1，由于二纬数组是顺序存储的，而求和的时候也是按照递增的地址顺序求和的，这很好的利用了<em>空间局部性</em>这个原理，而sum2，同样是求和，但是二维数组的顺序并不是顺序访问的，又跳跃，所以每次访问的地址不是连续的，没有很好的利用<em>空间局部性</em>的原理，效率要低很多。<br>另一方面，两个程序的循环的过程中都使用了一个auto变量sum，每次循环都访问这个变量的值，这很好的利用了<em>时间局部性</em>原理。</p>
 
       
     </div>

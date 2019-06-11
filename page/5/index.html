@@ -67,6 +67,94 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/12/30/jekyll-and-plugin-plantuml/"><span>jekyll添加plantuml模块</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/30/jekyll-and-plugin-plantuml/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-29T16:00:00.000Z">
+          2013-12-30
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>讲完了如何正常显示中文后，突然想到使用jekyll + plantuml的组合岂不是更加神奇，于是折腾之~</em></p>
+</blockquote>
+<p>首先plantuml的<a href="http://plantuml.sourceforge.net/running.html" target="_blank" rel="noopener">running</a>页面列出了plant所支持的平台及编辑器，可以看到jekyll赫然在列，所以如果按照这个<a href="https://github.com/yjpark/jekyll-plantuml" target="_blank" rel="noopener">教程</a>应该没问题了，可并没有这么简单。<br>这个教程说的是基于octopress的，虽然octopress也是基于jekyll的，可是还是有差别的，按照教程把plugin进去，在build的时候，发现又错误提示：<code>./plugins/raw</code>不存在，这个包确实不存在，加上我队ruby还不熟悉，于是找这个包也找不到，折腾了半天，把行注释掉，又提示了其他的错误，加上jekyll添加plugin我也不是太清楚，所以干脆先放弃，寻找替代方案。</p>
+<h2 id="JS实现plantuml渲染"><a href="#JS实现plantuml渲染" class="headerlink" title="JS实现plantuml渲染"></a>JS实现plantuml渲染</h2><p>越是发现列表页还支持js渲染，如果能直接引用js进行渲染也是不错的选择，于是把完整包下载下来，引入default.html页面中，但是第一次并没有成功，是因为rawdeflate.js是异步加载的，必须使用http协议解析才行，而且jquery_plantuml.js的路径必须要改成你的js文件放置的路径，而且默认渲染的是图片，而我想要矢量图，所以把代码<code>$(this).attr(&quot;src&quot;, &quot;http://www.plantuml.com/plantuml/img/&quot;+encode64(e.data));</code>中的img路径改为了svg就可以了。效果如下:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;img uml=&quot;</span><br><span class="line">Bob -&gt; Alice : Love</span><br><span class="line">&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p><img uml="
+Bob -> Alice : Love
+"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;img uml=&quot;</span><br><span class="line">Bob -&gt; Alice: 访问</span><br><span class="line">Alice --&gt; Bob: 响应</span><br><span class="line">&quot;&gt;</span><br></pre></td></tr></table></figure></p>
+<p><img uml="
+Bob -> Alice: 访问
+Alice --> Bob: 响应
+"></p>
+<p>发现这里有一个问题：第一个可以正常现实，第二个却不能正常现实，原因是传递<code>uml</code>变量的值时，正常的应该是把换行符也传递过去，但是在实际对js传递的参数进行调试的时候换行符不见了。</p>
+<h2 id="Plugin实现plantuml渲染"><a href="#Plugin实现plantuml渲染" class="headerlink" title="Plugin实现plantuml渲染"></a>Plugin实现plantuml渲染</h2><p>由于js生产的uml图出现了问题，不能正确解析，而且对泳道图不支持，我只有研究一下真正的plantuml plugin了。<br>还是接着上面的，git地址下载下来<code>plantuml.rb</code>到<code>_plugins/</code>目录后，然后在blog里写出下面的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#123;% plantuml %&#125;</span><br><span class="line"></span><br><span class="line">|Web|</span><br><span class="line">start</span><br><span class="line">:action;</span><br><span class="line">|Server|</span><br><span class="line">:running;</span><br><span class="line">:return;</span><br><span class="line">|Web|</span><br><span class="line">end;</span><br><span class="line"></span><br><span class="line">&#123;% endplantuml %&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<p>发现执行<code>jekyll build</code>时会提示不能够加载<code>./plugins/raw</code>, 由于对ruby不熟悉，所以找了好久也没找到这个原因，所以最后还得靠自己，我把加载这个包的代码注释了，又运行了一下build,仔细看了一下出错信息，发现里面有一个错误提示Digest这个执行有问题，发现并没有引入这个包，于是在前面加上了<code>require &quot;digest&quot;</code>，再次运行发现成功了，也生成了图片地址，但是在<code>_site</code>目录里并没有找到这个目录，因为明明在目录里生成了，但是build完后自己又消失了，很奇怪，但是我在网上找了好久也没找到build的内部流程，所以只有另寻出路了，发现<code>_site</code>里面除了生成的<code>blog</code>目录里都是静态博客外，还有一个<code>assets</code>目录，里面正是根目录下的<code>assets</code> copy过来的，所以我想到在<code>assets</code>目录下建立一个plantuml生成文件的路径，果然再次build的时候可以了，但是有一个不好的点就是每次这个目录下的图片不是重新生成的，而且这个不能放到版本控制里。下面就是我的具体修改方案：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># _config.yml文件添加下面两行</span><br><span class="line">plantuml_jar: ./_lib/plantuml.jar</span><br><span class="line">plantuml_folder: /assets/img/plantuml/</span><br><span class="line"># plantuml.rb 文件添加</span><br><span class="line">require &apos;digest&apos;</span><br><span class="line"></span><br><span class="line"># plantuml.rb 修改生成图片的路径</span><br><span class="line"># folder = &quot;/images/plantuml/&quot;</span><br><span class="line">folder = site.config[&apos;plantuml_folder&apos;]</span><br><span class="line"># folderpath = site.dest + folder</span><br><span class="line">folderpath = site.dest + &quot;/..&quot; + folder</span><br><span class="line"># filepath = site.dest + folder + filename</span><br><span class="line">filepath = site.dest + &quot;/..&quot; +folder + filename</span><br><span class="line"></span><br><span class="line"># plantuml.rb 修改生产svg和解决中文乱码问题</span><br><span class="line">filename = Digest::MD5.hexdigest(code) + &quot;.svg&quot;</span><br><span class="line">cmd = &quot;java -jar &quot; + plantuml_jar + &quot; -tsvg -charset utf-8 -pipe &gt; &quot; + filepath</span><br></pre></td></tr></table></figure></p>
+<p>发现在我的电脑上build后能够正常现实，也不能正常现实，只有先把<code>jekyll serve</code>重启一下才能成功。但是传到git pages上却不行,我还不太清楚github pages的jekyll运行原理与本地有什么区别，该如何去控制github pages的服务器，所以这个方法还是行不通。</p>
+<h2 id="JS与Plugin混合渲染plantuml"><a href="#JS与Plugin混合渲染plantuml" class="headerlink" title="JS与Plugin混合渲染plantuml"></a>JS与Plugin混合渲染plantuml</h2><p>上面两个方法都有问题，该如何是好呢？于是我又回到了使用js的想法，因为这个渲染后的结果是通过plantuml服务器保存的，通过仔细观察<code>jquery_plantuml.js</code>的内容我了解到，其实这个js是实现了一个数据压缩的算法，把传递的代码进行压缩，然后生产一个压缩后的字符串，由于字符串和代码内容是一一对应的，所以plantuml服务器就以此字符串为key对应此代码的图片（分别对应svg和png两种格式）。此前能够通过html标签传递代码，但是换行有问题，另一方面直接写html代码也不美观，可不可以把<code>planutml.rb</code>这个plugin改造一下，来传递代码和生成img标签呢？于是再来看plantuml.rb的代码，发现除了中间生产图片的需要用到plantuml.jar，其它的逻辑就是我们刚才想得到的东西，于是把这个插件改造如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">module Jekyll</span><br><span class="line"></span><br><span class="line">  class PlantUMLFile &lt; StaticFile</span><br><span class="line">    def write(dest)</span><br><span class="line">      true</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  class PlantUMLBlock &lt; Liquid::Block</span><br><span class="line">    def render(context)</span><br><span class="line">      site = context.registers[:site]</span><br><span class="line">      code = @nodelist.join</span><br><span class="line">      source = &quot;&lt;center&gt;&quot;</span><br><span class="line">      source += &quot;&lt;img alt=&apos;this is uml image&apos; uml=&apos;&quot;+code+&quot;&apos;&gt;&quot;</span><br><span class="line">      source += &quot;&lt;/center&gt;&quot;</span><br><span class="line">      source</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Liquid::Template.register_tag(&apos;plantuml&apos;, Jekyll::PlantUMLBlock)</span><br></pre></td></tr></table></figure></p>
+<p>plantuml的内容还是第二种方法的内容，效果如下：<br>可以看到这时候plantuml的展示就正常了，而且github pages同样正常了，这时候再把第二种方法说的添加的无用目录<code>img/plantuml/</code>和无用文件<code>plantuml.jar</code>都删除就可以了～(￣▽￣)</p>
+<p>但是上传后又发现github pages不能正常显示，真是要命啊！我怀疑是不是自己的环境和github pages的环境不一样导致的，于是我又按照github pages 的<a href="https://help.github.com/articles/using-jekyll-with-pages" target="_blank" rel="noopener">官方步骤</a>又来了一次，发现这次在本地运行提示不能找到自己定义的tag，这就对了，线上发邮件说也是这个错误。于是我又找了好久原因，原来是<code>safe</code>这个配置导致的，本地默认是false,可以使用第三方插件，如果为<code>true</code>就不能使用第三方插件，而github pages为了保证安全，默认的都是<code>true</code>，也就是说线上不能使用第三方插件！</p>
+<h3 id="网站使用静态文件"><a href="#网站使用静态文件" class="headerlink" title="网站使用静态文件"></a>网站使用静态文件</h3><p>为了支持这个东西我只好再次想办法了，于是找到了一个<a href="http://blog.nitrous.io/2013/08/30/using-jekyll-plugins-on-github-pages.html" target="_blank" rel="noopener">方法</a>，发现github pages是可以不是用jekyll而使用生成后的静态文件的，步骤如下：</p>
+<ul>
+<li>新建一个seanerchen.github.io.raw的repo,然后把原来seanerchen.github.io的代码copy过来，放到这个版本控制里管理。</li>
+<li>删除seanerchen.github.io的所有文件，然后<code>touch .nojekyll</code>这个文件。</li>
+<li>copy -rf seanerchen.github.io.raw/_site/* seanerchen.github.io/</li>
+<li>然后把seanerchen.github.io 下的push上去</li>
+<li>等待缓冲实效，打开页面。可以了～</li>
+</ul>
+<p>效果如下：<br><img src="http://www.plantuml.com/plantuml/svg/gmbFJQhXAYv9B2hXiafCBidCpxFcgWbEBIfBBQhXiYegpSlBp4kt1h9IIqgBG79W3QbvATO0"></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/jekyll/">jekyll</a><a href="/tags/plantuml/">plantuml</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/12/30/think-in-uml/"><span>Think in UML</span></a></h3>
     
   
@@ -1168,93 +1256,6 @@
 <li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
 <li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
 <li>成功的HTTP的相应代码有可能是201、205等。</li>
-</ul>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/restful-web-services/">restful web services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/04/restful-web-services-chapter4/"><span>chapter4:面向资源的架构</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/04/restful-web-services-chapter4/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-03T16:00:00.000Z">
-          2013-12-04
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>这一章说的是一个具体的REST式架构——面向资源的架构(Resource-Oriented Architecture, ROA)。ROA是一种把实际问题转换为REST式Web服务的方法：它令URI、HTTP和XML具有跟其他Web应用一样的工作方式，令程序员们容易是用它们。<br>这一章将面向资源的架构(ROA)的功能分成：资源、资源名称、资源的表示、资源间的链接。还将介绍ROA的特性：可寻址性(addressability)、无状态性(statelessness)、连通性(connectedness)和统一接口(uniform interface)。</em></p>
-</blockquote>
-<p>这里有一个容易混淆的地方：为什么有REST了还要用一个ROA呢？<strong>REST</strong>就是一个指导原则，只要满足REST原则，任何具体的设计都可以成为REST式架构。而<strong>ROA</strong>就是REST的一个具体的设计架构，可以称之为具体的架构。关于REST的设计原则请参考Roy Fielding的博士论文：《架构风格与基于网络的软件架构设计》及博客：<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a>。其中总结REST的架构的6个主要的特性如下：</p>
-<ul>
-<li><p>客户-服务器（Client-Server）<br>通信只能由客户端单方面发起，表现为请求-响应的形式。</p>
-</li>
-<li><p>无状态（Stateless）<br>通信的会话状态（Session State）应该全部由客户端负责维护。</p>
-</li>
-<li><p>缓存（Cache）<br>响应内容可以在通信链的某处被缓存，以改善网络效率。</p>
-</li>
-<li><p>统一接口（Uniform Interface）<br>通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</p>
-</li>
-<li><p>分层系统（Layered System）<br>通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</p>
-</li>
-<li><p>按需代码（Code-On-Demand，可选）<br>支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</p>
-</li>
-</ul>
-<p>这些特性在介绍ROA的时候也会具体详细的介绍。<br>REST并不依赖于HTTP机制或URI结构，对于特定的服务来说比如Web服务来说明REST，则其具体的表现形式就是HTTP与URI，这些具体的架构形式就称之为ROA架构。如果一个REST式的服务不是基于Web的则可能不叫ROA,但是其遵循的原则都是一致的，只不过表现形式会有一些差别。</p>
-<h2 id="什么是资源"><a href="#什么是资源" class="headerlink" title="什么是资源"></a>什么是资源</h2><p>这里的定义是：任何事物，只要具有被引用的必要，它就是一个资源(resource)。<br>资源的具体形式在计算机里就是体现为比特流的事物，如文档、数据库的记录、某程序的运行结果。</p>
-<h2 id="URIs"><a href="#URIs" class="headerlink" title="URIs"></a>URIs</h2><p>在web里是什么令资源称得上为一个资源呢？那就是它必须至少有一个URI。URI既是资源的地址又是资源的名称，如果一则信息没有URI,那就不能称之为一个资源，而只能算是描述另一个资源的一些数据。<br>资源与URI的关系式：<br><strong>URI:资源——&gt; N:1</strong></p>
-<h2 id="可寻址性"><a href="#可寻址性" class="headerlink" title="可寻址性"></a>可寻址性</h2><p><strong>ROA的第一个特性</strong>.这个很好理解，就是每个资源都有自己的URI,这个URI在一定时间内是固定不变的，在有效的时间内用户可以通过URI来找到该资源。</p>
-<h2 id="无状态性"><a href="#无状态性" class="headerlink" title="无状态性"></a>无状态性</h2><p><strong>ROA的第二个特性</strong>.意味着每个HTTP请求都是完全孤立的。这个应该很好理解。<br>这里还有两个概念：<code>应用状态</code>和<code>资源状态</code>。应用状态是要保存到客户端的，资源状态是保存在服务端的。其实这两个状态是资源与客户端所拥有的资源的状态，每个资源之间是孤立的。</p>
-<h2 id="连通性"><a href="#连通性" class="headerlink" title="连通性"></a>连通性</h2><p>这个特性是要求资源之间通过它们的表示彼此链接起来。这个特性主要是体现web的易用性。</p>
-<h2 id="统一接口"><a href="#统一接口" class="headerlink" title="统一接口"></a>统一接口</h2><p>统一接口的意思就是要求对资源的操作要按照REST的要求进行，也就是特定的操作要使用对应的操作方法，而不是混乱的使用。<br>常用的HTTP方法已经介绍过了，但是有几点需要注意的是</p>
-<ul>
-<li><p>PUT与POST该用哪个？这个是很容易混淆的地方，一般来说POST表示的是增加新的资源，PUT表示修改已有的资源。但是还有下面几个原则：</p>
-<ul>
-<li>客户端负责决定新资源采用什么URI，就用PUT;服务器负责新资源采用什么URI,那就用POST。</li>
-<li>对现有资源进行追加信息的时候采用POST。</li>
-</ul>
-</li>
-<li><p>重载的POST不符合统一接口。<br>这点并不好理解。其实大部分的时候我们见到的都是这种：它们用POST向一个数据加工处理程序提供数据块（a block of data ）。其中一个最常见的例子就是form表单的提交。这种方法是通过单个HTTP方法表达无数个非HTTP方法。这种重载的POST不应该被用于掩饰拙略的资源设计，这个时候可以通过调整资源设计来做到统一接口。具体如何做，还要等了解再补充。</p>
-</li>
 </ul>
 
       

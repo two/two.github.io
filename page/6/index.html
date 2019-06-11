@@ -67,6 +67,93 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/12/04/restful-web-services-chapter4/"><span>chapter4:面向资源的架构</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/04/restful-web-services-chapter4/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-03T16:00:00.000Z">
+          2013-12-04
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这一章说的是一个具体的REST式架构——面向资源的架构(Resource-Oriented Architecture, ROA)。ROA是一种把实际问题转换为REST式Web服务的方法：它令URI、HTTP和XML具有跟其他Web应用一样的工作方式，令程序员们容易是用它们。<br>这一章将面向资源的架构(ROA)的功能分成：资源、资源名称、资源的表示、资源间的链接。还将介绍ROA的特性：可寻址性(addressability)、无状态性(statelessness)、连通性(connectedness)和统一接口(uniform interface)。</em></p>
+</blockquote>
+<p>这里有一个容易混淆的地方：为什么有REST了还要用一个ROA呢？<strong>REST</strong>就是一个指导原则，只要满足REST原则，任何具体的设计都可以成为REST式架构。而<strong>ROA</strong>就是REST的一个具体的设计架构，可以称之为具体的架构。关于REST的设计原则请参考Roy Fielding的博士论文：《架构风格与基于网络的软件架构设计》及博客：<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a>。其中总结REST的架构的6个主要的特性如下：</p>
+<ul>
+<li><p>客户-服务器（Client-Server）<br>通信只能由客户端单方面发起，表现为请求-响应的形式。</p>
+</li>
+<li><p>无状态（Stateless）<br>通信的会话状态（Session State）应该全部由客户端负责维护。</p>
+</li>
+<li><p>缓存（Cache）<br>响应内容可以在通信链的某处被缓存，以改善网络效率。</p>
+</li>
+<li><p>统一接口（Uniform Interface）<br>通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</p>
+</li>
+<li><p>分层系统（Layered System）<br>通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</p>
+</li>
+<li><p>按需代码（Code-On-Demand，可选）<br>支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</p>
+</li>
+</ul>
+<p>这些特性在介绍ROA的时候也会具体详细的介绍。<br>REST并不依赖于HTTP机制或URI结构，对于特定的服务来说比如Web服务来说明REST，则其具体的表现形式就是HTTP与URI，这些具体的架构形式就称之为ROA架构。如果一个REST式的服务不是基于Web的则可能不叫ROA,但是其遵循的原则都是一致的，只不过表现形式会有一些差别。</p>
+<h2 id="什么是资源"><a href="#什么是资源" class="headerlink" title="什么是资源"></a>什么是资源</h2><p>这里的定义是：任何事物，只要具有被引用的必要，它就是一个资源(resource)。<br>资源的具体形式在计算机里就是体现为比特流的事物，如文档、数据库的记录、某程序的运行结果。</p>
+<h2 id="URIs"><a href="#URIs" class="headerlink" title="URIs"></a>URIs</h2><p>在web里是什么令资源称得上为一个资源呢？那就是它必须至少有一个URI。URI既是资源的地址又是资源的名称，如果一则信息没有URI,那就不能称之为一个资源，而只能算是描述另一个资源的一些数据。<br>资源与URI的关系式：<br><strong>URI:资源——&gt; N:1</strong></p>
+<h2 id="可寻址性"><a href="#可寻址性" class="headerlink" title="可寻址性"></a>可寻址性</h2><p><strong>ROA的第一个特性</strong>.这个很好理解，就是每个资源都有自己的URI,这个URI在一定时间内是固定不变的，在有效的时间内用户可以通过URI来找到该资源。</p>
+<h2 id="无状态性"><a href="#无状态性" class="headerlink" title="无状态性"></a>无状态性</h2><p><strong>ROA的第二个特性</strong>.意味着每个HTTP请求都是完全孤立的。这个应该很好理解。<br>这里还有两个概念：<code>应用状态</code>和<code>资源状态</code>。应用状态是要保存到客户端的，资源状态是保存在服务端的。其实这两个状态是资源与客户端所拥有的资源的状态，每个资源之间是孤立的。</p>
+<h2 id="连通性"><a href="#连通性" class="headerlink" title="连通性"></a>连通性</h2><p>这个特性是要求资源之间通过它们的表示彼此链接起来。这个特性主要是体现web的易用性。</p>
+<h2 id="统一接口"><a href="#统一接口" class="headerlink" title="统一接口"></a>统一接口</h2><p>统一接口的意思就是要求对资源的操作要按照REST的要求进行，也就是特定的操作要使用对应的操作方法，而不是混乱的使用。<br>常用的HTTP方法已经介绍过了，但是有几点需要注意的是</p>
+<ul>
+<li><p>PUT与POST该用哪个？这个是很容易混淆的地方，一般来说POST表示的是增加新的资源，PUT表示修改已有的资源。但是还有下面几个原则：</p>
+<ul>
+<li>客户端负责决定新资源采用什么URI，就用PUT;服务器负责新资源采用什么URI,那就用POST。</li>
+<li>对现有资源进行追加信息的时候采用POST。</li>
+</ul>
+</li>
+<li><p>重载的POST不符合统一接口。<br>这点并不好理解。其实大部分的时候我们见到的都是这种：它们用POST向一个数据加工处理程序提供数据块（a block of data ）。其中一个最常见的例子就是form表单的提交。这种方法是通过单个HTTP方法表达无数个非HTTP方法。这种重载的POST不应该被用于掩饰拙略的资源设计，这个时候可以通过调整资源设计来做到统一接口。具体如何做，还要等了解再补充。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/11/29/restful-web-services-chapter3/"><span>chapter3:REST式服务有什么特别不同</span></a></h3>
     
   
@@ -245,6 +332,61 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
+          2013-11-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
+</blockquote>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter1/"><span>chapter1:Programmable Web及其分类</span></a></h3>
     
   
@@ -328,113 +470,6 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
-          2013-11-26
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
-</blockquote>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
-          2013-11-25
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/computer-system/">computer system</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
     <h3 class="article-title"><a href="/2013/11/25/synchronous-asynchronous-blocking-non-blocking/"><span>同步与异步，阻塞与非阻塞</span></a></h3>
     
   
@@ -476,6 +511,58 @@
 <li><strong>异步非阻塞</strong>: 异步非阻塞是执行效率最高的模式，一个进程可以同时发出很多任务，比如说T1,T2,T3等,而它们之间并无顺序关系，那个任务先执行完就可以先进行回调，执行其它任务。这样P的利用率就可以达到最大。</li>
 </ul>
 
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/computer-system/">computer system</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
+          2013-11-25
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        
       
     </div>
 
@@ -689,95 +776,6 @@
 <p><em>这个系列的博客主要是对《深入理解计算机操作系统》(</em>Computer Systems A Programmers’s Perspective<em> 以下简称CSAPP)这本书的学习记录和感悟。</em></p>
 </blockquote>
 <p>这本书让我学到了很多东西，特别是对程序运行的过程和程序在计算机系统中的组织结构。以前也学过单片机原理，但是跟这个比起来就有点小打小闹了，这本书在<a href="http://book.douban.com/subject/5333562/" target="_blank" rel="noopener">豆瓣</a>也是超高人气的。希望自己能通过写博客的方式对它进行更加深入的研究，让自己有些提高~</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/CSAPP/">CSAPP</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/20/csapp-chapter1/"><span>csapp chapter1:计算机系统漫游</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/20/csapp-chapter1/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-19T16:00:00.000Z">
-          2013-11-20
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>第一章是对本书的概括性介绍，虽然是概括介绍但是仍然有不少猛料，比如一个c语言是如何编程可执行文件的，计算机的存储器是如何构成的，一个进程在计算机虚拟空间中的结构等等，这些问题能够理解了我感觉自己在写程序的时候有种豁然开朗的感觉，没写一行代码仿佛都看到它们是怎么进入计算机并执行的，实在是爽啊~</em></p>
-</blockquote>
-<h2 id="信息就是位-上下文"><a href="#信息就是位-上下文" class="headerlink" title="信息就是位+上下文"></a>信息就是位+上下文</h2><p>这里说的位其实就是信息其实就是一些字符串组成的，但是不同的信息有着不同的作用，这其实是跟这些信息所处的上下文环境有关系，同样的一串字符在不同的环境中发挥不同的作用~</p>
-<h2 id="程序的翻译过程"><a href="#程序的翻译过程" class="headerlink" title="程序的翻译过程"></a>程序的翻译过程</h2><p>一个C编写的程序需要经过这怎么样的过程才能让计算机识别并执行？话不多说直接上图<br><img src="/assets/img/csapp/fig1.2.png" alt="程序翻译过程"><br>从图中可以看到一个c语言源程序需要经过预处理器处理生成.i文件，然后在经过编译器的处理编程.s文件，最后经过汇编器处理编程.o的二进制文件，你以为这样就可以了？no,一个源程序需要其他库文件的支持，还要经过链接器才能生成可执行文件。<br><strong>预处理阶段</strong><br>这个阶段会对你写的源代码进行预处理，首先是找到#开头的行，比如说#include 这时候就需要加载需要的文件。最后形成了一个完整的源文件内容：以.i结尾的文件。<br><strong>编译阶段</strong><br>编辑器在这个阶段会发挥作用把C语言转换为汇编语言。（由于没有学过编译原理，这里只能囫囵吞枣了，下一步准备研究一下<a href="http://book.douban.com/subject/3296317/" target="_blank" rel="noopener">龙书</a>)。<br><strong>汇编阶段</strong><br>这个阶段汇编器把.s结尾的汇编文件转化为以.o结尾的二进制文件<br><strong>链接阶段</strong><br>经过上面的几个步骤后程序还不能真正的运行起来，需要将程序用到的系统类库等于这个二进制文件进行组合，最后生成一个可执行的目标文件，这个目标文件就可以执行了~<br>这里还提到了解编译系统的工作原理是大有益处的，其中主要的几点就是可以优化程序性能、理解链接是出现的错误、避免安全漏洞等，这些在以后的章节中会介绍到。</p>
-<h2 id="计算机系统的硬件组成"><a href="#计算机系统的硬件组成" class="headerlink" title="计算机系统的硬件组成"></a>计算机系统的硬件组成</h2><p>还是直接上图：<br><img src="/assets/img/csapp/fig1.4.png" alt="计算机系统硬件组成"><br>从图中可以看到一个计算机系统的组成主要包括一下几个重要部分：总线(bus)、IO设备、主存(Main memory)、处理器(CPU)。下面对它们的作用一一介绍:<br><strong>总线</strong><br>总线是贯穿整个系统的一组电子管道，它携带信息并在各个部件之间进行传递。总线通常被设计成传送定长的字节块,也就是字(word)。总线宽度决定了计算机系统的寻址能力，因为每根总线代表的是一位bit，我们所说的32bit系统其实就是说总线的宽度为32，也就是4字节，而现在的64bit就是说总线宽度为64位。可见总线的宽度决定了计算机的寻址能力。<br><strong>IO设备</strong><br>IO设备这个更好理解了，就是我们能够看到的键盘、鼠标、显示器以及看不到的磁盘，这些都是进行与终端用户进行交互的或者是永久存储数据的。<br><strong>主存</strong><br>主存是一个临时的存储设备，当程序运行时程序本身的以及程序运行时需要处理的数据。其实就是我们经常说的内存，服务器内存不够用了很有可能是打开的程序太多或者程序处理的数据太大导致内存被占用过多。从物理上说主存就是一个动态随机存储器(DRAM)，从逻辑上说主存其实就是一个线性的数组，每个字节都对应一个唯一的地址。<br><strong>处理器</strong><br>处理器全称是中央处理单元(CPU),它是解释或执行存储在主存中指令的引擎。处理器的核心是一个字长的存储设备（或寄存器），称为<code>程序计数器</code>(PC),在任何时刻程序计数器都是指向主存中某条机器语言指令的（即程序计数器存储的是主存中某条指令的地址）。<br>处理器是整个计算机系统的核心，CPU的操作主要是围绕主存、寄存器文件（register file)和算术/逻辑单元(ALU)进行的。寄存器文件是1字长的寄存器组成的存储设备，没个寄存器都有一个唯一的名字。ALU计算新的数据和地址值。下面简要说一下CPU执行的一些操作：  </p>
-<ul>
-<li><strong>加载:</strong> 把一个字节或一个字从主存复制到寄存器，已覆盖寄存器原来的内容。</li>
-<li><strong>存储:</strong> 把一个字节或一个字从寄存器复制到主存的某个位置，已覆盖这个位置上原来的内容。</li>
-<li><strong>操作:</strong> 把两个寄存器的内容复制到ALU,ALU对这两个字做算术操作，并将结果存放到一个寄存器中，已覆盖该寄存器中原来的内容。</li>
-<li><strong>跳转:</strong> 从指令本身中抽取一个字，并将这个字复制到程序计数器（PC)中，以覆盖PC中原来的值。</li>
-</ul>
-<p><strong>指令集结构</strong>描述的是每条机器代码指令的效果，<strong>微体系结构</strong>描述的是处理器实际上是如何实现的。</p>
-<p>一个hello world的自白：<br>我是一个hello world，我使用C语言写的，我被翻译后变成了可执行文件，下面是我如何从可执行文件显示到显示器的过程，过程晦涩，大牛勿入:<br>下面是执行的过程:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./hello.out</span><br><span class="line">hello world!</span><br></pre></td></tr></table></figure><br>下面是计算机系统所做的工作：<br>读取用书的输入<code>--&gt;</code>在当前目录下勋章可执行文件<code>--&gt;</code>把可执行文件从磁盘复制到主存<code>--&gt;</code>处理器执行main函数<code>--&gt;</code>把要输出的hello world!从主存复制到寄存器文件<code>--&gt;</code>寄存器内容复制到显示器<br>前面的工作其实是由外壳程序(其实就是shell)控制的</p>
-<h2 id="存储设备的层次结构"><a href="#存储设备的层次结构" class="headerlink" title="存储设备的层次结构"></a>存储设备的层次结构</h2><p>根据机械原理，较大的存储设备要比较小的存储设备运行的慢，但是快速设备的成本却别低速设备高。根据这个原理我们知道处理速度方面寄存器文件&gt;主存&gt;磁盘。而成本也是这样，为了平衡成本和速度，以及适应不同的设备，需要在它们之间再加一个缓存设备，叫做<code>高速缓存存储器</code>。它能够存储更多的信息同时也有更快的速度。这就形成了存储设备的层次结构。直接上图：<br><img src="/assets/img/csapp/fig1.9.png" alt="存储设备的层次结构"><br>了解存储设备的层次结构可以利用这种特点提高程序的性能，这点在第六章会做介绍。</p>
-<h2 id="操作系统管理硬件"><a href="#操作系统管理硬件" class="headerlink" title="操作系统管理硬件"></a>操作系统管理硬件</h2><p>操作系统有两个基本功能： </p>
-<ol>
-<li><strong>防止硬件被失控的应用程序滥用</strong></li>
-<li><strong>向应用程序提供简单一致的机制来控制复杂而又通常大相径庭的低级硬件设备</strong></li>
-</ol>
-<p>操作系统是通过进程、虚拟存储器和文件等抽象概念来实现这两个功能的,这种抽象表示如图所示：<br><img src="/assets/img/csapp/fig1.11.png" alt="进程的上下文切换"><br>下面对他们进行简要的介绍：<br><strong>进程</strong>是操作系统对一个正在运行的程序的一种抽象，一般来说一个CPU同时只能够运行一个进程，一个CPU运行多个进程是需要通过时间片轮转进行上下文切换。下面这幅图展示了一个CPU如何运行多个进程的：<br><img src="/assets/img/csapp/fig1.12.png" alt="进程的上下文切换"><br><strong>虚拟存储器</strong>是一个抽象概念，它为每个进程提供了一个奸相，即每个进程都在独占地使用主存，每个进程看到的是一致的存储器，称为<em>虚拟地址空间</em>。一个进程的虚拟地址空间如下图所示：<br><img src="/assets/img/csapp/fig1.13.png" alt="进程的上下文切换"><br>可以看到虚拟地址空间分为几部分，每个区都有专门的功能。下面从地址空间的最下方向上进行一一介绍：</p>
-<ul>
-<li><strong>程序代码和数据:</strong> 对于所有的进程来说，代码是从同一固定地址开始。紧接着是全局变量和静态变量相对应的数据位置。代码区和数据区是直接按照可执行目标文件的内容进行初始化的。这两个区域是从程序一开始运行是就规定好了，不会再做改变了。</li>
-<li><strong>堆:</strong> 代码区和数据区后紧随着的是运行时堆。这个区的空间是动态的伸缩的，通过malloc和free这样的C标准库函数进行申请和释放空间。</li>
-<li><strong>共享库:</strong> 在地址空间的中间部分，是一块用来存放像C标准库和数学库这样共享库的代码和数据的区域。这部分会再第七章介绍是如何工作的。</li>
-<li><strong>栈:</strong> 位于虚拟地址空间顶部的是<em>用户栈</em>，编译器用它来实现函数调用，比如保持局部变量，保存函数调用的现场等等。</li>
-<li><strong>内核虚拟存储器:</strong> 内核总是驻留在内存中，是操作系统的一部分。这部分不允许应用程序读写。</li>
-</ul>
-<p>ps:注意到堆的地址空间是向上增长的，而栈的地址空间是向下增长的。这样设计是为了最大限度的利用地址空间。可以根据堆和栈的需求动态分配地址空间。<br><strong>文件</strong><br>文件其实就是字节序列。每个IO设备都可以看做是文件。系统的所有输入输出都是通过使用一小组成为Unix I/O的系统函数调用读写文件来实现的。第十章会进行详细的介绍。</p>
-<h2 id="系统之间利用网络通信"><a href="#系统之间利用网络通信" class="headerlink" title="系统之间利用网络通信"></a>系统之间利用网络通信</h2><p>不同的系统之间通过网络进行通信。详细过程会在第十一章进行介绍。</p>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>下面几个概念贯穿了计算机系统的所有方面。我们需要铭记在心：  </p>
-<ul>
-<li><strong>并发(concurrency):</strong> 是一个通用的概念，指一个同时具有多个活动的系统;</li>
-<li><strong>并行(parallellism):</strong> 指的是用并发使一个系统运行的更快。</li>
-</ul>
-<p>并发和并行的却别是一个很容易混淆的概念，下面通过一个简单的图像来表述他们的区别：<br><img src="/assets/img/csapp/fig1.other1.png" alt="并发与并行"><br>可以看出并发是在一个时间段内执行不同的任务，但是同一个时间点只能执行一个任务，通过时间片轮转来进行任务的切换。<br>并行是在同一个时间点不同的任务同时被执行，但是每个任务都有一个对应的执行者。<br>关于并发和并行其实有很多更加复杂的方式，一个go语言的例子可以学习一下：<a href="http://www.aqee.net/docs/Concurrency-is-not-Parallelism/#landing-slide" target="_blank" rel="noopener">并发不是并行</a>  </p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本章虽然是一个概括性的介绍，但其实已经包含了本书很多重要的核心内容，以后章节是对每个重要的部分进行一个详细的介绍。了解本章的内容对了解计算机系统有一个整体性的印象，让人有一种把握全局的感觉~</p>
 
       
     </div>
