@@ -67,6 +67,162 @@
 
   
     
+    <h3 class="article-title"><a href="/2017/03/06/The-Design-and-Implementation-of-Redis-3/"><span>Redis设计与实现总结——多机数据库的实现</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/03/06/The-Design-and-Implementation-of-Redis-3/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-03-06T11:19:41.000Z">
+          2017-03-06
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><p>在Redis中用户可以通过执行<code>SLAVEOF</code>命令或者设置<code>slaveof</code>选项，让一个服务器去复制(repliacte)另一个服务器，被复制的服务器称为主服务器(master),而对服务器进行复制的服务器被称为从服务器(salve)。<br>复制功能分为同步(sync)和命令传播(command propagate)两个操作:</p>
+<ul>
+<li>同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态。(从服务器主动向主服务器请求数据)</li>
+<li>命令传播操作用于在主服务器的数据库状态被修改，导致主从服务器数据库状态出现不一致时，让主服务器的数据库重新回到一致状态。</li>
+</ul>
+<p><img src="/assets/img/redis/redis_sync.png" alt="redis旧版复制"></p>
+<ul>
+<li>同步过程:<ul>
+<li>主服务器接收到从服务器发来的SYNC命令,执行BGSAVE命令,创建RDB文件,并使用缓冲区记录接下来执行的所有写命令。</li>
+<li>从服务器接收并载入主服务器发来的RDB文件。</li>
+<li>主服务器接着发送缓冲区的写命令到从服务器。</li>
+<li>从服务器接收命令。</li>
+</ul>
+</li>
+<li>命令传播:<br>  每当主服务器执行写命令时，主服务器的数据库状态就可能被修改，并导致主从服务器不一致。为了再次回到一致状态，主服务器需要对从服务器执行命令传播操作: 主服务器会将自己执行的写命令发送给从服务器执行，当从服务器执行了相同的写命令后，主从服务器再次回到一致状态。</li>
+</ul>
+<p>从服务器初次复制主服务器或者从服务器当前要复制的主服务器和上一次不一样时，RDB文件会完整的传输。在处于命令传播阶段的主从服务器因为网络原因而中断了复制，再次连接上时会重头开始复制。但是第二种情况的效率非常低，很多已经复制过的数据需要再次进行复制。这就是旧版复制功能的缺陷。<br>新版复制功能为了解决重复复制的问题，提出了一个<code>PSYNC</code>命令代替之前的<code>SYNC</code>命令。完整的复制与上面的第一种情况初次复制是一样的，部分重同步则用于处理断线后的情况: 断线再连接后，主服务器只发送断线期间的写命令到从服务器。<br>部分重同步的实现是通过<code>复制偏移量</code>:</p>
+<ul>
+<li>主服务器每次向从服务器转播N个字节的数据时，就将自己的复制偏移量的值+N</li>
+<li>从服务器每次收到主服务器传播来的N个字节数据时，就将自己的复制偏移量的值+N</li>
+</ul>
+<p>通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态:</p>
+<ul>
+<li>如果主从服务器处于一致状态，那么主从服务器两者的偏移量总是相同的</li>
+<li>相反，如果主从服务器两者的偏移量并不相同，那么说明主从服务器并未处于一致状态</li>
+</ul>
+<p>复制积压缓冲区是一个由主服务器维护的固定长度，先进先出队列，默认大小为1MB。当主从断开连接，再次连接时,从服务器会通过<code>PSYNC</code>将自己的复制偏移量<code>offset</code>发送给主服务器:</p>
+<ul>
+<li>如果<code>offset</code>偏移量之后的数据存在于复制积压缓冲区，那么主服务器将对从服务器执行部分重同步操作。</li>
+<li>如果<code>offset</code>偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器会对从服务器执行完整重同步操作。</li>
+</ul>
+<p>在命令传播阶段，从服务器默认会以每秒一次的频率，祥主服务器发送命令<code>REPLICONF ACK &lt;replication_offset&gt;</code>, 其中<code>replication_offset</code>是当前从服务器的复制偏移量, 这个<code>心跳检测</code>的作用如下:</p>
+<ul>
+<li><strong>检测主从服务器的网络状态</strong>:如果主服务器超过一秒钟没收到从服务器发送的<code>REPLICONF ACK</code>命令，那么主服务器就知道主从服务器之间的连接出现问题了。</li>
+<li><strong>辅助实现min-slaves选项</strong>:Redis的<code>min-slaves-to-write</code>和<code>min-slaves-max-log</code>两个选项可以防止主服务器在不安全的情况下执行写命令。</li>
+<li><strong>检测命令丢失</strong>:如果因为网络故障，主服务器传播给从服务器的写命令半路丢失，那么从服务器发送的偏移量就会小于主服务器的偏移量，这时候主服务器会从复制积压缓冲区中重新把命令发送给从服务器。(2.8版本之前没有这个功能，所以会出现丢失的情况)</li>
+</ul>
+<h2 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h2><p>Sentinel(哨岗，哨兵)是Redsi的高可用性(high availability)解决方案:由一个或多个Sentinel实例(instance)组成的Sentinel系统可以监视任意多个主服务器，以及这些主服务器属下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线的主服务器属下的某个从服务器升级为新的主服务器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。另外Sentinel还会继续监视已下线的服务器，并在它重新上时，将它设置为新的主服务器的从服务器(降级)。<br>启动Sentinel可以使用命令: <code>redis-sentinel /path/to/your/sentinel.conf</code> 或 <code>redis-server /path/to/your/sentinel.conf --sentinel</code>, 启动时需要执行一下步骤:</p>
+<ul>
+<li>初始化服务器: Sentinel本质上是一个运行在特殊模式下的Redis服务器，启动初始换与原来有所不同。</li>
+<li>将普通Redis服务器使用的代码替换成Sentinel专用代码:初始换Sentinel可以执行的命令，替换之前的默认命令。</li>
+<li>初始化Sentinel状态:初始化<code>sentinel.c/sentinelState</code>结构，这个结构保存了服务器中所有Sentinel相关的状态。</li>
+<li>根据跟定的配置文件，初始化Sentinel的监视主服务器列表:Sentinel状态中的<code>masters</code>字典记录了所有被Sentinel监视的主服务器的相关信息，其中字典的键是被监视主服务器的名字；而字典的值则是被监视主服务器对应的<code>sentinel.c/sentinelRedisInstance</code>结构。</li>
+<li>创建连向主服务器的网络连接: 最后一步是创建连向被监视主服务器的网络连接，Sentinel将成为主服务器的客户端，可以向主服务器发送命令，并从命令回复中获取相关的信息。对于每个被Sentinel监视的主服务器来说，Sentinel会创建两个连向主服务器的异步网络连接:<ul>
+<li>一个是命令连接，这个连接专门用于向主服务器发送命令，并接收命令回复。</li>
+<li>另一个是订阅连接，这个链接专门用于订阅主服务器的<code>__sentinel__:hello</code>频道。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>为什么有两个连接?<br>在Redis目前的发布与订阅功能中，被发送的信息不回保存在Redis服务器里，如果发送信息时，接收信息的客户端不在线或者断线，那么这个客户端就会丢失这条信息。<strong>为了不丢失任何信息，必须专门用一个订阅连接来接收该频道的信息</strong>(原理?)。另外除了订阅频道，Sentinel还必须向主服务器发送命令，以此来与主服务器进行通信，所以Sentinel还必须向主服务器创建命令连接。</p>
+</blockquote>
+<h3 id="Sentinel网络拓扑"><a href="#Sentinel网络拓扑" class="headerlink" title="Sentinel网络拓扑"></a>Sentinel网络拓扑</h3><p>Sentinel与主服务器，从服务器及其他Sentinel之间都是彼此连接的:</p>
+<ul>
+<li>首先Sentinel默认<code>每10秒一次</code>向主服务器发送INFO命令，Sentinel可以得到主服务器信息以及主服务器的从服务器信息;</li>
+<li>Sentinel会更新自己的主服务器和从服务器信息，还会创建连接到从服务器的命令连接和订阅连接。</li>
+<li>Sentinel还会默认<code>每2秒一次</code>通过命令连接向所有被监视的主服务器和从服务器发送命令，这条命令会向服务器的<code>__sentinel__:hello</code>频道发送一条信息</li>
+<li>由于Sentinel订阅了主服务器和从服务器的消息，所以所有订阅的Sentinel都会收到上面的信息，接收消息的Sentinel就会感知到发消息的Sentinel存在，并记录到<code>sentinels</code>属性中(可以实现自动发现功能)</li>
+</ul>
+<h3 id="故障处理"><a href="#故障处理" class="headerlink" title="故障处理"></a>故障处理</h3><h4 id="检测主观下线状态"><a href="#检测主观下线状态" class="headerlink" title="检测主观下线状态"></a>检测主观下线状态</h4><p>默认情况下Sentinel会以<code>每秒一次</code>的频率向所有与它创建了命令连接的实例(包括主服务器，从服务器，其他Sentinel等)发送PING命令, 并通过实例返回的PING命令回复判断是否在线。由于每个Sentinel设置的下线时间标准可能不一样，所以会出现不同的Sentinel认为服务器的状态不一致，所以这种情况称为主观下线状态。</p>
+<h4 id="检测客观下线状态"><a href="#检测客观下线状态" class="headerlink" title="检测客观下线状态"></a>检测客观下线状态</h4><p>当Sentinel从其他Sentinel那里接收的足够数量的已下线判断之后，Sentinel就会认为将主服务器判定为客观下线状态，并对主服务器执行故障转移操作。</p>
+<h4 id="选举领头Sentinel"><a href="#选举领头Sentinel" class="headerlink" title="选举领头Sentinel"></a>选举领头Sentinel</h4><p>当主服务器被判断为客观下线时，监视这个下线主服务器的各个Sentinel会进行协商，选举出一个领头的Sentinel，并由领头Sentinel对下线服务器执行故障转移。<br>选举策略是每个检测到主服务器下线的Sentinel都向其他Sentinel发送想要成为领头的命令，收到命令的Sentinel会将发送命令的Sentinel设置为局部领头，如果一个Sentinel被半数以上的Sentinel设置为局部领头，它就胜出，否则会进行再次选举。</p>
+<h4 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h4><p>选举出领头Sentinel后，领头Sentinel将对已下线的主服务器执行故障转移操作:</p>
+<ul>
+<li>在已下线服务器属下的所有从服务器里面，挑选出一个从服务器，并将其转换为主服务器: 选择优先级高，复制偏移量大的从服务器，使用命令<code>SLAVE of one</code>使其变为主服务器。</li>
+<li>让已下线主服务器属下的所有从服务器改为复制新的主服务器: 领头Sentinel向其他从服务器发送<code>SLAVEOF</code>命令。</li>
+<li>将已下线的主服务器设置为心的主服务器的从服务器，当这个旧的主服务器重新上线时，它就会成为新的主服务器的从服务器。</li>
+</ul>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>Redis集群是Redis提供的分布式数据库方案，集群通过分片(sharding)来进行数据共享，并提供复制和故障转移功能。</p>
+<h3 id="节点与槽"><a href="#节点与槽" class="headerlink" title="节点与槽"></a>节点与槽</h3><p>Redis集群通常由多个节点(node)组成，开始每个节点都是图例的，它们都处于一个只包含自己的集群中，当要组建一个真正可工作的集群，我们必须将节点连接起来，构成一个包含多个节点的集群。使用<code>CLUSTER MEET &lt;ip&gt; &lt;port&gt;</code>命令来完成。另外Redis服务器启动时也可以根据<code>cluster-enabled</code>配置选项来判断是否开启集群模式。节点信息保存在<code>cluster.h/clusterNode</code>结构中，<code>clusterNode</code>结构保存了一个节点的当前状态，比如节点的创建时间，节点的名等;<code>clusterNode</code>的<code>link</code>属性是一个<code>clusterLink</code>结构，该结构保存了连接节点所需的有关信息,比如套接字描述符，输入缓冲区和输出缓冲区; 每个节点都保存着一个<code>clusterState</code>结构，这个结构记录了当前节点的视角下，集群目前所处的状态，例如机器是在线还是下线，集群包含多少节点等。<br>Redis集群通过分片的方式来保存数据库中的键值对:集群的整个数据库被分为<code>16384</code>(=2048*8)个槽(slot),数据库中的每个键都属于这16384个槽的其中一个，集群中的每个节点可以处理0个或最多16384个槽。当数据库中的16384个槽有节点在处理时，集群处于一个上线状态(ok);相反地，如果数据库中任何一个槽没有得到处理，那么集群处于下线状态(fail)。<br>槽指派信息记录在<code>clusterNode.slots[16384/8]</code>属性中, <code>numslots</code>记录了节点负责处理的槽的数量。Redis以0为起始索引，16383为终止索引，对slots数组中的16384个二进制位进行编号，并根据索引i上的二进制位来判断节点是否负责处理槽i:</p>
+<ul>
+<li>如果slots数组在索引i上的二进制位值为1，那么表示节点负责处理槽i。</li>
+<li>如果slots数组在索引i上的二进制位值为0, 那么表示节点不负责处理槽i。</li>
+</ul>
+<p>节点会把自己处理的槽信息发送给其他集群中的其他节点，因此集群中的每个节点都会知道数据库中16384个槽分别被指派给了集群中哪些节点。<br><code>clusterState</code>结构中的<code>slots[16384]</code>数组则更上面的正好反过来，它记录了每个槽是由哪个节点在管理的。之所以会有这两种结构是为了在查找节点管理了哪些槽和槽由哪个节点管理的复杂度都降低了。</p>
+<h3 id="集群中的执行命令"><a href="#集群中的执行命令" class="headerlink" title="集群中的执行命令"></a>集群中的执行命令</h3><p>当客户端向节点发送与数据库键有关的命令时，接收命令的节点会计算出命令要处理的数据库键属于哪个槽(使用crc16(key)&amp;16383算法得出槽位置)，并检查这个槽是否指派给了自己(clusterState.slots[i]是否为自己):</p>
+<ul>
+<li>如果键所在的槽正好指派给了当前节点，那么节点直接执行这个命令。</li>
+<li>如果键所在的槽没有指派给了当前节点，那么节点回向客户端返回一个MOVED错误，指引客户端转向(redirect)至正确的节点，并再次发送之前想要执行的命令。</li>
+</ul>
+<p>节点与单机服务器在数据库方面的区别是，节点只能使用0号数据库，而单机Redis服务器则没有这一限制。<br>节点还会使用<code>clusterState</code>结构中的<code>slots_to_keys</code>跳跃表来保存槽和键之间的关系，主要目的是方便节点对属于某个或某些槽的所有数据库键进行批量操作。</p>
+<h3 id="重新分片"><a href="#重新分片" class="headerlink" title="重新分片"></a>重新分片</h3><p>Redis集群的重新分片操作可以将任意数量已经指派给某个节点(源节点)的槽改为指派给另一个节点(目的节点)，并且相关槽所属的键值对也会从源节点移动到目的节点。这个过程可以在线进行，在重新分片过程中，集群不需要下线，并且源节点和目的节点都可以继续处理命令请求。<br>Redis的重新分片操作是由Redis的集群管理软件<code>redis-trib</code>负责执行的。迁移过程如下:<br><img src="/assets/img/redis/redis_trib.png" alt="redis-trib"><br>在执行第四步迁移的过程中，如果客户端向源节点发送一个与数据库键有关的命令，那么:</p>
+<ul>
+<li>源节点先在自己数据库里查找指定的键，如果找到就直接执行客户端发送的命令.</li>
+<li>如果没找到，那么这个键可能已经被迁移到了目标节点，源节点向客户端返回一个ASK错误，指引客户端转向正在导入槽的目的节点，并再次发送之前想要执行的命令。<br>当客户端接收到ASK错误并转向正在执行导入槽节点时，客户端会先向节点发送一个<code>ASKING</code>命令，然后才重新发送想要执行的命令。ASKING命令会打开发送客户端的<code>REDIS_ASKING</code>标识。<br>一般情况下如果客户端向节点发送一个关于槽i的命令，如果节点没有这个槽，那么就会返回<code>MOVED</code>，但是如果节点的<code>clusterState.importing_slots_from[i]</code>显示节点正在导入槽i,并且发送命令的客户端带有<code>REDIS_ASKING</code>（通过<code>ASKING</code>命令打开)标识，那么节点将执行这个关于槽i的命令一次</li>
+</ul>
+<p>关于ASK错误与MOVED错误的区别:</p>
+<ul>
+<li>MOVED错误代表槽的负责权已经从一个节点转移到了另一个节点，客户端收到关于槽i的MOVED错误后，每次遇到槽i请求是，都可以直接将命令发送至MOVED错误所指向的节点。</li>
+<li>ASK错误只是两个节点在迁移槽的过程中使用的一种临时措施, 不会影响后面命令的发送。</li>
+</ul>
+<h3 id="复制与故障转移"><a href="#复制与故障转移" class="headerlink" title="复制与故障转移"></a>复制与故障转移</h3><p>Redis集群中的节点分为主节点(master)和从节点(slave),其中主节点用于处理槽，而从节点则用于复制某个主节点，并在被复制的主节点下线时，代替下线主节点继续处理命令请求。设置从节点的命令:<code>CLUSTER REPLICATE &lt;node_id&gt;</code><br>集群中的每个节点都会定期地祥集群中其他节点发送PING消息，以此来检测对方是否在线，如果接收PING消息的节点没有在规定时间内，向发送PING消息的节点返回PONG消息，那么发送PING消息的节点就会将接收PING消息的节点标记位疑似下线(probable fail, PFAIL)。如果一个集群里，半数以上负责处理槽的主节点都将某个主节点X报告为疑似下线，那么这个主节点X将被标记为已下线(FAIL), 将主节点X标记为已下线的节点会向集群广播一条关于主节点X的FAIL消息，所有收到这条FAIL消息的节点都会立即将主节点X标记为下线。<br>当一个从节点发现自己正在复制的主节点进入了已下线状态，从节点将开始对下线主节点进行故障转移，下面是故障转移执行的步骤:</p>
+<ol>
+<li>复制下线主节点的所有从节点里面，会有一个从节点被选中:选举过程和Sentinel差不多。</li>
+<li>被选中的从节点会执行<code>SLAVEOF no one</code>命令，成为新的主节点</li>
+<li>新的主节点会撤销所有对已下线主节点的槽指派，并将这些槽全部指派给自己</li>
+<li>新的主节点向集群广播一条PONG消息，可以让集群中其他节点立即知道这个节点从从节点变为了主节点，并且这个主节点已经接管了原本由已下线主节点负责处理的槽。</li>
+<li>新的主节点开始接收和自己负责处理的槽有关的命令请求，故障转移完成。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>前面主要讲了Redis在多机数据库下的功能特性，其中复制是实现数据备份，数据可靠性的保证。Sentinel实现高可用性的保证。在3.0版本之前的分布式方案都是自己实现的，然后利用Sentinel进行监控。后来Redis自己实现了集群方案，可以用其默认的集群方案来代替之前的自己实现方案。他们之间是相辅相成的，根据自己的需要进行选择。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://www.zhihu.com/question/21419897" target="_blank" rel="noopener">Redis集群方案应该怎么做?</a></li>
+<li><a href="http://rdc.hundsun.com/portal/article/669.html" target="_blank" rel="noopener">如何部署高可用的Redis集群架构</a></li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/redis/">redis</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2017/03/05/The-Design-and-Implementation-of-Redis-2/"><span>Redis设计与实现总结——单机数据库的实现</span></a></h3>
     
   
@@ -1461,127 +1617,6 @@ $rs |   |   |   |   |
     <span class="post-tags">
       <i class="icon-tags"></i>
         <a href="/tags/php/">php</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2015/08/14/mean-primer/"><span>mean primer</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2015/08/14/mean-primer/" rel="bookmark">
-        <time class="entry-date published" datetime="2015-08-14T06:57:05.000Z">
-          2015-08-14
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <h1 id="MEAN入门"><a href="#MEAN入门" class="headerlink" title="MEAN入门"></a>MEAN入门</h1><h2 id="MEAN简介"><a href="#MEAN简介" class="headerlink" title="MEAN简介"></a>MEAN简介</h2><h3 id="什么是MEAN"><a href="#什么是MEAN" class="headerlink" title="什么是MEAN?"></a>什么是MEAN?</h3><p>根据<a href="http://meanjs.org/" target="_blank" rel="noopener">官方文档</a>, MEAN就是MongoDB +  Express +  AngularJS +  Node.js的组合。那么组成MEAN的各个部分又分别是什么? </p>
-<ul>
-<li><code>MongoDB</code>: 是一个基于分布式文件存储的NoSQL数据库。具体介绍和使用方法请参考<a href="http://docs.mongodb.org/manual/core/introduction/" target="_blank" rel="noopener">官方文档</a></li>
-<li><code>Express</code>: 是一个简洁、灵活的Node.js Web应用开发框架。其实和PHP的MVC框架作用是一样的。详细介绍参见<a href="http://expressjs.com/" target="_blank" rel="noopener">官方文档</a></li>
-<li><code>AngularJS</code>: 前端的MVC框架，更接近于 MVVM（Model-View-ViewModel)。具体介绍参考<a href="https://angularjs.org/" target="_blank" rel="noopener">官方文档</a></li>
-<li><code>Node.js</code>: javascript的一个解析器，提供js在服务器端的运行环境。<a href="https://nodejs.org/" target="_blank" rel="noopener">官方网站</a></li>
-</ul>
-<h3 id="为什么是这个组合"><a href="#为什么是这个组合" class="headerlink" title="为什么是这个组合?"></a>为什么是这个组合?</h3><p>大家已经熟悉了LAMP/LNMP的开发模式，这些开发模式已经能够满足了现在web开发的绝大部分需求。而新型的MEAN开发模式则是另外一个尝试,其目的是为了解决现在开发中的一些问题，是开发更加高效。总结起来主要有以下几个优点:</p>
-<ul>
-<li>Web服务器包含在了应用程序中，可以自动安装，部署过程得到了极大简化。</li>
-<li>从传统数据库到NoSQL再到以文档为导向的持久存储MongoDB，使用户花费在编写SQL上的时间减少，有更多的时间编写js中的映射/化简功能。还能节省大量的转换逻辑(因为MongoDB存储的时JSON对象，js可以直接用)</li>
-<li>得益于AngularJS,从传统的服务器端页面变为客户端单页面应用程序越来越方便。</li>
-</ul>
-<blockquote>
-<p>以上内容参考来源:<a href="http://www.ibm.com/developerworks/cn/web/wa-mean1/" target="_blank" rel="noopener">http://www.ibm.com/developerworks/cn/web/wa-mean1/</a></p>
-</blockquote>
-<p>另外，任何开发模式都不是万能的，也就是没有银弹，这种开发模式可以給大家带来很多新的思想,开拓思路,对大家以后应对不同应用场景的需求是提供更多的参考。</p>
-<h2 id="MEAN安装"><a href="#MEAN安装" class="headerlink" title="MEAN安装"></a>MEAN安装</h2><p>MEAN只是一个组合，可以自己单独安装配置各个模块，也有现成的集成方案，如<a href="http://meanjs.org/" target="_blank" rel="noopener">meanjs</a>和<a href="http://mean.io/" target="_blank" rel="noopener">mean.io</a>(关于他们之间的区别可以参考stackoverflow上面的<a href="http://stackoverflow.com/questions/23199392/difference-between-mean-js-and-mean-io" target="_blank" rel="noopener">讨论</a>)。这里我们选择的是meanjs作为开发框架。</p>
-<p>meanjs的安装可以参考<a href="http://meanjs.org/docs.html#getting-started" target="_blank" rel="noopener">官方文档</a>。这里需要提前介绍一下安装时用到的一些工具及安装遇到的问题和解决方案。</p>
-<h3 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h3><ul>
-<li><code>npm</code>: 是Node Package Manage的简称,Node.js的包管理工具,它的主要功能就是管理node包，包括：安装、卸载、更新、查看、搜索、发布等。这个类似于centos系统上的yum工具. 可以通过package.json对npm进行配置。可以访问<a href="https://www.npmjs.com/" target="_blank" rel="noopener">官网</a>查看相关文档，也可以编写自己的npm包提交上去。(安利一下我写的一个很简单的包:<a href="https://www.npmjs.com/package/hexo-tag-plantuml" target="_blank" rel="noopener">https://www.npmjs.com/package/hexo-tag-plantuml</a>)</li>
-<li><code>bower</code>: 也是包管理工具,由twitter推出.他和npm的区别是npm针对服务端的工具进行管理，bower则是主要管理前端页面的js依赖关系。通过bower.json和.bowerrc进行配置.</li>
-<li><code>grunt</code>: 构建javascript的工具,可以自动的完成代码规范的检查，文件合并，文件压缩，单元测试等流程(参考这边文档<a href="http://www.cnblogs.com/chyingp/archive/2013/05/11/grunt_getting_started.html" target="_blank" rel="noopener">grunt从入门到自定义项目模板</a>).详细信息参考<a href="http://gruntjs.com/" target="_blank" rel="noopener">官网</a>。</li>
-</ul>
-<h3 id="安装流程"><a href="#安装流程" class="headerlink" title="安装流程"></a>安装流程</h3><p>这部分上面提到的meanjs官网有详细的步骤，简单概况一下就是:</p>
-<ol>
-<li>安装Node.js&amp;npm, MongoDB, Bower, Grunt等</li>
-<li>下载源码: <code>git clone https://github.com/meanjs/mean.git meanjs</code></li>
-<li><p>进入meanjs目录，执行<code>npm install ; bower install</code>,执行bower使用会出现下面的提示:</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Since bower is a user command, there is no need to execute it with superuser permissions.</span><br><span class="line">If you&apos;re having permission errors when using bower without sudo, please spend a few minutes learning more about how your system should work and make any necessary repairs.</span><br><span class="line"></span><br><span class="line">http://www.joyent.com/blog/installing-node-and-npm</span><br><span class="line">https://gist.github.com/isaacs/579814</span><br><span class="line"></span><br><span class="line">You can however run a command with sudo using --allow-root option</span><br></pre></td></tr></table></figure>
-<p> 需要通过<code>bower install --allow-root</code>命令来执行安装。</p>
-</li>
-</ol>
-<p>只需要这些，一个完成的网站就建成了。meanjs自带了一个博客登陆体系和博客浏览发布的功能。<br>在根目录下运行<code>grunt</code>命令就可以启动服务器了，默认的端口是3000，我们可以通过ip:3000的方式来访问这个网站。</p>
-<h2 id="meanjs结构简介"><a href="#meanjs结构简介" class="headerlink" title="meanjs结构简介"></a>meanjs结构简介</h2><p>首先进入根目录可以看到如下的文件内容:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[@tc_214_162 meanjs]# tree -aL 1</span><br><span class="line">.</span><br><span class="line">├── app                     #后端MVC的内容目录</span><br><span class="line">├── bower.json              #bower配置包管理的文件</span><br><span class="line">├── .bowerrc                #配置安装路径</span><br><span class="line">├── config                  #相关配置目录</span><br><span class="line">├── .csslintrc</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── .editorconfig</span><br><span class="line">├── fig.yml                 </span><br><span class="line">├── .git</span><br><span class="line">├── .gitignore</span><br><span class="line">├── gruntfile.js           #grunt相关配置</span><br><span class="line">├── .jshintrc</span><br><span class="line">├── karma.conf.js</span><br><span class="line">├── LICENSE.md</span><br><span class="line">├── node_modules          #node模块的安装目录</span><br><span class="line">├── package.json          #npm包管理配置</span><br><span class="line">├── Procfile</span><br><span class="line">├── public                #前端内容</span><br><span class="line">├── README.md</span><br><span class="line">├── scripts               #独立脚本目录</span><br><span class="line">├── server.js             #服务运行的入口文件</span><br><span class="line">├── .slugignore</span><br><span class="line">└── .travis.yml</span><br></pre></td></tr></table></figure></p>
-<p>后端MVC的主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">├── controllers    #C层 </span><br><span class="line">├── models         #M层 </span><br><span class="line">├── routes         #路由规则</span><br><span class="line">├── tests</span><br><span class="line">└── views          #V层</span><br></pre></td></tr></table></figure></p>
-<p>前端主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public/</span><br><span class="line">├── application.js        #应用入口</span><br><span class="line">├── config.js             #应用配置</span><br><span class="line">├── humans.txt</span><br><span class="line">├── lib                   #angular相关库文件</span><br><span class="line">├── modules               #angular不同模块</span><br><span class="line">└── robots.txt</span><br></pre></td></tr></table></figure></p>
-<p>angular的模块结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public/modules/</span><br><span class="line">├── articles</span><br><span class="line">│   ├── articles.client.module.js</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers         #angular的C</span><br><span class="line">│   ├── services            #angular的服务层</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views               #V层</span><br><span class="line">├── core</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers</span><br><span class="line">│   ├── core.client.module.js</span><br><span class="line">│   ├── css</span><br><span class="line">│   ├── img</span><br><span class="line">│   ├── services</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views</span><br><span class="line">└── users</span><br><span class="line">    ├── config</span><br><span class="line">    ├── controllers</span><br><span class="line">    ├── css</span><br><span class="line">    ├── img</span><br><span class="line">    ├── services</span><br><span class="line">    ├── tests</span><br><span class="line">    ├── users.client.module.js</span><br><span class="line">    └── views</span><br></pre></td></tr></table></figure></p>
-<p>要相对上面的结构有清晰的了解，必须对熟悉各个模块的用法，还要了解一个页面从访问到展现的流程是怎么样。 下面通过一个页面的访问流程来对整个架构的工作流程有一个大概的认识。</p>
-<h2 id="打开一个页面的流程"><a href="#打开一个页面的流程" class="headerlink" title="打开一个页面的流程"></a>打开一个页面的流程</h2><p>为了便于我们假设你已经注册登录并创建了几篇文章，下面我们就依据对文章列表页的打开流程进行介绍。</p>
-<ol>
-<li><p>首先通过menu进入文章列表页:<code>http://localhost:3000/#!/articles</code>我们可以看到文章的列表。通过观察这个url可以看出，其实<code>#</code>是一个锚点，后台的部分只是hash参数，前面的才是真正的url,也就是我们其实访问的是根目录，通过访问日志也可以看出来:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">GET / 200 26.246 ms - -</span><br><span class="line">GET /modules/core/css/core.css 200 31.710 ms - 354</span><br><span class="line">GET /modules/users/css/users.css 200 26.138 ms - 211</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css 200 41.393 ms - -</span><br><span class="line">GET /lib/angular-resource/angular-resource.js 200 15.583 ms - -</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css 200 81.453 ms - -</span><br><span class="line">GET /lib/angular-animate/angular-animate.js 200 36.241 ms - -</span><br><span class="line">GET /lib/angular-ui-utils/ui-utils.js 200 22.724 ms - -</span><br><span class="line">GET /lib/angular-bootstrap/ui-bootstrap-tpls.js 200 28.636 ms - -</span><br><span class="line">GET /lib/angular-ui-router/release/angular-ui-router.js 200 44.805 ms - -</span><br><span class="line">GET /config.js 200 24.392 ms - 791</span><br><span class="line">GET /application.js 200 37.393 ms - 1016</span><br><span class="line">GET /modules/articles/articles.client.module.js 200 30.888 ms - 133</span><br><span class="line">GET /modules/core/core.client.module.js 200 24.737 ms - 129</span><br><span class="line">GET /modules/users/users.client.module.js 200 18.616 ms - 129</span><br><span class="line">GET /modules/articles/config/articles.client.config.js 200 13.114 ms - 389</span><br><span class="line">GET /lib/angular/angular.js 200 161.376 ms - -</span><br><span class="line">GET /modules/articles/config/articles.client.routes.js 200 36.936 ms - 700</span><br><span class="line">GET /modules/articles/services/articles.client.service.js 200 25.093 ms - 295</span><br><span class="line">GET /modules/core/config/core.client.routes.js 200 19.327 ms - 384</span><br><span class="line">GET /modules/core/controllers/header.client.controller.js 200 13.791 ms - 495</span><br><span class="line">GET /modules/articles/controllers/articles.client.controller.js 200 34.063 ms - -</span><br><span class="line">GET /modules/core/controllers/home.client.controller.js 200 43.584 ms - 224</span><br><span class="line">GET /modules/users/config/users.client.config.js 200 31.473 ms - 708</span><br><span class="line">GET /modules/core/services/menus.client.service.js 200 39.634 ms - -</span><br><span class="line">GET /modules/users/config/users.client.routes.js 200 27.816 ms - -</span><br><span class="line">GET /modules/users/controllers/authentication.client.controller.js 200 22.157 ms - -</span><br><span class="line">GET /modules/users/controllers/password.client.controller.js 200 17.350 ms - -</span><br><span class="line">GET /modules/users/controllers/settings.client.controller.js 200 21.926 ms - -</span><br><span class="line">GET /modules/users/services/authentication.client.service.js 200 15.335 ms - 202</span><br><span class="line">GET /modules/users/services/users.client.service.js 200 9.742 ms - 244</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css.map 200 8.378 ms - 47721</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css.map 200 49.468 ms - 390518</span><br><span class="line">GET /modules/articles/views/list-articles.client.view.html 200 8.756 ms - 819</span><br><span class="line">GET /modules/core/views/header.client.view.html 200 17.955 ms - -</span><br><span class="line">GET /articles 200 24.296 ms - 407</span><br><span class="line">GET /modules/core/img/brand/favicon.ico 200 12.350 ms - 32038</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>请求到达之后首先会根据<code>app/routes</code>目录下面的路由规则进行匹配，<code>app/routes/core.server.routes.js</code>匹配到了这个路由,其内容入下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">module.exports = function(app) &#123;</span><br><span class="line">    // Root routing</span><br><span class="line">    var core = require(&apos;../../app/controllers/core.server.controller&apos;);</span><br><span class="line">    app.route(&apos;/&apos;).get(core.index);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>可以看出这个请求匹配到后交给了<code>core.index</code>进行处理,<code>app/controllers/core.server.controller.js</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">exports.index = function(req, res) &#123;</span><br><span class="line">    res.render(&apos;index&apos;, &#123;</span><br><span class="line">        user: req.user || null,</span><br><span class="line">        request: req</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>index函数并接收到请求后对<code>&#39;index&#39;</code>模板进行了渲染,模板文件<code>app/views/index.server.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &apos;layout.server.view.html&apos; %&#125;</span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    &lt;section data-ui-view&gt;&lt;/section&gt;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这个模板继承了<code>layout</code>模板，并且重写了content的block内容。<br>我们再看一下被继承的模板<code>app/views/layout.server.view.html</code>其主要内容入如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;header data-ng-include=&quot;&apos;/modules/core/views/header.client.view.html&apos;&quot; class=&quot;navbar navbar-fixed-top navbar-inverse&quot;&gt;&lt;/header&gt;</span><br><span class="line">    &lt;section class=&quot;content&quot;&gt;</span><br><span class="line">        &lt;section class=&quot;container&quot;&gt;</span><br><span class="line">            &#123;% block content %&#125;&#123;% endblock %&#125;</span><br><span class="line">        &lt;/section&gt;</span><br><span class="line">    &lt;/section&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Embedding The User Object--&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">        var user = &#123;&#123; user | json | safe &#125;&#125;;</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Application JavaScript Files--&gt;</span><br><span class="line">    &#123;% for jsFile in jsFiles %&#125;</span><br><span class="line">        &lt;script type=&quot;text/javascript&quot; src=&quot;&#123;&#123;jsFile&#125;&#125;&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line">    &#123;% if process.env.NODE_ENV === &apos;development&apos; %&#125;</span><br><span class="line">    &lt;!--Livereload script rendered --&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot; src=&quot;http://&#123;&#123;request.hostname&#125;&#125;:35729/livereload.js&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面的主要功是加载页面所需的js文件，这些文件的配置都在<code>config</code>里。根据上面的访问日志可以看出主要<code>public</code>下的js文件都被加载了。<br>到这里服务端的工作已经完成一半了。</p>
-<ol start="3">
-<li>前端js加载后，angular就开始发挥作用了。angular也是一套MVC框架。在进入流程之前我们再次观察一下URL。我们打开主页时会发现url变成了<code>http://localhost:3000/#!/</code>。为什么url会自动加上这部分内容，又为什么需要加这部分内容呢？<br>根据官方文档<a href="https://docs.angularjs.org/guide/$location" target="_blank" rel="noopener">$locaiton</a> Hashbang and HTML5 Modes部分的介绍,这应该是和浏览器对history支持的兼容性有关系。具体介绍可以看文档。 angualr的路由匹配规则其实是从<code>#!</code>之后开始的。再回到本页，<code>public/modules/articles/config/articles.client.routes.js</code>匹配到了当前规则代码如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state(&apos;listArticles&apos;, &#123;</span><br><span class="line">url: &apos;/articles&apos;,</span><br><span class="line">templateUrl: &apos;modules/articles/views/list-articles.client.view.html&apos;</span><br><span class="line">&#125;).</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>可以看出当匹配时，angualr会自动加载<code>templateUrl</code>到页面片上来，在观察一下被加载的页面片<code>public/modules/articles/views/list-articles.client.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;section data-ng-controller=&quot;ArticlesController&quot; data-ng-init=&quot;find()&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;page-header&quot;&gt;</span><br><span class="line">        &lt;h1&gt;Articles&lt;/h1&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;list-group&quot;&gt;</span><br><span class="line">        &lt;a data-ng-repeat=&quot;article in articles&quot; data-ng-href=&quot;#!/articles/&#123;&#123;article._id&#125;&#125;&quot; class=&quot;list-group-item&quot;&gt;</span><br><span class="line">            &lt;small class=&quot;list-group-item-text&quot;&gt;</span><br><span class="line">                Posted on</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.created | date:&apos;mediumDate&apos;&quot;&gt;&lt;/span&gt;</span><br><span class="line">                by</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.user.displayName&quot;&gt;&lt;/span&gt;</span><br><span class="line">            &lt;/small&gt;</span><br><span class="line">            &lt;h4 class=&quot;list-group-item-heading&quot; data-ng-bind=&quot;article.title&quot;&gt;&lt;/h4&gt;</span><br><span class="line">            &lt;p class=&quot;list-group-item-text&quot; data-ng-bind=&quot;article.content&quot;&gt;&lt;/p&gt;</span><br><span class="line">        &lt;/a&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;alert alert-warning text-center&quot; data-ng-if=&quot;articles.$resolved &amp;&amp; !articles.length&quot;&gt;</span><br><span class="line">        No articles yet, why don&apos;t you &lt;a href=&quot;/#!/articles/create&quot;&gt;create one&lt;/a&gt;?</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure></p>
-<p>页面加载后执行<code>find()</code>函数，这个函数在控制层文件<code>public/modules/articles/controllers/articles.client.controller.js</code>里可以看到:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$scope.find = function() &#123;</span><br><span class="line">    $scope.articles = Articles.query();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>这个函数调用了<code>Articels.query()</code>方法，这个方法是Angualr的一个注册的service(参考文档<a href="https://docs.angularjs.org/guide/services" target="_blank" rel="noopener">Services</a>), 位于文件<code>public/modules/articles/services/articles.client.service.js</code>中，代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//Articles service used for communicating with the articles REST endpoints</span><br><span class="line">angular.module(&apos;articles&apos;).factory(&apos;Articles&apos;, [&apos;$resource&apos;,</span><br><span class="line">    function($resource) &#123;</span><br><span class="line">        return $resource(&apos;articles/:articleId&apos;, &#123;</span><br><span class="line">            articleId: &apos;@_id&apos;</span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            update: &#123;</span><br><span class="line">                method: &apos;PUT&apos;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure></p>
-<p>看到并没有定义<code>query</code>方法,是因为这方法是<code>$resource</code>默认的(参考<a href="https://docs.angularjs.org/api/ngResource/service/$resource" target="_blank" rel="noopener">$resource</a>),代码中<code>articleId</code>是参数，本次查询并没有传递参数，所以实际访问的url是<code>/articles</code>,这个是一个RESTful接口，返回的结果赋值給<code>$scope.articles</code>,就可以在前端正常展示文章列表了。</p>
-<ol start="4">
-<li>第3步的最后提到了访问<code>/articles</code>接口，这个接口的作用就是从数据库取数据然后在返回到前端。当访问接口时，服务器接到请求,文件<code>app/routes/articles.server.routes.js</code>匹配到路由规则：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.route(&apos;/articles&apos;)</span><br><span class="line">    .get(articles.list)</span><br><span class="line">    .post(users.requiresLogin, articles.create);</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>由于是get方法，所以需求转给了<code>articles.list</code>方法进行处理，<code>app/controllers/articles.server.controller.js</code>中<code>list</code>方法代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">exports.list = function(req, res) &#123;</span><br><span class="line">    Article.find().sort(&apos;-created&apos;).populate(&apos;user&apos;, &apos;displayName&apos;).exec(function(err, articles) &#123;</span><br><span class="line">        if (err) &#123;</span><br><span class="line">            return res.status(400).send(&#123;</span><br><span class="line">                message: errorHandler.getErrorMessage(err)</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            res.json(articles);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>其中<code>Articles</code>这个对象是这个文件前面定义的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Article = mongoose.model(&apos;Article&apos;)</span><br></pre></td></tr></table></figure></p>
-<p>其中<code>mongoose</code>是MongoDB的一个js封装库,这个module是在<code>app/models/article.server.model.js</code>下定义并注册的，代码如下:  </p>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">var mongoose = require(&apos;mongoose&apos;),</span><br><span class="line">    Schema = mongoose.Schema;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Article Schema</span><br><span class="line"> */</span><br><span class="line">var ArticleSchema = new Schema(&#123;</span><br><span class="line">    created: &#123;</span><br><span class="line">        type: Date,</span><br><span class="line">        default: Date.now</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true,</span><br><span class="line">        required: &apos;Title cannot be blank&apos;</span><br><span class="line">    &#125;,</span><br><span class="line">    content: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true</span><br><span class="line">    &#125;,</span><br><span class="line">    user: &#123;</span><br><span class="line">        type: Schema.ObjectId,</span><br><span class="line">        ref: &apos;User&apos;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">mongoose.model(&apos;Article&apos;, ArticleSchema);</span><br></pre></td></tr></table></figure>
-</code></pre><p>到这里，整个页面从访问到处理到返回数据和渲染页面的流程就完毕了。</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/MEAN/">MEAN</a><a href="/tags/angularjs/">angularjs</a><a href="/tags/express/">express</a><a href="/tags/nodejs/">nodejs</a><a href="/tags/moongodb/">moongodb</a>
     </span>
     
 

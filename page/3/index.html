@@ -67,6 +67,127 @@
 
   
     
+    <h3 class="article-title"><a href="/2015/08/14/mean-primer/"><span>mean primer</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/08/14/mean-primer/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-08-14T06:57:05.000Z">
+          2015-08-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h1 id="MEAN入门"><a href="#MEAN入门" class="headerlink" title="MEAN入门"></a>MEAN入门</h1><h2 id="MEAN简介"><a href="#MEAN简介" class="headerlink" title="MEAN简介"></a>MEAN简介</h2><h3 id="什么是MEAN"><a href="#什么是MEAN" class="headerlink" title="什么是MEAN?"></a>什么是MEAN?</h3><p>根据<a href="http://meanjs.org/" target="_blank" rel="noopener">官方文档</a>, MEAN就是MongoDB +  Express +  AngularJS +  Node.js的组合。那么组成MEAN的各个部分又分别是什么? </p>
+<ul>
+<li><code>MongoDB</code>: 是一个基于分布式文件存储的NoSQL数据库。具体介绍和使用方法请参考<a href="http://docs.mongodb.org/manual/core/introduction/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>Express</code>: 是一个简洁、灵活的Node.js Web应用开发框架。其实和PHP的MVC框架作用是一样的。详细介绍参见<a href="http://expressjs.com/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>AngularJS</code>: 前端的MVC框架，更接近于 MVVM（Model-View-ViewModel)。具体介绍参考<a href="https://angularjs.org/" target="_blank" rel="noopener">官方文档</a></li>
+<li><code>Node.js</code>: javascript的一个解析器，提供js在服务器端的运行环境。<a href="https://nodejs.org/" target="_blank" rel="noopener">官方网站</a></li>
+</ul>
+<h3 id="为什么是这个组合"><a href="#为什么是这个组合" class="headerlink" title="为什么是这个组合?"></a>为什么是这个组合?</h3><p>大家已经熟悉了LAMP/LNMP的开发模式，这些开发模式已经能够满足了现在web开发的绝大部分需求。而新型的MEAN开发模式则是另外一个尝试,其目的是为了解决现在开发中的一些问题，是开发更加高效。总结起来主要有以下几个优点:</p>
+<ul>
+<li>Web服务器包含在了应用程序中，可以自动安装，部署过程得到了极大简化。</li>
+<li>从传统数据库到NoSQL再到以文档为导向的持久存储MongoDB，使用户花费在编写SQL上的时间减少，有更多的时间编写js中的映射/化简功能。还能节省大量的转换逻辑(因为MongoDB存储的时JSON对象，js可以直接用)</li>
+<li>得益于AngularJS,从传统的服务器端页面变为客户端单页面应用程序越来越方便。</li>
+</ul>
+<blockquote>
+<p>以上内容参考来源:<a href="http://www.ibm.com/developerworks/cn/web/wa-mean1/" target="_blank" rel="noopener">http://www.ibm.com/developerworks/cn/web/wa-mean1/</a></p>
+</blockquote>
+<p>另外，任何开发模式都不是万能的，也就是没有银弹，这种开发模式可以給大家带来很多新的思想,开拓思路,对大家以后应对不同应用场景的需求是提供更多的参考。</p>
+<h2 id="MEAN安装"><a href="#MEAN安装" class="headerlink" title="MEAN安装"></a>MEAN安装</h2><p>MEAN只是一个组合，可以自己单独安装配置各个模块，也有现成的集成方案，如<a href="http://meanjs.org/" target="_blank" rel="noopener">meanjs</a>和<a href="http://mean.io/" target="_blank" rel="noopener">mean.io</a>(关于他们之间的区别可以参考stackoverflow上面的<a href="http://stackoverflow.com/questions/23199392/difference-between-mean-js-and-mean-io" target="_blank" rel="noopener">讨论</a>)。这里我们选择的是meanjs作为开发框架。</p>
+<p>meanjs的安装可以参考<a href="http://meanjs.org/docs.html#getting-started" target="_blank" rel="noopener">官方文档</a>。这里需要提前介绍一下安装时用到的一些工具及安装遇到的问题和解决方案。</p>
+<h3 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h3><ul>
+<li><code>npm</code>: 是Node Package Manage的简称,Node.js的包管理工具,它的主要功能就是管理node包，包括：安装、卸载、更新、查看、搜索、发布等。这个类似于centos系统上的yum工具. 可以通过package.json对npm进行配置。可以访问<a href="https://www.npmjs.com/" target="_blank" rel="noopener">官网</a>查看相关文档，也可以编写自己的npm包提交上去。(安利一下我写的一个很简单的包:<a href="https://www.npmjs.com/package/hexo-tag-plantuml" target="_blank" rel="noopener">https://www.npmjs.com/package/hexo-tag-plantuml</a>)</li>
+<li><code>bower</code>: 也是包管理工具,由twitter推出.他和npm的区别是npm针对服务端的工具进行管理，bower则是主要管理前端页面的js依赖关系。通过bower.json和.bowerrc进行配置.</li>
+<li><code>grunt</code>: 构建javascript的工具,可以自动的完成代码规范的检查，文件合并，文件压缩，单元测试等流程(参考这边文档<a href="http://www.cnblogs.com/chyingp/archive/2013/05/11/grunt_getting_started.html" target="_blank" rel="noopener">grunt从入门到自定义项目模板</a>).详细信息参考<a href="http://gruntjs.com/" target="_blank" rel="noopener">官网</a>。</li>
+</ul>
+<h3 id="安装流程"><a href="#安装流程" class="headerlink" title="安装流程"></a>安装流程</h3><p>这部分上面提到的meanjs官网有详细的步骤，简单概况一下就是:</p>
+<ol>
+<li>安装Node.js&amp;npm, MongoDB, Bower, Grunt等</li>
+<li>下载源码: <code>git clone https://github.com/meanjs/mean.git meanjs</code></li>
+<li><p>进入meanjs目录，执行<code>npm install ; bower install</code>,执行bower使用会出现下面的提示:</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Since bower is a user command, there is no need to execute it with superuser permissions.</span><br><span class="line">If you&apos;re having permission errors when using bower without sudo, please spend a few minutes learning more about how your system should work and make any necessary repairs.</span><br><span class="line"></span><br><span class="line">http://www.joyent.com/blog/installing-node-and-npm</span><br><span class="line">https://gist.github.com/isaacs/579814</span><br><span class="line"></span><br><span class="line">You can however run a command with sudo using --allow-root option</span><br></pre></td></tr></table></figure>
+<p> 需要通过<code>bower install --allow-root</code>命令来执行安装。</p>
+</li>
+</ol>
+<p>只需要这些，一个完成的网站就建成了。meanjs自带了一个博客登陆体系和博客浏览发布的功能。<br>在根目录下运行<code>grunt</code>命令就可以启动服务器了，默认的端口是3000，我们可以通过ip:3000的方式来访问这个网站。</p>
+<h2 id="meanjs结构简介"><a href="#meanjs结构简介" class="headerlink" title="meanjs结构简介"></a>meanjs结构简介</h2><p>首先进入根目录可以看到如下的文件内容:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[@tc_214_162 meanjs]# tree -aL 1</span><br><span class="line">.</span><br><span class="line">├── app                     #后端MVC的内容目录</span><br><span class="line">├── bower.json              #bower配置包管理的文件</span><br><span class="line">├── .bowerrc                #配置安装路径</span><br><span class="line">├── config                  #相关配置目录</span><br><span class="line">├── .csslintrc</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── .editorconfig</span><br><span class="line">├── fig.yml                 </span><br><span class="line">├── .git</span><br><span class="line">├── .gitignore</span><br><span class="line">├── gruntfile.js           #grunt相关配置</span><br><span class="line">├── .jshintrc</span><br><span class="line">├── karma.conf.js</span><br><span class="line">├── LICENSE.md</span><br><span class="line">├── node_modules          #node模块的安装目录</span><br><span class="line">├── package.json          #npm包管理配置</span><br><span class="line">├── Procfile</span><br><span class="line">├── public                #前端内容</span><br><span class="line">├── README.md</span><br><span class="line">├── scripts               #独立脚本目录</span><br><span class="line">├── server.js             #服务运行的入口文件</span><br><span class="line">├── .slugignore</span><br><span class="line">└── .travis.yml</span><br></pre></td></tr></table></figure></p>
+<p>后端MVC的主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">├── controllers    #C层 </span><br><span class="line">├── models         #M层 </span><br><span class="line">├── routes         #路由规则</span><br><span class="line">├── tests</span><br><span class="line">└── views          #V层</span><br></pre></td></tr></table></figure></p>
+<p>前端主要结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public/</span><br><span class="line">├── application.js        #应用入口</span><br><span class="line">├── config.js             #应用配置</span><br><span class="line">├── humans.txt</span><br><span class="line">├── lib                   #angular相关库文件</span><br><span class="line">├── modules               #angular不同模块</span><br><span class="line">└── robots.txt</span><br></pre></td></tr></table></figure></p>
+<p>angular的模块结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public/modules/</span><br><span class="line">├── articles</span><br><span class="line">│   ├── articles.client.module.js</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers         #angular的C</span><br><span class="line">│   ├── services            #angular的服务层</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views               #V层</span><br><span class="line">├── core</span><br><span class="line">│   ├── config</span><br><span class="line">│   ├── controllers</span><br><span class="line">│   ├── core.client.module.js</span><br><span class="line">│   ├── css</span><br><span class="line">│   ├── img</span><br><span class="line">│   ├── services</span><br><span class="line">│   ├── tests</span><br><span class="line">│   └── views</span><br><span class="line">└── users</span><br><span class="line">    ├── config</span><br><span class="line">    ├── controllers</span><br><span class="line">    ├── css</span><br><span class="line">    ├── img</span><br><span class="line">    ├── services</span><br><span class="line">    ├── tests</span><br><span class="line">    ├── users.client.module.js</span><br><span class="line">    └── views</span><br></pre></td></tr></table></figure></p>
+<p>要相对上面的结构有清晰的了解，必须对熟悉各个模块的用法，还要了解一个页面从访问到展现的流程是怎么样。 下面通过一个页面的访问流程来对整个架构的工作流程有一个大概的认识。</p>
+<h2 id="打开一个页面的流程"><a href="#打开一个页面的流程" class="headerlink" title="打开一个页面的流程"></a>打开一个页面的流程</h2><p>为了便于我们假设你已经注册登录并创建了几篇文章，下面我们就依据对文章列表页的打开流程进行介绍。</p>
+<ol>
+<li><p>首先通过menu进入文章列表页:<code>http://localhost:3000/#!/articles</code>我们可以看到文章的列表。通过观察这个url可以看出，其实<code>#</code>是一个锚点，后台的部分只是hash参数，前面的才是真正的url,也就是我们其实访问的是根目录，通过访问日志也可以看出来:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">GET / 200 26.246 ms - -</span><br><span class="line">GET /modules/core/css/core.css 200 31.710 ms - 354</span><br><span class="line">GET /modules/users/css/users.css 200 26.138 ms - 211</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css 200 41.393 ms - -</span><br><span class="line">GET /lib/angular-resource/angular-resource.js 200 15.583 ms - -</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css 200 81.453 ms - -</span><br><span class="line">GET /lib/angular-animate/angular-animate.js 200 36.241 ms - -</span><br><span class="line">GET /lib/angular-ui-utils/ui-utils.js 200 22.724 ms - -</span><br><span class="line">GET /lib/angular-bootstrap/ui-bootstrap-tpls.js 200 28.636 ms - -</span><br><span class="line">GET /lib/angular-ui-router/release/angular-ui-router.js 200 44.805 ms - -</span><br><span class="line">GET /config.js 200 24.392 ms - 791</span><br><span class="line">GET /application.js 200 37.393 ms - 1016</span><br><span class="line">GET /modules/articles/articles.client.module.js 200 30.888 ms - 133</span><br><span class="line">GET /modules/core/core.client.module.js 200 24.737 ms - 129</span><br><span class="line">GET /modules/users/users.client.module.js 200 18.616 ms - 129</span><br><span class="line">GET /modules/articles/config/articles.client.config.js 200 13.114 ms - 389</span><br><span class="line">GET /lib/angular/angular.js 200 161.376 ms - -</span><br><span class="line">GET /modules/articles/config/articles.client.routes.js 200 36.936 ms - 700</span><br><span class="line">GET /modules/articles/services/articles.client.service.js 200 25.093 ms - 295</span><br><span class="line">GET /modules/core/config/core.client.routes.js 200 19.327 ms - 384</span><br><span class="line">GET /modules/core/controllers/header.client.controller.js 200 13.791 ms - 495</span><br><span class="line">GET /modules/articles/controllers/articles.client.controller.js 200 34.063 ms - -</span><br><span class="line">GET /modules/core/controllers/home.client.controller.js 200 43.584 ms - 224</span><br><span class="line">GET /modules/users/config/users.client.config.js 200 31.473 ms - 708</span><br><span class="line">GET /modules/core/services/menus.client.service.js 200 39.634 ms - -</span><br><span class="line">GET /modules/users/config/users.client.routes.js 200 27.816 ms - -</span><br><span class="line">GET /modules/users/controllers/authentication.client.controller.js 200 22.157 ms - -</span><br><span class="line">GET /modules/users/controllers/password.client.controller.js 200 17.350 ms - -</span><br><span class="line">GET /modules/users/controllers/settings.client.controller.js 200 21.926 ms - -</span><br><span class="line">GET /modules/users/services/authentication.client.service.js 200 15.335 ms - 202</span><br><span class="line">GET /modules/users/services/users.client.service.js 200 9.742 ms - 244</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap-theme.css.map 200 8.378 ms - 47721</span><br><span class="line">GET /lib/bootstrap/dist/css/bootstrap.css.map 200 49.468 ms - 390518</span><br><span class="line">GET /modules/articles/views/list-articles.client.view.html 200 8.756 ms - 819</span><br><span class="line">GET /modules/core/views/header.client.view.html 200 17.955 ms - -</span><br><span class="line">GET /articles 200 24.296 ms - 407</span><br><span class="line">GET /modules/core/img/brand/favicon.ico 200 12.350 ms - 32038</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>请求到达之后首先会根据<code>app/routes</code>目录下面的路由规则进行匹配，<code>app/routes/core.server.routes.js</code>匹配到了这个路由,其内容入下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">module.exports = function(app) &#123;</span><br><span class="line">    // Root routing</span><br><span class="line">    var core = require(&apos;../../app/controllers/core.server.controller&apos;);</span><br><span class="line">    app.route(&apos;/&apos;).get(core.index);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以看出这个请求匹配到后交给了<code>core.index</code>进行处理,<code>app/controllers/core.server.controller.js</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">exports.index = function(req, res) &#123;</span><br><span class="line">    res.render(&apos;index&apos;, &#123;</span><br><span class="line">        user: req.user || null,</span><br><span class="line">        request: req</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>index函数并接收到请求后对<code>&#39;index&#39;</code>模板进行了渲染,模板文件<code>app/views/index.server.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &apos;layout.server.view.html&apos; %&#125;</span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    &lt;section data-ui-view&gt;&lt;/section&gt;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个模板继承了<code>layout</code>模板，并且重写了content的block内容。<br>我们再看一下被继承的模板<code>app/views/layout.server.view.html</code>其主要内容入如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;header data-ng-include=&quot;&apos;/modules/core/views/header.client.view.html&apos;&quot; class=&quot;navbar navbar-fixed-top navbar-inverse&quot;&gt;&lt;/header&gt;</span><br><span class="line">    &lt;section class=&quot;content&quot;&gt;</span><br><span class="line">        &lt;section class=&quot;container&quot;&gt;</span><br><span class="line">            &#123;% block content %&#125;&#123;% endblock %&#125;</span><br><span class="line">        &lt;/section&gt;</span><br><span class="line">    &lt;/section&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Embedding The User Object--&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">        var user = &#123;&#123; user | json | safe &#125;&#125;;</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--Application JavaScript Files--&gt;</span><br><span class="line">    &#123;% for jsFile in jsFiles %&#125;</span><br><span class="line">        &lt;script type=&quot;text/javascript&quot; src=&quot;&#123;&#123;jsFile&#125;&#125;&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line">    &#123;% if process.env.NODE_ENV === &apos;development&apos; %&#125;</span><br><span class="line">    &lt;!--Livereload script rendered --&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot; src=&quot;http://&#123;&#123;request.hostname&#125;&#125;:35729/livereload.js&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面的主要功是加载页面所需的js文件，这些文件的配置都在<code>config</code>里。根据上面的访问日志可以看出主要<code>public</code>下的js文件都被加载了。<br>到这里服务端的工作已经完成一半了。</p>
+<ol start="3">
+<li>前端js加载后，angular就开始发挥作用了。angular也是一套MVC框架。在进入流程之前我们再次观察一下URL。我们打开主页时会发现url变成了<code>http://localhost:3000/#!/</code>。为什么url会自动加上这部分内容，又为什么需要加这部分内容呢？<br>根据官方文档<a href="https://docs.angularjs.org/guide/$location" target="_blank" rel="noopener">$locaiton</a> Hashbang and HTML5 Modes部分的介绍,这应该是和浏览器对history支持的兼容性有关系。具体介绍可以看文档。 angualr的路由匹配规则其实是从<code>#!</code>之后开始的。再回到本页，<code>public/modules/articles/config/articles.client.routes.js</code>匹配到了当前规则代码如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state(&apos;listArticles&apos;, &#123;</span><br><span class="line">url: &apos;/articles&apos;,</span><br><span class="line">templateUrl: &apos;modules/articles/views/list-articles.client.view.html&apos;</span><br><span class="line">&#125;).</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以看出当匹配时，angualr会自动加载<code>templateUrl</code>到页面片上来，在观察一下被加载的页面片<code>public/modules/articles/views/list-articles.client.view.html</code>内容如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;section data-ng-controller=&quot;ArticlesController&quot; data-ng-init=&quot;find()&quot;&gt;</span><br><span class="line">    &lt;div class=&quot;page-header&quot;&gt;</span><br><span class="line">        &lt;h1&gt;Articles&lt;/h1&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;list-group&quot;&gt;</span><br><span class="line">        &lt;a data-ng-repeat=&quot;article in articles&quot; data-ng-href=&quot;#!/articles/&#123;&#123;article._id&#125;&#125;&quot; class=&quot;list-group-item&quot;&gt;</span><br><span class="line">            &lt;small class=&quot;list-group-item-text&quot;&gt;</span><br><span class="line">                Posted on</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.created | date:&apos;mediumDate&apos;&quot;&gt;&lt;/span&gt;</span><br><span class="line">                by</span><br><span class="line">                &lt;span data-ng-bind=&quot;article.user.displayName&quot;&gt;&lt;/span&gt;</span><br><span class="line">            &lt;/small&gt;</span><br><span class="line">            &lt;h4 class=&quot;list-group-item-heading&quot; data-ng-bind=&quot;article.title&quot;&gt;&lt;/h4&gt;</span><br><span class="line">            &lt;p class=&quot;list-group-item-text&quot; data-ng-bind=&quot;article.content&quot;&gt;&lt;/p&gt;</span><br><span class="line">        &lt;/a&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;div class=&quot;alert alert-warning text-center&quot; data-ng-if=&quot;articles.$resolved &amp;&amp; !articles.length&quot;&gt;</span><br><span class="line">        No articles yet, why don&apos;t you &lt;a href=&quot;/#!/articles/create&quot;&gt;create one&lt;/a&gt;?</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">&lt;/section&gt;</span><br></pre></td></tr></table></figure></p>
+<p>页面加载后执行<code>find()</code>函数，这个函数在控制层文件<code>public/modules/articles/controllers/articles.client.controller.js</code>里可以看到:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$scope.find = function() &#123;</span><br><span class="line">    $scope.articles = Articles.query();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数调用了<code>Articels.query()</code>方法，这个方法是Angualr的一个注册的service(参考文档<a href="https://docs.angularjs.org/guide/services" target="_blank" rel="noopener">Services</a>), 位于文件<code>public/modules/articles/services/articles.client.service.js</code>中，代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//Articles service used for communicating with the articles REST endpoints</span><br><span class="line">angular.module(&apos;articles&apos;).factory(&apos;Articles&apos;, [&apos;$resource&apos;,</span><br><span class="line">    function($resource) &#123;</span><br><span class="line">        return $resource(&apos;articles/:articleId&apos;, &#123;</span><br><span class="line">            articleId: &apos;@_id&apos;</span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            update: &#123;</span><br><span class="line">                method: &apos;PUT&apos;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure></p>
+<p>看到并没有定义<code>query</code>方法,是因为这方法是<code>$resource</code>默认的(参考<a href="https://docs.angularjs.org/api/ngResource/service/$resource" target="_blank" rel="noopener">$resource</a>),代码中<code>articleId</code>是参数，本次查询并没有传递参数，所以实际访问的url是<code>/articles</code>,这个是一个RESTful接口，返回的结果赋值給<code>$scope.articles</code>,就可以在前端正常展示文章列表了。</p>
+<ol start="4">
+<li>第3步的最后提到了访问<code>/articles</code>接口，这个接口的作用就是从数据库取数据然后在返回到前端。当访问接口时，服务器接到请求,文件<code>app/routes/articles.server.routes.js</code>匹配到路由规则：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.route(&apos;/articles&apos;)</span><br><span class="line">    .get(articles.list)</span><br><span class="line">    .post(users.requiresLogin, articles.create);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>由于是get方法，所以需求转给了<code>articles.list</code>方法进行处理，<code>app/controllers/articles.server.controller.js</code>中<code>list</code>方法代码如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">exports.list = function(req, res) &#123;</span><br><span class="line">    Article.find().sort(&apos;-created&apos;).populate(&apos;user&apos;, &apos;displayName&apos;).exec(function(err, articles) &#123;</span><br><span class="line">        if (err) &#123;</span><br><span class="line">            return res.status(400).send(&#123;</span><br><span class="line">                message: errorHandler.getErrorMessage(err)</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            res.json(articles);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>Articles</code>这个对象是这个文件前面定义的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Article = mongoose.model(&apos;Article&apos;)</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>mongoose</code>是MongoDB的一个js封装库,这个module是在<code>app/models/article.server.model.js</code>下定义并注册的，代码如下:  </p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">var mongoose = require(&apos;mongoose&apos;),</span><br><span class="line">    Schema = mongoose.Schema;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Article Schema</span><br><span class="line"> */</span><br><span class="line">var ArticleSchema = new Schema(&#123;</span><br><span class="line">    created: &#123;</span><br><span class="line">        type: Date,</span><br><span class="line">        default: Date.now</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true,</span><br><span class="line">        required: &apos;Title cannot be blank&apos;</span><br><span class="line">    &#125;,</span><br><span class="line">    content: &#123;</span><br><span class="line">        type: String,</span><br><span class="line">        default: &apos;&apos;,</span><br><span class="line">        trim: true</span><br><span class="line">    &#125;,</span><br><span class="line">    user: &#123;</span><br><span class="line">        type: Schema.ObjectId,</span><br><span class="line">        ref: &apos;User&apos;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">mongoose.model(&apos;Article&apos;, ArticleSchema);</span><br></pre></td></tr></table></figure>
+</code></pre><p>到这里，整个页面从访问到处理到返回数据和渲染页面的流程就完毕了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/MEAN/">MEAN</a><a href="/tags/angularjs/">angularjs</a><a href="/tags/express/">express</a><a href="/tags/nodejs/">nodejs</a><a href="/tags/moongodb/">moongodb</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2015/05/28/http-cache/"><span>HTTP缓存机制</span></a></h3>
     
   
@@ -842,170 +963,6 @@
 </tr>
 </tbody>
 </table>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/CSAPP/">CSAPP</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/05/21/csapp-chapter7/"><span>csapp chapter7:链接</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/05/21/csapp-chapter7/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-05-20T16:00:00.000Z">
-          2014-05-21
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>链接(linking)是将各种代码和数据部分收集起来并组合成为一个单一文件的过程，这个文件可以被加载（或拷贝）到存储器并执行。链接可以执行于编译时（compile time）,也就是在源代码被翻译成为机器代码时；也可以执行于加载时（load time），也就是在程序被加载器（loader）加载到存储器并执行时；甚至执行于运行时(rum time),由应用程序来执行。</p>
-</blockquote>
-<p>链接器使得分离编译(separate compilation)成为可能。本章将讨论从传统静态链接到加载时的共享库的动态链接，以及到运行时的共享库的动态链接。</p>
-<h2 id="编译器驱动程序"><a href="#编译器驱动程序" class="headerlink" title="编译器驱动程序"></a>编译器驱动程序</h2><p>通过一个例子来说明一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># main.c</span><br><span class="line">void swap();</span><br><span class="line">int buf[2] = &#123;1, 2&#125;;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    swap();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># swap.c</span><br><span class="line">extern int buf[];</span><br><span class="line">int *bufp0 = &amp;uf[0];</span><br><span class="line">int *bufp1;</span><br><span class="line"></span><br><span class="line">void swap()</span><br><span class="line">&#123;</span><br><span class="line">    int temp;</span><br><span class="line">    bufp1 = &amp;buf[1];</span><br><span class="line">    temp = *bufp0;</span><br><span class="line">    *bufp0 = *bufp1;</span><br><span class="line">    *bufp1 = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>大多数系统提供<em>编译驱动程序(compiler driver)</em>,它代表用户在需要时调用语言预处理器，编译器，汇编器和链接器。<br>运行<code>gcc main.c swap.c -o p</code>命令都发生了什么？</p>
-<ol>
-<li>预处理器先将<code>main.c</code>和<code>swap.c</code>翻译成一个ASCII码的中间文件<code>main.i</code>和<code>swap.i</code></li>
-<li>C编译器将<code>main.i</code>和<code>swap.i</code>翻译成ASCII汇编语言文件<code>main.s</code>和<code>swap.s</code></li>
-<li>汇编器将<code>main,s</code>和<code>swap.s</code>翻译成<em>可重定定位的目标文件</em><code>main.o</code>和<code>swap.o</code></li>
-<li>连接器程序ld将<code>main.o</code>和<code>swap.o</code>以及一些必要的系统目标文件组合起来，创建<em>可执行目标文件</em>p</li>
-</ol>
-<p>生产了可执行文件，可以通过过<code>./p</code>来运行，这是由外壳调用操作系统一个叫做<em>加载器</em>的函数,它拷贝可执行文件<code>p</code>中的代码和数据到存储器，然后将控制转移到这个程序的开头。</p>
-<p>本章主要讲的是第4步的内容。</p>
-<h2 id="静态链接"><a href="#静态链接" class="headerlink" title="静态链接"></a>静态链接</h2><p>将一组可重定位目标文件和命令行参数作为输入，生成一个完全链接的可以加载和运行的可执行目标文件作为输出。完成这种功能的是静态连接器，为了构造可执行文件，连接器必须完成两个主要任务：</p>
-<ul>
-<li><em>符号解析</em>(symbol resolution):目标文件定义和引用符号。符号解析的目的是将每个符号引用刚好和一个符号定义联系起来。</li>
-<li><em>重定位</em>(relocation):编译器和汇编器生成从地址0开始的代码和数据节。链接器通过把每个符号定义与一个存储器位置联系起来，然后修改所有对这些符号的引用，使得它们指向这个存储器位置，从而重定为这些节。</li>
-</ul>
-<h2 id="目标文件"><a href="#目标文件" class="headerlink" title="目标文件"></a>目标文件</h2><p>目标文件可以分为三种形式：</p>
-<ul>
-<li><em>可重定位目标文件</em>。包含二进制代码和数据，其形式可以在编译时与其他可重定位目标文件合并起来，创建一个可执行目标文件。</li>
-<li><em>可执行目标文件</em> 包含二进制代码和数据，其形式可以被直接拷贝到存储器链接并执行。</li>
-<li><em>共享目标文件</em>：一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到存储器这并连接。</li>
-</ul>
-<h2 id="可重定位目标文件"><a href="#可重定位目标文件" class="headerlink" title="可重定位目标文件"></a>可重定位目标文件</h2><p>一个典型的可重定位目标文件(ELF)的格式如下：<br><img src="/assets/img/csapp/fig7.3.png" alt>  </p>
-<ul>
-<li>ELF头：包含生成该文件的系统的字的大小和字节顺序，以及帮助连接器分析和解释的目标文件的信息。</li>
-<li>.text: 已编译程序的机器代码</li>
-<li>.rodata: 只读数据，比如printf语句中的格式串和开关语句的跳转表</li>
-<li>.data: <em>已初始化的全局C变量</em>。局部C变量在运行时保存在栈中。</li>
-<li>.bass: <em>未初始化的全局C变量</em>。它仅仅是一个占位符，不占用磁盘空间。</li>
-<li>.symtab: 一个<em>符号表</em>。它存放在程序中定义和引用的函数和全局变量的信息。</li>
-<li>.rel.text: 一个.text节中位置的列表，当连接器把这个目标文件和其他文件结合时，需要修改这些位置。</li>
-<li>.rel.data: 被模块引用或定义的任何全局变量和重定位信息。</li>
-<li>.debug: 一个调试符号表。</li>
-<li>.line: 原始C源程序中的行号和.text节中机器指令之间的映射。</li>
-<li>.strtab:一个字符串表，其内容包括.symtab和.debug节中的符号表，及节头部中的节名字。<br>其中，每个部分都称为节**</li>
-</ul>
-<h2 id="符号和符号表-symtab"><a href="#符号和符号表-symtab" class="headerlink" title="符号和符号表(.symtab)"></a>符号和符号表(.symtab)</h2><p>链接器的上下文中有三种不同的符号：</p>
-<ul>
-<li>由m定义并能被其他模块引用的全局符号。对应C语言中具有文件作用域并具有外部链接的变量</li>
-<li>由其他模块定义并被模块m引用的全局符号。对应C语言中的变量与上面一样，并在本文件中用external声明</li>
-<li>只被模块m定义和引用的本地符号。对应C语言中具有文件作用域但是具有内部链接的变量，如被static声明的全局变量。</li>
-</ul>
-<p>符号表包含一个数组，每个元素的结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">    int name; //字符串表(strtab)中的字节偏移。</span><br><span class="line">    int value; //符号地址，是距定义目标的节的起始位置的偏移。对可执行文件来说是一个绝对运行时地址。</span><br><span class="line">    int size; //目标大小</span><br><span class="line">    int type:4, //是变量或者函数</span><br><span class="line">        binding:4; //表示是本地的还是全局的</span><br><span class="line">    char reserved; //保留的</span><br><span class="line">    char section; //表示符号和目标文件的某个节相关联,也就是这个符号在那个节中</span><br><span class="line">&#125; Elf_Symbol;</span><br></pre></td></tr></table></figure><br>看一下main.o的符号表中最后三个条目:</p>
-<table>
-<thead>
-<tr>
-<th>Num(name):</th>
-<th>Value</th>
-<th>Size</th>
-<th>Type</th>
-<th>Bind</th>
-<th>Ot</th>
-<th>Ndx(section)</th>
-<th>Name</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>8:</td>
-<td>0(偏移为0)</td>
-<td>8(8字节大小)</td>
-<td>OBJECT(变量对象)</td>
-<td>GLOBAL(全局的符号)</td>
-<td>0</td>
-<td>3(表示第三个节.data)</td>
-<td>buf(符号名)</td>
-</tr>
-<tr>
-<td>9:</td>
-<td>0(偏移为0)</td>
-<td>17(17字节大小)</td>
-<td>FUNC(函数对象)</td>
-<td>GLOBAL(全局的符号)</td>
-<td>0</td>
-<td>1(表示第一个节.text)</td>
-<td>main(符号名)</td>
-</tr>
-<tr>
-<td>10:</td>
-<td>0</td>
-<td>0</td>
-<td>NOTYPE</td>
-<td>GLOBAL</td>
-<td>0</td>
-<td>UND(表示外部符号引用)</td>
-<td>swap(符号名)</td>
-</tr>
-</tbody>
-</table>
-<p>这个地方有点晕，因为前面说第一个是自己偏移，下面这个变成了name, 最有一个是符号名Name,但是上面结构中并没有说有这个字段, 表格中和结构中的字段写法不一样，实在是太难理解～<br>总而言之，符号表就是对每个符号的信息描述，这个符号表什么时候用呢？符号解析的时候。</p>
-<h2 id="符号解析"><a href="#符号解析" class="headerlink" title="符号解析"></a>符号解析</h2><p>链接器对多个可重定位目标文件进行解析的时候，读取每个文件的符号表，然后根据符号表的信息，与这个符号在代码中的确定的定义联系起来，目的是为了把所有的符号都合并在一起，形成一个完整的符号表，再加上其他信息，就变成了可执行文件。</p>
-<p>这个过程在这里详细介绍一下，因为这里设计的链接器最核心的部分：如何变成可执行文件。</p>
-<h3 id="链接器如何解析多重定义的全局符号"><a href="#链接器如何解析多重定义的全局符号" class="headerlink" title="链接器如何解析多重定义的全局符号"></a>链接器如何解析多重定义的全局符号</h3><p>把符号分为强和弱。对于函数和已初始化的全局变量是<em>强符号</em>， 对于未初始化的变量是<em>弱符号</em>。unix链接器使用下面的规则来处理<em>多重定义</em>的符号：</p>
-<ul>
-<li>不允许有多个强符号</li>
-<li>如果一个强符号和多个弱符号，那么选择强符号。</li>
-<li>如果有多个弱符号，那么从这些弱符号中任意选择一个。</li>
-</ul>
-<h2 id="重定位"><a href="#重定位" class="headerlink" title="重定位"></a>重定位</h2><p>一旦链接器完成了符号解析这一步，它就把代码中的每个符号引用和确定的一个符号定义（即它的一个输入目标模块中的一个符号表条目）联系起来。链接器根据输入目标模块中的代码节和数据节的确切大小，就可以开始重定位了：</p>
-<ul>
-<li>重定位节和符号定义：链接器将所有相同类型的节合并为同一类型的新的聚合节。然后链接器将<em>运行时存储器地址</em>赋给新的聚合节，赋给输入模块定义的每个节，以及赋给输入模块定义的每个符号。当这一步完成时，程序中的每个指令和全局变量都有唯一的运行时存储器地址了。</li>
-<li>重定位节中的符号引用。在这一步中，链接器修改代码节和数据节中对每个符号的引用，使得它们指向正确的运行时地址。为了执行这一步，链接器严重依赖称为<em>重定位条目</em>的可重定位目标模块中的数据结构。</li>
-</ul>
-<h3 id="重定位条目"><a href="#重定位条目" class="headerlink" title="重定位条目"></a>重定位条目</h3><p>由于汇编器生成目标模块时，并不知道数据和代码最终将存放在存储器中的什么位置，所以，无论何时汇编器遇到对最终位置未知的目标引用，它就会生成一个<em>重定位条目</em>，告诉链接器将目标文件合成可执行文件时如何修改这个引用。<br>代码的重定位条目放在.rel.text中。已初始化的数据重定位条目放在.rel.data中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct&#123;</span><br><span class="line">    int offset; //偏移位置</span><br><span class="line">    in symbol:24, //指向引用的节</span><br><span class="line">        type:8; //重定位类型</span><br><span class="line">&#125;Elf32_Rel;</span><br></pre></td></tr></table></figure><br>重定位类型有11种，没种的实现方式不一样，这里只介绍两种最基本的：</p>
-<ul>
-<li>R_386_PC32: 使用一个32位PC（程序计数器）相对地址的引用。当CPU执行一条使用PC相对寻址的指令时，它就将在指令中编码的32位值加上PC的当前运行值，得到<em>有效地址</em>。</li>
-<li>R_386_32: 重定位一个使用32位绝地地址的引用。通过绝对寻址，CPU直接使用在指令种编码 的32位值作为有效地址，不需要进一步修改。</li>
-</ul>
-<p>通过反汇编可执行文件，我们可看到重定位后的.text节的内容。</p>
-<h2 id="可执行目标文件"><a href="#可执行目标文件" class="headerlink" title="可执行目标文件"></a>可执行目标文件</h2><p>已经知道链接器将多个目标模块合并成一个可执行目标文件的。我们的C程序已经从ASCII码转化成了一个二进制文件，且这个二进制文件包含加载程序到存储器并运行它所需的所有信息。下图是一个典型的ELF可执行文件中的各类信息。<br><img src="/assets/img/csapp/fig7.11.png" alt><br>由于可执行文件是完全链接的(已被重定位)，所以它不再需要.rel节。我们发现还多了一个.init节，这个节定义了一个小函数，叫做_init,程序的初始化代码会调用它。</p>
 
       
     </div>
