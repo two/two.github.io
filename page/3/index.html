@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Page 3 | ∞hCode | ooh my code</title>
+  <title>Page 3 | oohcode | $\bigodot\bigodot^H \rightarrow CODE$</title>
 
   
   <meta name="author" content="sean chen">
@@ -21,14 +21,14 @@
 
   
 
-  <meta property="og:site_name" content="∞hCode">
+  <meta property="og:site_name" content="oohcode">
 
   
   <meta property="og:image" content="/favicon.ico">
   
 
   <link href="/favicon.ico" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="∞hCode" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="oohcode" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
 </head>
 
@@ -40,9 +40,9 @@
     <header>
   <div class="site-branding">
     <h1 class="site-title">
-      <a href="/">∞hCode</a>
+      <a href="/">oohcode</a>
     </h1>
-    <p class="site-description">ooh my code</p>
+    <p class="site-description">$\bigodot\bigodot^H \rightarrow CODE$</p>
   </div>
   <nav class="site-navigation">
     <ul>
@@ -61,6 +61,70 @@
 
     <main class="site-main posts-loop">
     
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2015/09/15/PHP-array-hash-key-overflow/"><span>PHP数组的key溢出问题</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2015/09/15/PHP-array-hash-key-overflow/" rel="bookmark">
+        <time class="entry-date published" datetime="2015-09-15T02:52:49.000Z">
+          2015-09-15
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>作为PHP最重要的数据类型HashTable其key值是有一定的范围的，如果设置的key值过大就会出现溢出的问题，下面根据其内部结构及实现原理详细探讨一下key值溢出问题。</p>
+</blockquote>
+<p>下面先给出一个key溢出的例子:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$arr[<span class="number">1</span>] = <span class="string">'1'</span>;</span><br><span class="line">$arr[<span class="number">18446744073708551617333333333333</span>] = <span class="string">'18446744073708551617333333333333'</span>;</span><br><span class="line">$arr[] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">4294967296</span>] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">9223372036854775807</span>] = <span class="string">'test'</span>;</span><br><span class="line">$arr[<span class="number">9223372036854775808</span>] = <span class="string">'test'</span>;</span><br><span class="line">var_dump($arr);</span><br></pre></td></tr></table></figure></p>
+<p>上面代码的输出结果如下:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">array</span>(<span class="number">6</span>) &#123;</span><br><span class="line">  [<span class="number">1</span>]=&gt;</span><br><span class="line">  string(<span class="number">1</span>) <span class="string">"1"</span></span><br><span class="line">  [<span class="number">-999799117276250112</span>]=&gt;</span><br><span class="line">  string(<span class="number">32</span>) <span class="string">"18446744073708551617333333333333"</span></span><br><span class="line">  [<span class="number">2</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">4294967296</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">9223372036854775807</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">  [<span class="number">-9223372036854775808</span>]=&gt;</span><br><span class="line">  string(<span class="number">4</span>) <span class="string">"test"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到当key值比较小是没有问题，当key值很大时输出的值溢出了，临界点是<code>9223372036854775807</code>这个数字。<br>下面分析一下原因 。首先我们先分析一下HashTable的结构(本文分析的是php-5.5.15版本的源码),可以通过源码看一下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* file: Zend/zend_hash.h */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> &#123;</span></span><br><span class="line">    ulong h;                        <span class="comment">/* Used for numeric indexing */</span> <span class="comment">/*对char *key进行hash后的值，或者是用户指定的数字索引值，可能会溢出*/</span></span><br><span class="line">    uint nKeyLength; <span class="comment">/*hash关键字的长度，如果数组索引为数字，此值为0*/</span></span><br><span class="line">    <span class="keyword">void</span> *pData; <span class="comment">/*指向value,一般是用户数据的副本，如果是指针数据，则指向pDataPtr*/</span></span><br><span class="line">    <span class="keyword">void</span> *pDataPtr; <span class="comment">/*如果是指针数据，此值会指向真正的value,同时上面pData会指向此值*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pListNext</span>;</span> <span class="comment">/*整个hash表的下一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pListLast</span>;</span> <span class="comment">/*整个hash表该元素的上一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pNext</span>;</span> <span class="comment">/*存放在同一个hash Bucket的下一个元素*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bucket</span> *<span class="title">pLast</span>;</span> <span class="comment">/*同一个hash bucket的上一个元素*/</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *arKey; <span class="comment">/*保存当前值所对于的key字符串,这个字段只能定义在最后,实现变长结构体*/</span></span><br><span class="line">&#125; Bucket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">hashtable</span> &#123;</span></span><br><span class="line">    uint nTableSize; <span class="comment">/*hash Bucket的大小，最小为8，最以2*x增长*/</span></span><br><span class="line">    uint nTableMask; <span class="comment">/*nTableSize-1, 索引取值的优化*/</span></span><br><span class="line">    uint nNumOfElements; <span class="comment">/*hash Bucket中当前存在的元素个数， count()函数会直接返回此值*/</span></span><br><span class="line">    ulong nNextFreeElement; <span class="comment">/*下一个数字索引的位置*/</span></span><br><span class="line">    Bucket *pInternalPointer;   <span class="comment">/* Used for element traversal ,当前遍历的指针，foreach比for快的原因之一,这个指针指向当前激活的元素*/</span></span><br><span class="line">    Bucket *pListHead; <span class="comment">/*存储数组头元素指针*/</span></span><br><span class="line">    Bucket *pListTail; <span class="comment">/*存储数组尾元素指针*/</span></span><br><span class="line">    Bucket **arBuckets; <span class="comment">/*存储hash数组*/</span></span><br><span class="line">    <span class="keyword">dtor_func_t</span> pDestructor; <span class="comment">/*在删除元素时执行的回调函数，用于资源的释放*/</span></span><br><span class="line">    zend_bool persistent; <span class="comment">/*指出了Bucket内存分配的方式。如果persistent为TRUE，则使用操作系统本身的内存分配函数为Bucket分配内存，否则使用PHP的内存分配函数*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> nApplyCount; <span class="comment">/*标记当前hash Bucket被递归访问的次数(防止多次递归)*/</span></span><br><span class="line">    zend_bool bApplyProtection; <span class="comment">/*标记当前hash桶允许不允许多次访问。不允许时，最多只能递归3次*/</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> ZEND_DEBUG</span></span><br><span class="line">    <span class="keyword">int</span> inconsistent;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line">&#125; HashTable;</span><br></pre></td></tr></table></figure>
+<p>假设我们已经对源码有了一定的了解了，我们可以知道<code>bucket.h</code>就是我们存储的key值，<code>bucket.h</code>的生成方法是根据<code>time33</code>算法获取的,对应到代码实现如下:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对于字符串类型的key</span></span><br><span class="line">ZEND_API <span class="keyword">int</span> _zend_hash_add_or_update(HashTable *ht, <span class="keyword">const</span> <span class="keyword">char</span> *arKey, uint nKeyLength, <span class="keyword">void</span> *pData, uint nDataSize, <span class="keyword">void</span> **pDest, <span class="keyword">int</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    ulong h;</span><br><span class="line">    uint nIndex;</span><br><span class="line">    Bucket *p;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> ZEND_SIGNALS</span></span><br><span class="line">    TSRMLS_FETCH();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line"></span><br><span class="line">    ZEND_ASSERT(nKeyLength != <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    CHECK_INIT(ht);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//算出来hash key后需要根据hashTable的长度，把nIndex限制在这个长度内(通过nTableMask)</span></span><br><span class="line">    h = zend_inline_hash_func(arKey, nKeyLength);</span><br><span class="line">    nIndex = h &amp; ht-&gt;nTableMask;</span><br><span class="line"></span><br><span class="line">    p = ht-&gt;arBuckets[nIndex];</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//对于数字类型的key</span></span><br><span class="line">ZEND_API <span class="keyword">int</span> _zend_hash_index_update_or_next_insert(HashTable *ht, ulong h, <span class="keyword">void</span> *pData, uint nDataSize, <span class="keyword">void</span> **pDest, <span class="keyword">int</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    uint nIndex;</span><br><span class="line">    Bucket *p;</span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> ZEND_SIGNALS</span></span><br><span class="line">    TSRMLS_FETCH();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line">    CHECK_INIT(ht);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 如果是新增元素(如$arr[] = 'hello'), 则使用nNextFreeElement值作为hash值,否则直接使用传入的key h 最为hash值 */</span></span><br><span class="line">    <span class="keyword">if</span> (flag &amp; HASH_NEXT_INSERT) &#123;</span><br><span class="line">        h = ht-&gt;nNextFreeElement;</span><br><span class="line">    &#125;</span><br><span class="line">    nIndex = h &amp; ht-&gt;nTableMask;</span><br><span class="line"></span><br><span class="line">    p = ht-&gt;arBuckets[nIndex];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//字符串的hash函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> ulong <span class="title">zend_inline_hash_func</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *arKey, uint nKeyLength)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">register</span> ulong hash = <span class="number">5381</span>; <span class="comment">//这个常量是哪儿来的？</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* variant with the hash unrolled eight times */</span></span><br><span class="line">    <span class="keyword">for</span> (; nKeyLength &gt;= <span class="number">8</span>; nKeyLength -= <span class="number">8</span>) &#123;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">        hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">switch</span> (nKeyLength) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">7</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">6</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">5</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">4</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="comment">/* fallthrough... */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>: hash = ((hash &lt;&lt; <span class="number">5</span>) + hash) + *arKey++; <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0</span>: <span class="keyword">break</span>;</span><br><span class="line">EMPTY_SWITCH_DEFAULT_CASE()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面函数主要是插入或更新hashTable的函数，当插入的key是数字时，这个数字就是hastTable的索引值，其key值不经过hash算法，只经过<code>nIndex = h &amp; ht-&gt;nTableMask;</code>来确保存储的值范围属于hastTable的范围内，所以可以看出索引值<code>key</code> ,与其对应的时<code>nIndex</code>这个值，正在存储的槽位就是<code>nIndex</code>这个地方。</p>
+<p>这个key类型是<code>ulong</code>，也就是<code>unsigned long</code>类型。由于我们的机器是64位的，所以<code>unsigned long</code>类型的取值范围应该是<code>0~1844674407370955161</code>。PHP有两个预定义的变量<code>PHP_INT_MAX</code>和<code>PHP_INT_SIZE</code>对于64位的机器他们的值分别是9223372036854775807和8，这恰好是hasttable所能表示key的最大值,到这里也许你会有一个疑问:为什么<code>PHP_INT_MAX</code>的值比<code>key</code>的范围不一致?<br>要回答这个问题首先要知道，hastTable的key输出可以是负值，这是怎么做到的呢？其实一个hashTable的hash值一定是一个正整数才行，但是输出的数和hash值只是一个对应关系，不需要都为正整数， 虽然我们定义的参数为<code>unsigned long</code>,其实我们却可以传一个负数,比如<code>$arr[-1] = &#39;test&#39;</code>，这时候也是和传递一个正数的处理过程是一样的。这时候<code>h</code>的值其实是<code>-1</code>的补码。再回到上面的问题，为什么<code>PHP_INT_MAX</code>的值比<code>key</code>范围不一致。当我们负值 PHP_INT_MAX时，其值是<code>9223372036854775807</code>，当赋值再比这个大时,输出的却是负数。这其实跟我们使用<code>var_dump</code>这个函数有关系, 下面代码是使用var_dump输出数组时所使用的方法:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">php_array_element_dump</span><span class="params">(zval **zv TSRMLS_DC, <span class="keyword">int</span> num_args, va_list args, zend_hash_key *hash_key)</span> <span class="comment">/* &#123;&#123;&#123; */</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line"></span><br><span class="line">    level = va_arg(args, <span class="keyword">int</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hash_key-&gt;nKeyLength == <span class="number">0</span>) &#123; <span class="comment">/* numeric key */</span></span><br><span class="line">        php_printf(<span class="string">"%*c[%ld]=&gt;\n"</span>, level + <span class="number">1</span>, <span class="string">' '</span>, hash_key-&gt;h);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">/* string key */</span></span><br><span class="line">        php_printf(<span class="string">"%*c[\""</span>, level + <span class="number">1</span>, <span class="string">' '</span>);</span><br><span class="line">        PHPWRITE(hash_key-&gt;arKey, hash_key-&gt;nKeyLength - <span class="number">1</span>);</span><br><span class="line">        php_printf(<span class="string">"\"]=&gt;\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    php_var_dump(zv, level + <span class="number">2</span> TSRMLS_CC);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，当key为数字时输出的格式时<code>%ld</code>,值是<code>hash_key-&gt;h</code>，这就是问题所在了，存储的是一个<code>unsigned long</code>，输出的却是<code>long</code>，当值比<code>long</code>大时，自然输出的就是负数了。</p>
+<p>总结: PHP的hastTable是通过链表法实现的，按说是不会存在溢出的问题，但是其索引值表示的范围有限，当超出索引值时就会造成溢出，这个溢出只存在当索引值为数字时，输入的数字为正，输出却为负值的原因是函数参数与输出的类型不一致导致的。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/php/">php</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
   <article>
 
   
@@ -863,119 +927,6 @@
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/coreseek/">coreseek</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/05/26/csapp-chapter8/"><span>csapp chapter8:异常控制流</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/05/26/csapp-chapter8/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-05-25T16:00:00.000Z">
-          2014-05-26
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>程序运行的顺序是根据程序计数器（PC）的值而定的，PC从一个地址到另一个地址的过渡称为<em>控制转移(control transfer)</em>,这样的控制转移序列叫做处理器的<em>控制流(flow of control或 control flow)</em>。一般如果PC是按照顺序地址进行过渡的，控制流是一个平滑的序列，但是有些情况下PC是来回跳转的，这些突变称为<em>异常控制流(Exceptional Control Flow 简称EFC)</em>,EFC发生在计算机系统的各个层次。本章主要分析这种异常控制流。</p>
-</blockquote>
-<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>异常(exception)就是控制流中的突变,用来响应处理器状态中的某些变化。<br>下面通过一个图来理解异常.<br><img src="/assets/img/csapp/fig8.1.png" alt><br>可以看到程序在执行到<em> \(I_{curr}\) </em>时发生了一个异常，导致程序从原来该执行<em> \(I_{next}\)</em> ，变为了执行异常处理, 在执行完异常出理由程序后有下面三种可能：</p>
-<ul>
-<li>处理程序将控制返回给当前指令\(I_{curr}\), 即当事件发生时正在执行的命令。</li>
-<li>处理程序将控制权返回给\(I_{next}\), 即如果没有发生异常将会执行的下一条指令。</li>
-<li>处理程序终止被中断的程序。</li>
-</ul>
-<p>在任何情况下，当处理器检测到有事件发生时，它就会通过一张<em>异常表</em>的跳转表,进行一个间接过程调用(异常)，到一个专门设计用来处理这类事件的操作系统子程序(异常处理程序(exception handler))。</p>
-<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>系统为每个异常的类型都分配了一个唯一的非负整数的<em>异常号(exception number)</em>, 每个异常处理号都对应了一个异常处理程序，这些异常处理程序有些是处理器设计者分配的，有些事操作系统内核的设计者分配的，前者主要包括被零除，缺页，存储器访问违例、断点以及算术溢出，后者主要包括系统调用和来自外部I/O设备的信号。<br>在系统启动时，操作系统分配和初始化一张称为<em>异常表</em>的跳转表，如下：<br><img src="/assets/img/csapp/fig8.2.png" alt><br>这个图显示了如何利用根据异常号来找异常处理程序，并执行。  </p>
-<p><strong>异常与过程调用的区别</strong>：</p>
-<ul>
-<li>异常调用时，在跳转处理器之前，处理器将返回地址压入栈中。返回地址是根据异常的类型而定的，可能是当前指令的地址，也可能是下一条指令的地址。过程调用一般入栈的是下一条指令的地址。</li>
-<li>处理器把一些额外的处理器状态压到栈里，当处理程序返回时，重新开始被中断的程序会需要这些状态。</li>
-<li>如果控制从一个用户程序转移到内核，那么所有的这些项目都被压入内核栈中，而不是压到用户栈中。</li>
-<li>异常处理程序运行在内核模式下。这意味着它们对所有的系统资源具有完全的访问权限。</li>
-</ul>
-<p><strong>异常的类别</strong>:</p>
-<ul>
-<li><strong>中断</strong>:当前指令执行完后，会发现中断引脚的电压高了，就从系统总线读取处理程序。这种异常一般都是由外部的设备引起的，跟处理程序之间没有必然的联系，所以是异步的。下面的都是程序运行过程中自己有意或无意的引起的，所以事同步的行为。</li>
-<li><strong>陷阱</strong>:是一个有意的异常，是执行一条指令引起的，引起异常的指令一般都是系统调用函数（如fork, single, exit, waitpid等），这些函数调用使程序从用户模式切换到了内核模式。</li>
-<li><strong>故障</strong>:故障是由程序运行中的错误造成的，它能够被捕获并被故障处理程序修正。这种故障如缺页异常等。</li>
-<li><strong>终止</strong>:这种异常一般是指不会恢复的致命错误。通常是一些硬件错误。</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>类别</th>
-<th>原因</th>
-<th>异步/同步</th>
-<th>返回行为</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>中断</td>
-<td>来自I/O设备的信号</td>
-<td>异步</td>
-<td>总是返回到下一条指令</td>
-</tr>
-<tr>
-<td>陷阱</td>
-<td>有意的异常</td>
-<td>同步</td>
-<td>总是返回到下一条指令</td>
-</tr>
-<tr>
-<td>故障</td>
-<td>潜在可恢复的错误</td>
-<td>同步</td>
-<td>可能返回当前指令</td>
-</tr>
-<tr>
-<td>终止</td>
-<td>不可恢复的错误</td>
-<td>同步</td>
-<td>不会返回</td>
-</tr>
-</tbody>
-</table>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/CSAPP/">CSAPP</a>
     </span>
     
 

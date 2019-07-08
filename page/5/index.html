@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Page 5 | ∞hCode | ooh my code</title>
+  <title>Page 5 | oohcode | $\bigodot\bigodot^H \rightarrow CODE$</title>
 
   
   <meta name="author" content="sean chen">
@@ -21,14 +21,14 @@
 
   
 
-  <meta property="og:site_name" content="∞hCode">
+  <meta property="og:site_name" content="oohcode">
 
   
   <meta property="og:image" content="/favicon.ico">
   
 
   <link href="/favicon.ico" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="∞hCode" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="oohcode" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
 </head>
 
@@ -40,9 +40,9 @@
     <header>
   <div class="site-branding">
     <h1 class="site-title">
-      <a href="/">∞hCode</a>
+      <a href="/">oohcode</a>
     </h1>
-    <p class="site-description">ooh my code</p>
+    <p class="site-description">$\bigodot\bigodot^H \rightarrow CODE$</p>
   </div>
   <nav class="site-navigation">
     <ul>
@@ -61,6 +61,98 @@
 
     <main class="site-main posts-loop">
     
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/01/15/mysql-merge-engine/"><span>mysql merge engine 介绍</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/01/15/mysql-merge-engine/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-01-14T16:00:00.000Z">
+          2014-01-15
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>最近由于项目需求，使用了Merge Engine这个Mysql数据库引擎，看着<a href="http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html" target="_blank" rel="noopener">官方文档</a>对其了解了一下。总结加翻译一下～</em></p>
+</blockquote>
+<h2 id="MERGE引擎初体验"><a href="#MERGE引擎初体验" class="headerlink" title="MERGE引擎初体验"></a>MERGE引擎初体验</h2><p>MERGE存储引擎又叫MRG_MyISAM存储引擎，可以把许多相同的MyISAM表可以聚集到一个表来使用。“相同”的意思是所有的表要有相同的列和相同的索引信息。<br>MERGE引擎的另一个代替方案是分割(partitioned)表(把一个独立的分割后的表放到一个单独的文件中)。分割表是一个比MERGE更好的方案，具体请参考第18章<a href="http://dev.mysql.com/doc/refman/5.6/en/partitioning.html" target="_blank" rel="noopener">Partitioning</a>的内容。<br>当建立一个MERGE引擎表时，会产生两个文件：<code>.frm</code>文件存储的是表的格式,<code>.MRG</code>文件包含的是这个MERGE表所包含的MyISAM表的名字(这些表可以不在同一个数据库中)。<br>MERGE表中可以使用 SELECT, DELETE, UPDATE, 和INSERT等数据库操作语言。前提是对每个包含的表都有这些权限。</p>
+<blockquote>
+<p>注意:<br>如果一个用户有权限操作数据表t, 那么可以建立一个MERGE表m来访问t, 这时如果用户对t的权限没有了，仍然可以通过m来操作t。</p>
+</blockquote>
+<p>如果对MERGE使用DROP TABLE那么只是删除了MERGE表，对MERGE表包含的表没有任何影响。<br>建立一个MERGE表的时候可以使用参数<code>INSERT_METHOD</code>来决定INSERT一条数据是是如何插入MERGE表所包含的表的。</p>
+<blockquote>
+<p>INSERT_METHOD = last: 当插入一个记录时，实际插入的是union的最后一个table。<br>INSERT_METHOD = first: 当插入一个记录时，实际插入的是union的第一个table。<br>INSERT_METHOD = no: MERGE表不允许插入数据。</p>
+</blockquote>
+<p>如果MERGE表包含的数据表结构或者个数有变化，需要重新建立MERGE表，建立一个新的映射关系，方法有下面两种：</p>
+<ol>
+<li>删除这个MERGE表，重新create一个。</li>
+<li>使用<code>ALTER TABLE tbl_name UNION=(...)</code>, 改变所包含的表。</li>
+</ol>
+<h2 id="MERGE实现原理"><a href="#MERGE实现原理" class="headerlink" title="MERGE实现原理"></a>MERGE实现原理</h2><p>由于文档没有说MERGE的内部实现原理，根据我的猜测应该是这样的，MERGE表只是记录了所包含的每个表的名字和表共同的结构，当我对表的内容进行检索时，其实MERGE是分别对它包含的每个表进行了检索，然后输出了结果，这个可以做个验证：<br>t是表t1，t2的MERGE表，一条记录分别在t1和t里检索<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from t1 where a =1;</span><br><span class="line">+----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+</span><br><span class="line">| id | select_type | table | type  | possible_keys | key     | key_len | ref   | rows | Extra |</span><br><span class="line">+----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+</span><br><span class="line">|  1 | SIMPLE      | t1    | const | PRIMARY       | PRIMARY | 4       | const |    1 |       |</span><br><span class="line">+----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line">mysql&gt; explain select * from t where a =1;</span><br><span class="line">+----+-------------+-------+------+---------------+------+---------+-------+------+-------+</span><br><span class="line">| id | select_type | table | type | possible_keys | key  | key_len | ref   | rows | Extra |</span><br><span class="line">+----+-------------+-------+------+---------------+------+---------+-------+------+-------+</span><br><span class="line">|  1 | SIMPLE      | t     | ref  | a             | a    | 4       | const |    2 |       |</span><br><span class="line">+----+-------------+-------+------+---------------+------+---------+-------+------+-------+</span><br></pre></td></tr></table></figure><br>发现，对于主键进行检索时，MERGE的检索此时总是等于它包含的表的数量，而单个表进行检索时是直接在本表进行检索的。也就是说其实MERGE表只是一个聚合结构，并不含索引和数据，其操作都是在它包含的表中逐个进行的，其复杂度是单个表的和。</p>
+<h2 id="MERGE-优缺点"><a href="#MERGE-优缺点" class="headerlink" title="MERGE 优缺点"></a>MERGE 优缺点</h2><h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ul>
+<li>对分表的管理更加简单。比如log表,可以根据时间进行分别，然后对其进行压缩，最后通过建立MERGE表来操作数据。</li>
+<li>获取更快的速度。可以把一个很大的只读表拆分为多个独立的表，放到不同的磁盘上，通过MERGE表结构来查询的速度要比查一个大表快的多。 </li>
+<li>更有效的搜索。如果知道要搜索的数据在哪个表里，可以直接进行搜索，否则就可以在MERGE表中搜索，不需要对每个表都分别搜索。</li>
+<li>及时映射所有包含的表。MERGE表不需要包含索引，因为它用的是包含的表的索引。</li>
+<li>如果需要建立一个很大的表，可以见多个表然后再使用MERGE表。这样更加快而且更加节省空间（应该是索引所消耗的空间）。</li>
+<li>可以突破MyISAM表大小的限制。每个MyISAM表都有大小的限制，但是MERGE没有。</li>
+<li>对一个表也可以建立MERGE表，但是对性能并没有什么提升。only a couple of indirect calls and memcpy() calls for each read （这句话不知道如何翻译）</li>
+</ul>
+<h3 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h3><ul>
+<li>MERGE表只能对MyISAM引擎的表建立。</li>
+<li>MERGE引擎不支持MyISAM引擎的一些特性。例如不能建立FULLTEXT索引，可以在MyISAM上建立，但是不能通过MERGE表来使用。</li>
+<li>如果MERGE表不是临时的，那么它包含的表也不能是临时的，如果MERGE表是临时的，那么它包含的表可以是任何临时和不临时的表的组合。</li>
+<li>MERGE表比MyISAM表需要更多的文件描述。 If 10 clients are using a MERGE table that maps to 10 tables, the server uses (10 × 10) + 10 file descriptors. (10 data file descriptors for each of the 10 clients, and 10 index file descriptors shared among the clients.)，这个也不太明白。</li>
+<li>读索引比较慢。当使用索引时，MERGE需要对它包含的每个表进行查询。这让MERGE表在eq_ref搜索时很慢，但是在ref搜索时不会太慢。</li>
+</ul>
+<h2 id="MERGE-存在的问题"><a href="#MERGE-存在的问题" class="headerlink" title="MERGE 存在的问题"></a>MERGE 存在的问题</h2><p>捡总要的说了</p>
+<ul>
+<li>如果改变一个原来是MERGE引擎的表为非MERGE引擎，那么MERGE表的映射就没有了，所包含的表的所有数据都会copy的修改后的表中。</li>
+<li>MyISAM里的AUTO_INCREMENT字段对于MERGE来说没有用</li>
+<li>MERGE不能保持唯一索引，在MyISAM中是可以的。</li>
+<li></li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/DB/">DB</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
   <article>
 
   
@@ -1186,73 +1278,6 @@ Alice --> Bob: 响应
 <p>其它涉及到HTTP缓存和认真等是HTTP本身的特性，不在这里介绍了。</p>
 <h2 id="第九章：服务的技术构件"><a href="#第九章：服务的技术构件" class="headerlink" title="第九章：服务的技术构件"></a>第九章：服务的技术构件</h2><p>本章第一部分是介绍在使用rest 服务是数据的表示方式，这不再说了，第二部分是如何定义请求与返回状态码。第三部分结束了WADL这个web应用描述语言，类似于SOAP的WSDL语言但它是基于REST的，虽然用法上感觉差不多，但其实是有着本质的区别的，我的理解是：WSDL和WADL都是为了简化编程，但是WSDL是根据SOAP的风格规定了调用的函数，传递的参数等，而WSDL则是遵循REST风格，规定了请求的方法、地址及请求的参数。</p>
 <h2 id="第十章：面向资源的架构VS大Web服务"><a href="#第十章：面向资源的架构VS大Web服务" class="headerlink" title="第十章：面向资源的架构VS大Web服务"></a>第十章：面向资源的架构VS大Web服务</h2>
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/restful-web-services/">restful web services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter5/"><span>chapter5:设计只读的面向资源的服务</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/05/restful-web-services-chapter5/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
-          2013-12-05
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章主要是针对只读类型的ROA架构进行设计的，只读的HTTP方法包括GET和HEAD。通过一个地图的例子对具体的设计过程进行了介绍。</em></p>
-</blockquote>
-<h2 id="资源设计"><a href="#资源设计" class="headerlink" title="资源设计"></a>资源设计</h2><p>RPC式架构设计方法是把系统分解为一个个的动作。REST式则是参考面向对象的程序设计,面向对象设计主要有类和方法，这里的资源设计策略可以称为：“极限面向对象”的策略，一个资源只暴露一个统一接口，最多支持六种HTTP方法。</p>
-<h2 id="创建只读资源"><a href="#创建只读资源" class="headerlink" title="创建只读资源"></a>创建只读资源</h2><p>本章提出了一些列步骤来说明如何设计一个ROA的只读资源服务，它们是：</p>
-<ol>
-<li>规划数据集</li>
-<li>把数据集划分为资源<br> 对其中的每种资源：</li>
-<li>用URI为该资源命名</li>
-<li>设计发给客户端的表示</li>
-<li>用超链接和表单把该资源与已有资源联系起来</li>
-<li>考虑有哪些典型的事件经过</li>
-<li>考虑可能出现哪些错误情况</li>
-</ol>
-<p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
-
       
     </div>
 

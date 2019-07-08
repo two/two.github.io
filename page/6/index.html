@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Page 6 | ∞hCode | ooh my code</title>
+  <title>Page 6 | oohcode | $\bigodot\bigodot^H \rightarrow CODE$</title>
 
   
   <meta name="author" content="sean chen">
@@ -21,14 +21,14 @@
 
   
 
-  <meta property="og:site_name" content="∞hCode">
+  <meta property="og:site_name" content="oohcode">
 
   
   <meta property="og:image" content="/favicon.ico">
   
 
   <link href="/favicon.ico" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="∞hCode" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="oohcode" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
 </head>
 
@@ -40,9 +40,9 @@
     <header>
   <div class="site-branding">
     <h1 class="site-title">
-      <a href="/">∞hCode</a>
+      <a href="/">oohcode</a>
     </h1>
-    <p class="site-description">ooh my code</p>
+    <p class="site-description">$\bigodot\bigodot^H \rightarrow CODE$</p>
   </div>
   <nav class="site-navigation">
     <ul>
@@ -93,6 +93,73 @@
 <li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
 <li>成功的HTTP的相应代码有可能是201、205等。</li>
 </ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter5/"><span>chapter5:设计只读的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter5/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是针对只读类型的ROA架构进行设计的，只读的HTTP方法包括GET和HEAD。通过一个地图的例子对具体的设计过程进行了介绍。</em></p>
+</blockquote>
+<h2 id="资源设计"><a href="#资源设计" class="headerlink" title="资源设计"></a>资源设计</h2><p>RPC式架构设计方法是把系统分解为一个个的动作。REST式则是参考面向对象的程序设计,面向对象设计主要有类和方法，这里的资源设计策略可以称为：“极限面向对象”的策略，一个资源只暴露一个统一接口，最多支持六种HTTP方法。</p>
+<h2 id="创建只读资源"><a href="#创建只读资源" class="headerlink" title="创建只读资源"></a>创建只读资源</h2><p>本章提出了一些列步骤来说明如何设计一个ROA的只读资源服务，它们是：</p>
+<ol>
+<li>规划数据集</li>
+<li>把数据集划分为资源<br> 对其中的每种资源：</li>
+<li>用URI为该资源命名</li>
+<li>设计发给客户端的表示</li>
+<li>用超链接和表单把该资源与已有资源联系起来</li>
+<li>考虑有哪些典型的事件经过</li>
+<li>考虑可能出现哪些错误情况</li>
+</ol>
+<p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
 
       
     </div>
@@ -691,108 +758,6 @@
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/CSAPP/">CSAPP</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/21/soap-and-rest/"><span>SOAP and REST</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/21/soap-and-rest/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-20T16:00:00.000Z">
-          2013-11-21
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>SOAP(Simple Object Access Protocol)和REST(Representational State Transfer)是现在Web Service开发中最流行的两个架构，这篇文章详细分析了他们的来源以及优缺点。</em></p>
-</blockquote>
-<p>作为一个web后台开发人员我竟然拿分不清web service 和 web server!!!自觉面壁~~~<br>所以我做不住了，我睡不着了，听说了REST后我知道了SOAP，知道SOAP后我知道了WSDL,但是始终百思不得其解，原来是我最基本的东西都不知道，何谈了解他们！所以之能静下心来从头开始了！</p>
-<h2 id="web-server与-web-service"><a href="#web-server与-web-service" class="headerlink" title="web server与 web service"></a>web server与 web service</h2><p>其实这两个差的太远了，如果不细看还以为是一个东西，因为写法差不多，但是仔细品味一下就知道了:  </p>
-<ul>
-<li>web server是指web服务器，如果apache、nginx等，主要是用来用来处理HTTP服务的底层软件(下次把学到的web server的发展说一下)。</li>
-<li>web service是指基于web的一个服务，是web技术的一个应用。就像你开发一个网站就是一个service，提供一个HTTP的API接口也是service。</li>
-</ul>
-<p>其实web service这个东西只要是做web开发或者移动端开发的人都会用到，只不过各有各的用法，各有各的标准。而这里的SOAP和REST只是在众多的应用中提取出来的通用的协议标准。当然拟开发的时候也可以都不用都没有任何关系。<br>再看看W3C对Web service的定义：</p>
-<ol>
-<li>Web Services 是应用程序组件</li>
-<li>Web Services 使用开放协议进行通信</li>
-<li>Web Services 是独立的（self-contained）并可自我描述</li>
-<li>Web Services 可通过使用UDDI来发现</li>
-<li>Web Services 可被其他应用程序使用</li>
-<li>XML 是 Web Services 的基础</li>
-</ol>
-<p>其实SOAP和REST主要解决的是一个分布式应用的情况，什么是分布式应用呢？我的理解是比如一个MVC结构的网站。一般情况下都会把所有代码放到一台前端机器上，我们开发的时候也是C直接调用M的函数接口。这样对于一般应用是满足的，但是存在两个问题：</p>
-<ol>
-<li>网站发展的一定程度后所有的服务压力都在前端机器不能满足业务需求</li>
-<li>为了提高性能M采用的是更快速的语言开发的，C采用的是另一种语言，它们之间怎么通信？</li>
-</ol>
-<p>针对第一个问题，我们知道M和C的作用不一样，M主要是底层服务，而C主要是业务逻辑相关的服务，网站开发过程中其性能瓶颈主要是集中在M这一层，所以有可能我们需要把M和C完全分离开，M放在单独的底层服务器，C放在前端机，这样就可以各司其职了。但是这样做就会面临第二个问题，它们之间如何通信？比如C需要调用M的某个函数，怎么实现？这就是SOAP和REST发挥作用的地方了，只要C和M都遵循这两个标准开发，整个世界就都清净了~<br>(详细的过程下面将具体的协议时会说道。)</p>
-<h2 id="RPC协议"><a href="#RPC协议" class="headerlink" title="RPC协议"></a>RPC协议</h2><p>说道这两个协议，不得不提一下RPC协议，其实他们都是在RPC的思想上发展起来的~<br>《TCP/IP协议详解卷一：协议》这本书的第29章网络文件系统介绍了RPC协议。<br>当终端用户编程的时候其实是不关心网络传输细节的，比如一个C/S架构的程序，Client只需要把网络的数据流当做是一个文件进行操作就可以了，不管是向服务器发送请求还是接受来之服务器的请求都只需调用系统函数就可以实现；同样Server端也是只需要调用系统函数获取客户端发出的请求并且队请求进行处理并把处理结果返回到客户端就行了。C和S之间的交互都是通过网络实现的，但是对于两端来说并无这个过程是透明的。中间的过程其实就是由RPC协议实现的，交互的过程中底层发生的细节入下：  </p>
-<ol>
-<li>当客户程序调用远程的过程时，它实际上只是掉哟呵过年了一个位于本机上的、有RPC程序包生成的函数。这个函数被称为客户残桩(stub)。客户残桩将过程的参数封装在一个网络报文，并且将这个报文发送给服务器程序。</li>
-<li>服务器主机上的一个服务器残桩负责接收这个网络报文。它从网络报文中提取参数，然后调用应用程序员编写的服务器过程。</li>
-<li>当服务器函数返回时，它返回到服务器残桩。服务器残桩提取返回值，把返回值封装成一个网络报文，然后将网络报文发送给客户残桩。</li>
-<li>客户残桩从接收到的网络报文中取出返回值，将其返回给客户程序。</li>
-</ol>
-<p>一个RPC程序包提供好很多好处：</p>
-<ul>
-<li>程序设计更加容易，因为很少或几乎没有涉及到网络编程。应用程序设计院只需要编写一个客户程序和客户程序调用的服务器过程。</li>
-<li>如果使用了一个不可靠的协议，如UDP,像超时和重传等细节一样就由RPC程序包来处理。这就简化了用户应用程序。</li>
-<li>RPC库为参数和返回值的传输提供任何需要的数据转换。</li>
-</ul>
-<p>下面这个图片可以展示一下在报文中RPC所处的位置：<br><img src="/assets/img/others/fig1.png" alt="RPC报文"><br><img src="/assets/img/others/fig2.png" alt="RPC报文">  </p>
-<h2 id="SOAP协议"><a href="#SOAP协议" class="headerlink" title="SOAP协议"></a>SOAP协议</h2><p>上节说道的RPC协议是应用于网络通信服务，但是HTTP却不是为此设计的，RPC 会产生兼容性以及安全问题；防火墙和代理服务器通常会阻止此类流量。对于web应用来说通过HTTP协议进行通信是更好的方法,因为 HTTP 得到了所有的因特网浏览器及服务器的支持。SOAP 就是被创造出来完成这个任务的。<br>SOAP 提供了一种标准的方法，使得运行在不同的操作系统并使用不同的技术和编程语言的应用程序可以互相进行通信。(以上来<a href="http://www.w3school.com.cn/soap/soap_intro.asp" target="_blank" rel="noopener">W3C</a>)</p>
-<p>Web services 平台的元素：</p>
-<ol>
-<li>SOAP (简易对象访问协议)</li>
-<li>UDDI (通用描述、发现及整合)</li>
-<li>WSDL (Web services 描述语言)</li>
-</ol>
-<p>这三个元素是组成SOAP服务必须标准组件，一个完整的SOAP交互过程可以用下面这个图来表示(下图是基于自己的理解画的，如果不妥之处还请指出)：<br><img src="/assets/img/others/fig3.png" alt="SOAP flow"><br>为了更好地理解SOAP协议，这里举一个例子：用PHP大家SOAP server服务<br>首先要安装soap服务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install php-soap</span><br></pre></td></tr></table></figure><br>然后在服务端建立两个文件<br>user.wsdl<br>其内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;</span><br><span class="line">&lt;definitions xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:tns=&quot;http://www.somelocation.com&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; xmlns=&quot;http://schemas.xmlsoap.org/wsdl/&quot; targetNamespace=&quot;http://www.somelocation.com&quot;&gt;</span><br><span class="line">&lt;types&gt;</span><br><span class="line">&lt;xsd:schema targetNamespace=&quot;http://www.somelocation.com&quot;&gt;</span><br><span class="line"> &lt;xsd:import namespace=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; /&gt;</span><br><span class="line"> &lt;xsd:import namespace=&quot;http://schemas.xmlsoap.org/wsdl/&quot; /&gt;</span><br><span class="line">&lt;/xsd:schema&gt;</span><br><span class="line">&lt;/types&gt;</span><br><span class="line">&lt;message name=&quot;userDataRequest&quot;&gt;</span><br><span class="line">  &lt;part name=&quot;operation&quot; type=&quot;xsd:string&quot; /&gt;</span><br><span class="line">  &lt;part name=&quot;statement&quot; type=&quot;xsd:string&quot; /&gt;</span><br><span class="line">&lt;/message&gt;</span><br><span class="line">&lt;message name=&quot;userDataResponse&quot;&gt;</span><br><span class="line">  &lt;part name=&quot;return&quot; type=&quot;xsd:string&quot; /&gt;</span><br><span class="line">&lt;/message&gt;</span><br><span class="line">&lt;portType name=&quot;userWsdlPortType&quot;&gt;</span><br><span class="line">  &lt;operation name=&quot;userData&quot;&gt;</span><br><span class="line">    &lt;documentation&gt;Query User Data&lt;/documentation&gt;</span><br><span class="line">    &lt;input message=&quot;tns:userDataRequest&quot; /&gt;</span><br><span class="line">    &lt;output message=&quot;tns:userDataResponse&quot; /&gt;</span><br><span class="line">  &lt;/operation&gt;</span><br><span class="line">&lt;/portType&gt;</span><br><span class="line">&lt;binding name=&quot;userWsdlBinding&quot; type=&quot;tns:userWsdlPortType&quot;&gt;</span><br><span class="line">  &lt;soap:binding style=&quot;rpc&quot; transport=&quot;http://schemas.xmlsoap.org/soap/http&quot; /&gt;</span><br><span class="line">  &lt;operation name=&quot;userData&quot;&gt;</span><br><span class="line">    &lt;soap:operation soapAction=&quot;http://www.somelocation.com#feelbad&quot; style=&quot;rpc&quot; /&gt;</span><br><span class="line">    &lt;input&gt;&lt;soap:body use=&quot;encoded&quot; namespace=&quot;http://www.somelocation.com&quot; encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; /&gt;&lt;/input&gt;</span><br><span class="line">    &lt;output&gt;&lt;soap:body use=&quot;encoded&quot; namespace=&quot;http://www.somelocation.com&quot; encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; /&gt;&lt;/output&gt;</span><br><span class="line">  &lt;/operation&gt;</span><br><span class="line">&lt;/binding&gt;</span><br><span class="line">&lt;service name=&quot;userWsdl&quot;&gt;</span><br><span class="line">  &lt;port name=&quot;userWsdlPort&quot; binding=&quot;tns:userWsdlBinding&quot;&gt;</span><br><span class="line">    &lt;soap:address location=&quot;http://www.soap.com/service.php&quot; /&gt;</span><br><span class="line">  &lt;/port&gt;</span><br><span class="line">&lt;/service&gt;</span><br><span class="line">&lt;/definitions&gt;</span><br></pre></td></tr></table></figure><br>然后在服务端建立两个文件</p>
-<p>service.php<br>内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">//设置不缓存wsdl</span><br><span class="line">ini_set(&quot;soap.wsdl_cache_enabled&quot;,&quot;0&quot;);</span><br><span class="line"></span><br><span class="line">//初始化wsdl服务</span><br><span class="line">$server = new SoapServer(&quot;user.wsdl&quot;);</span><br><span class="line"></span><br><span class="line">//主功能性的class，这里可以分离出来写各种复杂的逻辑</span><br><span class="line">class USER &#123;</span><br><span class="line"></span><br><span class="line">    function getInfo($userId) &#123;</span><br><span class="line">        return json_encode(array(&apos;userId&apos;=&gt;$userId,&apos;userName&apos;=&gt;&apos;Zhang San&apos;));</span><br><span class="line">    &#125;   </span><br><span class="line"></span><br><span class="line">    function getGroup($userId) &#123;</span><br><span class="line">        return json_encode(array(&apos;userId&apos;=&gt;$userId,&apos;userGroup&apos;=&gt;&apos;111&apos;));</span><br><span class="line">    &#125;   </span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//接口的主入口函数</span><br><span class="line">function userData($operation,$statement)&#123;</span><br><span class="line">    return USER::$operation($statement);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//注册主函数</span><br><span class="line">$server-&gt;AddFunction(&quot;userData&quot;);</span><br><span class="line"></span><br><span class="line">//启动soap server</span><br><span class="line">$server-&gt;handle();</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
-<p>然后在客户端建立一个访问的文件<br>client.php<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line"># $client = new SoapClient(&apos;http://www.soap.com/service.php?wsdl&apos;);</span><br><span class="line">$client = new SoapClient(&apos;http://www.soap.com/service.php?wsdl&apos;);</span><br><span class="line">$res1 = $client-&gt;__soapCall(&apos;userData&apos;,array(&apos;operation&apos;=&gt;&apos;getInfo&apos;,&apos;statement&apos;=&gt;&apos;111&apos;));</span><br><span class="line">print_r($res1);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
-<p>上面这个例子客户端和服务端都是PHP写的，其实他们可以是不同的语言，只需要这个语言支持SOAP协议即可。<br>根据以上的例子我相信你已经能对SOAP有个清晰的定义了。根据SOAP的特点可以知道SOAP对于分布式的服务和跨语言的通信提供了一个很好的方案，但是就不足的就是它需要额外定义的SOAP协议，WSDL描述性文件等，具有一定的复杂性。随着HTTP协议的发展，它本身其实已经具有了独立承担这个服务的能力了，利用HTTP协议本身我们能够做得更好，这就是下面要讲的REST协议。</p>
-<h2 id="REST协议"><a href="#REST协议" class="headerlink" title="REST协议"></a>REST协议</h2><p>在读这个之前请先移步到<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a>这篇文章</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/web/">web</a>
     </span>
     
 

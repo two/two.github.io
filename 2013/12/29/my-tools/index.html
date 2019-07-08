@@ -3,7 +3,7 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>我使用的工具列表 | ∞hCode | ooh my code</title>
+  <title>我使用的工具列表 | oohcode | $\bigodot\bigodot^H \rightarrow CODE$</title>
 
   
   <meta name="author" content="sean chen">
@@ -29,14 +29,14 @@ markdown: 文档写作格式">
 
   <meta property="og:title" content="我使用的工具列表">
 
-  <meta property="og:site_name" content="∞hCode">
+  <meta property="og:site_name" content="oohcode">
 
   
   <meta property="og:image" content="/favicon.ico">
   
 
   <link href="/favicon.ico" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="∞hCode" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="oohcode" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
 </head>
 
@@ -48,9 +48,9 @@ markdown: 文档写作格式">
     <header>
   <div class="site-branding">
     <h1 class="site-title">
-      <a href="/">∞hCode</a>
+      <a href="/">oohcode</a>
     </h1>
-    <p class="site-description">ooh my code</p>
+    <p class="site-description">$\bigodot\bigodot^H \rightarrow CODE$</p>
   </div>
   <nav class="site-navigation">
     <ul>
@@ -143,5 +143,35 @@ markdown: 文档写作格式">
     
   </div>
 </div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 </body>
 </html>
