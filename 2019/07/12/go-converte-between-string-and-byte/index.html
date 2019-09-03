@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>go converte between string and byte slice | oohcode | $\bigodot\bigodot^H \rightarrow CODE$</title>
+
+  
+  <meta name="author" content="sean chen">
+  
+
+  
+  <meta name="description" content="StringGo第一版代码c实现, 在runtime/runtime.h里:123456789typedef struct  String      String;struct String&amp;#123;    byte*   str;    intgo   len;&amp;#125;;extern  St">
+  
+
+  
+  <meta name="keywords" content="sean">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="go converte between string and byte slice">
+
+  <meta property="og:site_name" content="oohcode">
+
+  
+  <meta property="og:image" content="/favicon.ico">
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="oohcode" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">oohcode</a>
+    </h1>
+    <p class="site-description">$\bigodot\bigodot^H \rightarrow CODE$</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">主页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+        <li><a href="/tags">标签</a></li>
+      
+        <li><a href="/atom.xml">订阅</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>go converte between string and byte slice</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2019/07/12/go-converte-between-string-and-byte/" rel="bookmark">
+        <time class="entry-date published" datetime="2019-07-12T05:17:10.000Z">
+          2019-07-12
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>Go第一版代码<code>c</code>实现, 在<code>runtime/runtime.h</code>里:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>  <span class="title">String</span>      <span class="title">String</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">String</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    byte*   str;</span><br><span class="line">    intgo   len;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span>  String  runtime·emptystring;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到<code>Go</code>中的<code>string</code>类型其实就是<code>String</code>这个类型。<br>之后<code>Go</code>实现了自举，从<code>runtime/string.go</code>中可以看到之前的影子:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> stringStruct <span class="keyword">struct</span> &#123;</span><br><span class="line">    str unsafe.Pointer</span><br><span class="line">    <span class="built_in">len</span> <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="todo-如何通过编译过程查找对应的类型定义"><a href="#todo-如何通过编译过程查找对应的类型定义" class="headerlink" title="todo: 如何通过编译过程查找对应的类型定义"></a>todo: 如何通过编译过程查找对应的类型定义</h3><h2 id="Byte"><a href="#Byte" class="headerlink" title="Byte"></a>Byte</h2><p><code>byte</code>的类型定义在 <code>builtin/builtin.go</code>中:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// uint8 is the set of all unsigned 8-bit integers.</span></span><br><span class="line"><span class="comment">// Range: 0 through 255.</span></span><br><span class="line"><span class="keyword">type</span> <span class="keyword">uint8</span> <span class="keyword">uint8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// byte is an alias for uint8 and is equivalent to uint8 in all ways. It is</span></span><br><span class="line"><span class="comment">// used, by convention, to distinguish byte values from 8-bit unsigned</span></span><br><span class="line"><span class="comment">// integer values.</span></span><br><span class="line"><span class="keyword">type</span> <span class="keyword">byte</span> = <span class="keyword">uint8</span></span><br></pre></td></tr></table></figure></p>
+<p>可以看到其实<code>byte</code>是<code>uint8</code>的类型别名</p>
+<h2 id="Slice"><a href="#Slice" class="headerlink" title="Slice"></a>Slice</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">    array unsafe.Pointer</span><br><span class="line">    <span class="built_in">len</span>   <span class="keyword">int</span></span><br><span class="line">    <span class="built_in">cap</span>   <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="string-to-byte-slice"><a href="#string-to-byte-slice" class="headerlink" title="string to byte slice"></a>string to byte slice</h2><p>写一个<code>string</code>强制类型转换为<code>[]byte</code>的<code>demo</code>:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> s = <span class="string">"strings"</span></span><br><span class="line">    <span class="keyword">var</span> b = []<span class="keyword">byte</span>(s)</span><br><span class="line">    fmt.Printf(<span class="string">"%v\n"</span>, b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过命令:<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go tool compile -S -N -l main.go</span><br></pre></td></tr></table></figure></p>
+<p>编译出汇编指令:<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""</span>.main STEXT size=<span class="number">317</span> args=<span class="number">0x0</span> locals=<span class="number">0xa8</span></span><br><span class="line">    <span class="number">0x0000</span> <span class="number">00000</span> (main.go:<span class="number">5</span>)    TEXT    <span class="string">""</span>.main(SB), ABIInternal, <span class="number">$168</span>-<span class="number">0</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x002f</span> <span class="number">00047</span> (main.go:<span class="number">6</span>)    LEAQ    go.string.<span class="string">"strings"</span>(SB), <span class="built_in">AX</span></span><br><span class="line">    <span class="number">0x0036</span> <span class="number">00054</span> (main.go:<span class="number">6</span>)    <span class="keyword">MOVQ</span>    <span class="built_in">AX</span>, <span class="string">""</span>.s+<span class="number">80</span>(<span class="built_in">SP</span>) # 把string内容放到这个位置</span><br><span class="line">    <span class="number">0x003b</span> <span class="number">00059</span> (main.go:<span class="number">6</span>)    <span class="keyword">MOVQ</span>    <span class="number">$7</span>, <span class="string">""</span>.s+<span class="number">88</span>(<span class="built_in">SP</span>) # 把string长度放到这个位置</span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x005a</span> <span class="number">00090</span> (main.go:<span class="number">7</span>)    <span class="keyword">CALL</span>    runtime.stringtoslicebyte(SB)</span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x008e</span> <span class="number">00142</span> (main.go:<span class="number">8</span>)    <span class="keyword">CALL</span>    runtime.convTslice(SB)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>上面可以看出当定义一个<code>string</code>时，其实会存储<code>string</code>的内容和长度, 对应前讲的<code>string</code>的结构:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct String</span><br><span class="line">&#123;</span><br><span class="line">    byte*   str;</span><br><span class="line">    intgo   len;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>然后又调用了<code>runtime.stringtoslicebyte(SB)</code>, 在<code>runtime/string.go</code>中:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stringtoslicebyte</span><span class="params">(buf *tmpBuf, s <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b []<span class="keyword">byte</span></span><br><span class="line">    <span class="keyword">if</span> buf != <span class="literal">nil</span> &amp;&amp; <span class="built_in">len</span>(s) &lt;= <span class="built_in">len</span>(buf) &#123; <span class="comment">// 如果字符串的长度小于buf长度，直接使用buf</span></span><br><span class="line">        *buf = tmpBuf&#123;&#125;</span><br><span class="line">        b = buf[:<span class="built_in">len</span>(s)]</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        b = rawbyteslice(<span class="built_in">len</span>(s)) <span class="comment">// 否则调用这个进行内存申请</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">copy</span>(b, s) <span class="comment">// 内存 copy</span></span><br><span class="line">    <span class="keyword">return</span> b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>buf</code>默认值是<code>32</code>:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> tmpStringBufSize = <span class="number">32</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> tmpBuf [tmpStringBufSize]<span class="keyword">byte</span></span><br></pre></td></tr></table></figure></p>
+<p>如果不满足长度，申请的内存大小为<code>len(s)</code>:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// rawbyteslice allocates a new byte slice. The byte slice is not zeroed.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rawbyteslice</span><span class="params">(size <span class="keyword">int</span>)</span> <span class="params">(b []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">    <span class="built_in">cap</span> := roundupsize(<span class="keyword">uintptr</span>(size))</span><br><span class="line">    p := mallocgc(<span class="built_in">cap</span>, <span class="literal">nil</span>, <span class="literal">false</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">cap</span> != <span class="keyword">uintptr</span>(size) &#123;</span><br><span class="line">        memclrNoHeapPointers(add(p, <span class="keyword">uintptr</span>(size)), <span class="built_in">cap</span>-<span class="keyword">uintptr</span>(size))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面是类型的转换，把申请的内存变成一个slice结构，赋值给b的地址</span></span><br><span class="line">    *(*slice)(unsafe.Pointer(&amp;b)) = slice&#123;p, size, <span class="keyword">int</span>(<span class="built_in">cap</span>)&#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面的过程重点有三个:</p>
+<ol>
+<li>当长度小于<code>32</code>时，直接使用临时内存地址</li>
+<li>当长度大于<code>32</code>时，需要申请新的长度为<code>len(s)</code>的内存地址</li>
+<li>需要进行内存的<code>copy</code></li>
+</ol>
+<h2 id="byte-slice-to-string"><a href="#byte-slice-to-string" class="headerlink" title="byte slice to string"></a>byte slice to string</h2><p>下面返回来，把一个<code>[]byte</code>转换为<code>string</code>:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b = []<span class="keyword">byte</span>&#123;<span class="number">101</span>, <span class="number">102</span>, <span class="number">103</span>&#125;</span><br><span class="line">    <span class="keyword">var</span> s = <span class="keyword">string</span>(b)</span><br><span class="line">    fmt.Printf(<span class="string">"%v\n"</span>, s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>生成的汇编代码是:<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">""</span>.main STEXT size=<span class="number">371</span> args=<span class="number">0x0</span> locals=<span class="number">0xb8</span></span><br><span class="line">    <span class="number">0x0000</span> <span class="number">00000</span> (main.go:<span class="number">5</span>)    TEXT    <span class="string">""</span>.main(SB), ABIInternal, <span class="number">$184</span>-<span class="number">0</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x005b</span> <span class="number">00091</span> (main.go:<span class="number">6</span>)    <span class="keyword">MOVQ</span>    <span class="built_in">AX</span>, <span class="string">""</span>.b+<span class="number">128</span>(<span class="built_in">SP</span>) # 把slice内容放到这个位置</span><br><span class="line">    <span class="number">0x0063</span> <span class="number">00099</span> (main.go:<span class="number">6</span>)    <span class="keyword">MOVQ</span>    <span class="number">$3</span>, <span class="string">""</span>.b+<span class="number">136</span>(<span class="built_in">SP</span>) # 把slice len 放到这个位置</span><br><span class="line">    <span class="number">0x006f</span> <span class="number">00111</span> (main.go:<span class="number">6</span>)    <span class="keyword">MOVQ</span>    <span class="number">$3</span>, <span class="string">""</span>.b+<span class="number">144</span>(<span class="built_in">SP</span>) # 把slice cap 放到这个位置</span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x00a2</span> <span class="number">00162</span> (main.go:<span class="number">7</span>)    <span class="keyword">CALL</span>    runtime.slicebytetostring(SB) #调用这个函数进行转换</span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x00c4</span> <span class="number">00196</span> (main.go:<span class="number">8</span>)    <span class="keyword">CALL</span>    runtime.convTstring(SB)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>上面可以看出当定义一个<code>slice</code>时，其实会存储<code>slice</code>的内容和长度和容量, 对应之前讲的<code>slice</code>的结构:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">    array unsafe.Pointer</span><br><span class="line">    <span class="built_in">len</span>   <span class="keyword">int</span></span><br><span class="line">    <span class="built_in">cap</span>   <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后调用<code>runtime.slicebytetostring</code>函数, 在<code>runtime/string.go</code>中:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Buf is a fixed-size buffer for the result,</span></span><br><span class="line"><span class="comment">// it is not nil if the result does not escape.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">slicebytetostring</span><span class="params">(buf *tmpBuf, b []<span class="keyword">byte</span>)</span> <span class="params">(str <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    l := <span class="built_in">len</span>(b)</span><br><span class="line">    <span class="keyword">if</span> l == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="comment">// Turns out to be a relatively common case.</span></span><br><span class="line">        <span class="comment">// Consider that you want to parse out data between parens in "foo()bar",</span></span><br><span class="line">        <span class="comment">// you find the indices and convert the subslice to string.</span></span><br><span class="line">        <span class="comment">// 长度为0，直接返回空字符串</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 长度为1，直接返回staticbytes[b[0]]这个提前设定好的地址内容</span></span><br><span class="line">    <span class="keyword">if</span> l == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="comment">// stringStruct结构的str字段指向对应的值得地址</span></span><br><span class="line">        stringStructOf(&amp;str).str = unsafe.Pointer(&amp;staticbytes[b[<span class="number">0</span>]])</span><br><span class="line">        <span class="comment">// stringStruct结构的len字段设置为1</span></span><br><span class="line">        stringStructOf(&amp;str).<span class="built_in">len</span> = <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> p unsafe.Pointer</span><br><span class="line">    <span class="keyword">if</span> buf != <span class="literal">nil</span> &amp;&amp; <span class="built_in">len</span>(b) &lt;= <span class="built_in">len</span>(buf) &#123;</span><br><span class="line">        p = unsafe.Pointer(buf)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        p = mallocgc(<span class="keyword">uintptr</span>(<span class="built_in">len</span>(b)), <span class="literal">nil</span>, <span class="literal">false</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    stringStructOf(&amp;str).str = p</span><br><span class="line">    stringStructOf(&amp;str).<span class="built_in">len</span> = <span class="built_in">len</span>(b)</span><br><span class="line">    memmove(p, (*(*slice)(unsafe.Pointer(&amp;b))).array, <span class="keyword">uintptr</span>(<span class="built_in">len</span>(b)))</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    <br>
+    
+    &copy; 2019 sean chen
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
