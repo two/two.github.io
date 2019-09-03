@@ -65,6 +65,70 @@
 
   
     
+    <h3 class="article-title"><a href="/2014/02/06/apue-chapter2/"><span>apue chapter2</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/02/06/apue-chapter2/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-02-05T16:00:00.000Z">
+          2014-02-06
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>本章主要介绍UNIX系统的标准化及不同UNIX系统的实现。</p>
+</blockquote>
+<h2 id="UNIX标准化"><a href="#UNIX标准化" class="headerlink" title="UNIX标准化"></a>UNIX标准化</h2><p>UNIX系统由各自独立的组织执行了三个标准：ISO C、IEEE POSIX以及Single UNIX Specification。</p>
+<p><img src="/assets/img/apue/unix_chart_775.jpg" alt="unix系统家族树"></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/APUE/">APUE</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/UNIX/">UNIX</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2014/01/15/mysql-merge-engine/"><span>mysql merge engine 介绍</span></a></h3>
     
   
@@ -1224,74 +1288,6 @@ Alice --> Bob: 响应
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/CSAPP/">CSAPP</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/06/restful-web-services-chapter7/"><span>chapter7-12:REST章节总结</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/06/restful-web-services-chapter7/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-05T16:00:00.000Z">
-          2013-12-06
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <h2 id="第七章：一个服务实现"><a href="#第七章：一个服务实现" class="headerlink" title="第七章：一个服务实现"></a>第七章：一个服务实现</h2><blockquote>
-<p><em>本章主要是根据前面的给出的一些介绍和原则进行，用ROR对其进行一个简单的实现。其中最重要的是作者分析需求的过程以及如何根据这些需求与ROA架构进行融合。本章是设计ROA服务步骤的具体实践过程,是对第六章的一个继承。</em></p>
-</blockquote>
-<h2 id="第八章：REST和ROA最佳实践"><a href="#第八章：REST和ROA最佳实践" class="headerlink" title="第八章：REST和ROA最佳实践"></a>第八章：REST和ROA最佳实践</h2><p>本章主要讲REST和ROA的实现过程中遇到的一些问题，以及如何应对这些问题：</p>
-<ul>
-<li>GET请求与HEAD请求是安全的，它们不应导致服务器状态发生改变。</li>
-<li>GET、HEAD、PUT与DELETE请求应该是幂等的，想一个URL发送多次应该与只做过一次请求的效果一样。</li>
-<li>POST既不是安全的也不是幂等的。</li>
-<li>遇到不支持PUT或DELETE请求的的情况，要用重载的POST请求来实现。</li>
-<li>HTTP异步操作可以通过返回状态码202告诉客户端已接受到请求，正在等待处理</li>
-<li>HTTP如何实现事务操作的过程比较复杂。</li>
-<li>复杂请求遵循的原则是：如果无法用统一接口适应多个动作，那就把它本身暴露为资源。</li>
-<li>URL的设计要考虑到新旧版本的更迭。</li>
-</ul>
-<p>其它涉及到HTTP缓存和认真等是HTTP本身的特性，不在这里介绍了。</p>
-<h2 id="第九章：服务的技术构件"><a href="#第九章：服务的技术构件" class="headerlink" title="第九章：服务的技术构件"></a>第九章：服务的技术构件</h2><p>本章第一部分是介绍在使用rest 服务是数据的表示方式，这不再说了，第二部分是如何定义请求与返回状态码。第三部分结束了WADL这个web应用描述语言，类似于SOAP的WSDL语言但它是基于REST的，虽然用法上感觉差不多，但其实是有着本质的区别的，我的理解是：WSDL和WADL都是为了简化编程，但是WSDL是根据SOAP的风格规定了调用的函数，传递的参数等，而WSDL则是遵循REST风格，规定了请求的方法、地址及请求的参数。</p>
-<h2 id="第十章：面向资源的架构VS大Web服务"><a href="#第十章：面向资源的架构VS大Web服务" class="headerlink" title="第十章：面向资源的架构VS大Web服务"></a>第十章：面向资源的架构VS大Web服务</h2>
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/restful-web-services/">restful web services</a>
     </span>
     
 

@@ -65,15 +65,15 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
+    <h3 class="article-title"><a href="/2013/12/06/restful-web-services-chapter7/"><span>chapter7-12:REST章节总结</span></a></h3>
     
   
 
   <div class="article-top-meta">
     <span class="posted-on">
-      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
-          2013-12-05
+      <a href="/2013/12/06/restful-web-services-chapter7/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-05T16:00:00.000Z">
+          2013-12-06
         </time>
       </a>
     </span>
@@ -85,15 +85,23 @@
   <div class="article-content">
     <div class="entry">
       
-        <blockquote>
-<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
+        <h2 id="第七章：一个服务实现"><a href="#第七章：一个服务实现" class="headerlink" title="第七章：一个服务实现"></a>第七章：一个服务实现</h2><blockquote>
+<p><em>本章主要是根据前面的给出的一些介绍和原则进行，用ROR对其进行一个简单的实现。其中最重要的是作者分析需求的过程以及如何根据这些需求与ROA架构进行融合。本章是设计ROA服务步骤的具体实践过程,是对第六章的一个继承。</em></p>
 </blockquote>
+<h2 id="第八章：REST和ROA最佳实践"><a href="#第八章：REST和ROA最佳实践" class="headerlink" title="第八章：REST和ROA最佳实践"></a>第八章：REST和ROA最佳实践</h2><p>本章主要讲REST和ROA的实现过程中遇到的一些问题，以及如何应对这些问题：</p>
 <ul>
-<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
-<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
-<li>成功的HTTP的相应代码有可能是201、205等。</li>
+<li>GET请求与HEAD请求是安全的，它们不应导致服务器状态发生改变。</li>
+<li>GET、HEAD、PUT与DELETE请求应该是幂等的，想一个URL发送多次应该与只做过一次请求的效果一样。</li>
+<li>POST既不是安全的也不是幂等的。</li>
+<li>遇到不支持PUT或DELETE请求的的情况，要用重载的POST请求来实现。</li>
+<li>HTTP异步操作可以通过返回状态码202告诉客户端已接受到请求，正在等待处理</li>
+<li>HTTP如何实现事务操作的过程比较复杂。</li>
+<li>复杂请求遵循的原则是：如果无法用统一接口适应多个动作，那就把它本身暴露为资源。</li>
+<li>URL的设计要考虑到新旧版本的更迭。</li>
 </ul>
-
+<p>其它涉及到HTTP缓存和认真等是HTTP本身的特性，不在这里介绍了。</p>
+<h2 id="第九章：服务的技术构件"><a href="#第九章：服务的技术构件" class="headerlink" title="第九章：服务的技术构件"></a>第九章：服务的技术构件</h2><p>本章第一部分是介绍在使用rest 服务是数据的表示方式，这不再说了，第二部分是如何定义请求与返回状态码。第三部分结束了WADL这个web应用描述语言，类似于SOAP的WSDL语言但它是基于REST的，虽然用法上感觉差不多，但其实是有着本质的区别的，我的理解是：WSDL和WADL都是为了简化编程，但是WSDL是根据SOAP的风格规定了调用的函数，传递的参数等，而WSDL则是遵循REST风格，规定了请求的方法、地址及请求的参数。</p>
+<h2 id="第十章：面向资源的架构VS大Web服务"><a href="#第十章：面向资源的架构VS大Web服务" class="headerlink" title="第十章：面向资源的架构VS大Web服务"></a>第十章：面向资源的架构VS大Web服务</h2>
       
     </div>
 
@@ -160,6 +168,66 @@
 <li>考虑可能出现哪些错误情况</li>
 </ol>
 <p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
+</blockquote>
+<ul>
+<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
+<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
+<li>成功的HTTP的相应代码有可能是201、205等。</li>
+</ul>
 
       
     </div>
@@ -457,6 +525,61 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
+          2013-11-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
+</blockquote>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter1/"><span>chapter1:Programmable Web及其分类</span></a></h3>
     
   
@@ -540,15 +663,15 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
+    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
     
   
 
   <div class="article-top-meta">
     <span class="posted-on">
-      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
-          2013-11-26
+      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
+          2013-11-25
         </time>
       </a>
     </span>
@@ -560,10 +683,7 @@
   <div class="article-content">
     <div class="entry">
       
-        <blockquote>
-<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
-</blockquote>
-
+        
       
     </div>
 
@@ -577,7 +697,7 @@
 
     <span class="post-categories">
       <i class="icon-categories"></i>
-        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+        <a href="/categories/computer-system/">computer system</a>
     </span>
     
 
@@ -650,114 +770,6 @@
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/computer-system/">computer system</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
-          2013-11-25
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/computer-system/">computer system</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/21/csapp-chapter2/"><span>csapp chapter2:信息的表示和处理</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/21/csapp-chapter2/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-20T16:00:00.000Z">
-          2013-11-21
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章主要是对各种信息在计算机中是如何表示的进行了详细的介绍。特别是不同的数据类型，比如浮点数的表示方式，进行了非常深入的介绍，学习本章对科学计算以及程序中出现的莫名其妙的数据错乱会有很好的理解。</em></p>
-</blockquote>
-<p>（由于本章对了解计算机系统的运行过程相关性不是太大可以先不阅读）</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/CSAPP/">CSAPP</a>
     </span>
     
 
