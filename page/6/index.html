@@ -65,6 +65,81 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/12/24/markdown-to-pdf/"><span>markdown转pdf</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/24/markdown-to-pdf/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-23T16:00:00.000Z">
+          2013-12-24
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>现在已经对markdown痴迷了，一直在折腾，想以后把markdown 作为我不管是写博客还是写文档的标准文件格式，因为据说它可以转换成很多其他的格式，适应在不同的设备上使用，这就是一劳永逸啊。可以过程却是很坑爹啊～</em></p>
+</blockquote>
+<h2 id="工具选择"><a href="#工具选择" class="headerlink" title="工具选择"></a>工具选择</h2><p>Google 了很久，终于发现一个强大的工具：<a href="http://johnmacfarlane.net/pandoc/" target="_blank" rel="noopener">pandoc</a>。于是苦逼的旅程开始了～</p>
+<h3 id="linux下安装："><a href="#linux下安装：" class="headerlink" title="linux下安装："></a>linux下安装：</h3><ol>
+<li>pandoc<a href="http://johnmacfarlane.net/pandoc/installing.html" target="_blank" rel="noopener">下载安装</a>页面竟然没有redhat?</li>
+<li>查看一下发现有一个<a href="http://johnmacfarlane.net/pandoc/installing.html#all-platforms" target="_blank" rel="noopener">all-platforms</a></li>
+<li>提示需要先安装<a href="http://www.haskell.org/platform/" target="_blank" rel="noopener">Haskell platform</a></li>
+<li>选择linux平台却发现没有redhat,只是看到不起眼的一行写着：<em>See also: <a href="http://justhub.org/" target="_blank" rel="noopener">justhub</a>, for RHEL, CentOS, Scientific Linux, and Fedora support</em>.</li>
+<li>进入下载页面总于看到希望了：<br><code>wget http://sherkin.justhub.org/el6/RPMS/x86_64/justhub-release-2.0-4.0.el6.x86_64.rpm</code><br><code>rpm -ivh justhub-release-2.0-4.0.el6.x86_64.rp</code><br><code>yum install haskell</code><br>尼玛，这个也太大了，要一个多G,我的<code>usr</code>都满了～</li>
+<li>再回到pandoc的<a href="http://johnmacfarlane.net/pandoc/installing.html" target="_blank" rel="noopener">下载页面</a>执行：<code>cabal install --force pandoc pandoc-citeproc</code></li>
+<li>果然又报错:<code>pandoc-1.12.2.1 failed during the building phase.</code>,找了好久，还是<a href="http://stackoverflow.com/questions/19045380/failed-to-compile-pandoc-with-cabal" target="_blank" rel="noopener">stackoverflow</a>靠谱，原来是内存不够用了！果断把其它进程kill了，腾出空间再次运行～</li>
+<li>终于看到安装成功的提示了，-_-#。来，运行一个pandoc命令看看：<code>pandoc -V</code>,竟然提示command no found!!!＿|￣|○</li>
+<li>找找有没有pandoc吧：<code>find / -name pandoc</code>果然找到了，二进制文件在这里：<code>/root/.cabal/bin/pandoc</code>。把它们加到PATH里，退出再登录一把。</li>
+<li>Y(^_^)Y，终于好了！！！</li>
+</ol>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/markdown/">markdown</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/12/20/csapp-chapter3/"><span>csapp chapter3:程序的机器级表示</span></a></h3>
     
   
@@ -565,6 +640,66 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
+</blockquote>
+<ul>
+<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
+<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
+<li>成功的HTTP的相应代码有可能是201、205等。</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter5/"><span>chapter5:设计只读的面向资源的服务</span></a></h3>
     
   
@@ -600,66 +735,6 @@
 <li>考虑可能出现哪些错误情况</li>
 </ol>
 <p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/restful-web-services/">restful web services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
-          2013-12-05
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
-</blockquote>
-<ul>
-<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
-<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
-<li>成功的HTTP的相应代码有可能是201、205等。</li>
-</ul>
 
       
     </div>
@@ -1078,58 +1153,6 @@
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
-          2013-11-25
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/computer-system/">computer system</a>
     </span>
     
 
