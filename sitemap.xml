@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://oohcode.com/2019/10/21/etcd-server-md/</loc>
+    
+    <lastmod>2019-10-21T07:11:17.906Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2019/09/19/golang-sync-mutex/</loc>
+    
+    <lastmod>2019-09-23T05:20:16.221Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2019/09/04/go-interface-use/</loc>
     
     <lastmod>2019-09-06T01:23:22.592Z</lastmod>
@@ -100,14 +114,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
+    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2017/03/11/The-Design-and-Implementation-of-Redis-4/</loc>
+    <loc>http://oohcode.com/2017/07/01/how-golang-webserver-work/</loc>
     
     <lastmod>2019-03-04T04:37:02.969Z</lastmod>
     
@@ -233,13 +247,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/11/07/gdb-manual/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.965Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2014/11/19/uml-class-diagram/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
@@ -254,7 +261,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/05/21/csapp-chapter7/</loc>
+    <loc>http://oohcode.com/2014/11/07/gdb-manual/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
@@ -262,6 +269,13 @@
   
   <url>
     <loc>http://oohcode.com/2014/07/05/coreseek-manual/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.965Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2014/05/21/csapp-chapter7/</loc>
     
     <lastmod>2019-03-04T04:37:02.965Z</lastmod>
     
@@ -282,6 +296,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2014/05/10/stdarg-function/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2014/05/13/coreseek-install-doc/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
@@ -296,23 +317,9 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2014/05/10/stdarg-function/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.964Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2014/02/13/csapp-chapter5/</loc>
     
     <lastmod>2019-03-04T04:37:02.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2014/01/10/add-dot-language/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.963Z</lastmod>
     
   </url>
   
@@ -338,6 +345,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2014/01/10/add-dot-language/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.963Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/12/30/think-in-uml/</loc>
     
     <lastmod>2019-03-04T04:37:02.963Z</lastmod>
@@ -346,13 +360,6 @@
   
   <url>
     <loc>http://oohcode.com/2013/12/24/markdown-to-pdf/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.962Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2013/12/29/plantuml-chinese-garbled/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
     
@@ -373,6 +380,13 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2013/12/29/plantuml-chinese-garbled/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.962Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/12/26/mysql-optimiz-summary/</loc>
     
     <lastmod>2019-03-04T04:37:02.962Z</lastmod>
@@ -387,7 +401,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter6/</loc>
+    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -401,7 +415,7 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/12/04/restful-web-services-chapter4/</loc>
+    <loc>http://oohcode.com/2013/12/05/restful-web-services-chapter6/</loc>
     
     <lastmod>2019-03-04T04:37:02.961Z</lastmod>
     
@@ -422,14 +436,14 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/25/select-poll-epoll/</loc>
+    <loc>http://oohcode.com/2013/11/25/synchronous-asynchronous-blocking-non-blocking/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/25/synchronous-asynchronous-blocking-non-blocking/</loc>
+    <loc>http://oohcode.com/2013/11/25/select-poll-epoll/</loc>
     
     <lastmod>2019-03-04T04:37:02.960Z</lastmod>
     
@@ -506,20 +520,6 @@
   </url>
   
   <url>
-    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://oohcode.com/2013/11/19/apue-chapter0/</loc>
-    
-    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://oohcode.com/2013/11/13/django-nginx-fastcgi/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
@@ -527,7 +527,21 @@
   </url>
   
   <url>
+    <loc>http://oohcode.com/2013/11/04/setuptools-setuppy-config/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://oohcode.com/2013/11/14/pip-and-easy_install/</loc>
+    
+    <lastmod>2019-03-04T04:37:02.958Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://oohcode.com/2013/11/19/apue-chapter0/</loc>
     
     <lastmod>2019-03-04T04:37:02.958Z</lastmod>
     

@@ -65,6 +65,180 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/12/29/plantuml-chinese-garbled/"><span>plantuml在Mac OS X系统下中文乱码问题解决</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/29/plantuml-chinese-garbled/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-28T16:00:00.000Z">
+          2013-12-29
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>安装完plantuml使用plantuml.jar生成的uml图中文会出现乱码，这个问题困扰了我大半天，终于解决了～</p>
+</blockquote>
+<p>首先编写uml程序的文件的编码方式是utf-8的，test.uml内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@startuml</span><br><span class="line">|Brower|</span><br><span class="line">start</span><br><span class="line">:点击领取按钮;</span><br><span class="line">|WebServer|</span><br><span class="line">:领取勋章;</span><br><span class="line">|Cache|</span><br><span class="line">:更新缓存;</span><br><span class="line">|DB|</span><br><span class="line">:更新DB;</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure><br>但是利用<code>java -jar plantuml.jar -tsvg test.uml</code>或者利用plantuml的vim插件命令<code>:make</code>都可以正常生成，但是里面的中文都是乱码。实在是让我发愁啊，在网上找了好久，只有一篇博客提到了这个问题，就是<a href="http://blog.sina.com.cn/s/blog_53e449530101408m.html" target="_blank" rel="noopener">ubuntu plantuml的中文问题 </a>。但这并不是我想要的，首先我的系统是Mac OS X,跟博文中的系统不一样，其次我的系统对中文编码是支持的，其他的都没问题，只是这里有问题。最后还是自己帮了自己，使用<code>java -jar plantuml.jar -h</code>可以看到有个<code>-charset</code>选项，但是后面说的默认编码格式却是GBK2312，总有找到问题了，于是我在命令里加了下面的参数<code>java -jar plantuml.jar -charset utf-8 -tsvg test.uml</code>，在看结果终于可以了～中文显示正常了！  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/tools/">tools</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/plantuml/">plantuml</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/26/mysql-optimiz-summary/"><span>MySQL优化总结</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/26/mysql-optimiz-summary/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-25T16:00:00.000Z">
+          2013-12-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>这篇博客主要就mysql的优化进行问题从不同方面进行了总结。</em></p>
+</blockquote>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><p>通常意义上，数据库也就是数据的集合，具体到计算机上数据库可以是存储器上一些文件的集合或者一些内存数据的集合。MySql数据库是开放源代码的关系型数据库。目前，它可以提供的功能有：支持sql语言、子查询、存储过程、触发器、视图、索引、事务、锁、外键约束和影像复制等。MySql也是客户/服务器系统并且是<strong>单进程多线程架构</strong>的数据库。MySql区别于其它数据库系统的一个重要特点是支持<strong>插入式存储引擎</strong>。</p>
+<h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>根据存储数据及为数据建立索引和更新、查询技术的不同可以将mysql的存储分为不同的存储引擎，其中最主要的存储引擎有MyISAM、InnoDB、MEMORY等，其中最常用的有MyISAM和InnoDB两种，可以通过下面的命令查看自己的MySQL支持哪些存储引擎：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW ENGINES;</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| Engine     | Support | Comment                                                    | Transactions | XA   | Savepoints |</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| MRG_MYISAM | YES     | Collection of identical MyISAM tables                      | NO           | NO   | NO         |</span><br><span class="line">| CSV        | YES     | CSV storage engine                                         | NO           | NO   | NO         |</span><br><span class="line">| MyISAM     | DEFAULT | Default engine as of MySQL 3.23 with great performance     | NO           | NO   | NO         |</span><br><span class="line">| InnoDB     | YES     | Supports transactions, row-level locking, and foreign keys | YES          | YES  | YES        |</span><br><span class="line">| MEMORY     | YES     | Hash based, stored in memory, useful for temporary tables  | NO           | NO   | NO         |</span><br><span class="line">+------------+---------+------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">5 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p><strong>MyISAM</strong>:这种引擎是mysql最早提供的。这种引擎又可以分为静态MyISAM、动态MyISAM 和压缩MyISAM三种：</p>
+<ul>
+<li>静态MyISAM：如果数据表中的各数据列的长度都是预先固定好的，服务器将自动选择这种表类型。因为数据表中每一条记录所占用的空间都是一样的，所以这种表存取和更新的效率非常高。当数据受损时，恢复工作也比较容易做。</li>
+<li>动态MyISAM：如果数据表中出现varchar、xxxtext或xxxBLOB字段时，服务器将自动选择这种表类型。相对于静态MyISAM，这种表存储空间比较小，但由于每条记录的长度不一，所以多次修改数据后，数据表中的数据就可能离散的存储在内存中，进而导致执行效率下降。同时，内存中也可能会出现很多碎片。因此，这种类型的表要经常用optimize table 命令或优化工具来进行碎片整理。</li>
+<li><p>压缩MyISAM：以上说到的两种类型的表都可以用myisamchk工具压缩。这种类型的表进一步减小了占用的存储，但是这种表压缩之后不能再被修改。另外，因为是压缩数据，所以这种表在读取的时候要先时行解压缩。</p>
+<p>但是，不管是何种MyISAM表，目前它都不支持事务，行级锁和外键约束的功能。</p>
+</li>
+</ul>
+</li>
+<li><strong>MyISAM Merge</strong>：这种类型是MyISAM类型的一种变种。合并表是将几个相同的MyISAM表合并为一个虚表。常应用于日志和数据仓库。</li>
+<li><strong>InnoDB</strong>：InnoDB表类型可以看作是对MyISAM的进一步更新产品，它提供了事务、行级锁机制和外键约束的功能。</li>
+<li><strong>memory(heap)</strong>：这种类型的数据表只存在于内存中。它使用散列索引，所以数据的存取速度非常快。因为是存在于内存中，所以这种类型常应用于临时表中。</li>
+<li><strong>archive</strong>：这种类型只支持select 和 insert语句，而且不支持索引。常应用于日志记录和聚合分析方面。</li>
+</ul>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><h4 id="索引用到的数据结构"><a href="#索引用到的数据结构" class="headerlink" title="索引用到的数据结构"></a>索引用到的数据结构</h4><p>关于存储引擎用的数据结构其中最重要的就是B树与B+树，可以参考JULY的这篇<a href="http://blog.csdn.net/v_july_v/article/details/6530142" target="_blank" rel="noopener">从B 树、B+ 树、B* 树谈到R 树</a>。<br>可以看到，B树与B+树的最大的区别其实就是：B树的所有信息都存在字节点中，而B+树的所有信息都存储在叶子节点中。<br>B+树比B树更适合做文件索引和数据库索引，原因是：</p>
+<ol>
+<li>B+-tree的磁盘读写代价更低<br>B+-tree的内部结点并没有指向关键字具体信息的指针。因此其内部结点相对B 树更小。如果把所有同一内部结点的关键字存放在同一盘块中，那么盘块所能容纳的关键字数量也越多。一次性读入内存中的需要查找的关键字也就越多。相对来说IO读写次数也就降低了。<br> 举个例子，假设磁盘中的一个盘块容纳16bytes，而一个关键字2bytes，一个关键字具体信息指针2bytes。一棵9阶B-tree(一个结点最多8个关键字)的内部结点需要2个盘快。而B+ 树内部结点只需要1个盘快。当需要把内部结点读入内存中的时候，B 树就比B+ 树多一次盘块查找时间(在磁盘中就是盘片旋转的时间)。</li>
+<li><p>B+-tree的查询效率更加稳定<br>由于非终结点并不是最终指向文件内容的结点，而只是叶子结点中关键字的索引。所以任何关键字的查找必须走一条从根结点到叶子结点的路。所有关键字查询的路径长度相同，导致每一个数据的查询效率相当。<br>读者点评</p>
+</li>
+<li><p>有人觉得这两个原因都不是主要原因。数据库索引采用B+树的主要原因是 B树在提高了磁盘IO性能的同时并没有解决元素遍历的效率低下的问题。正是为了解决这个问题，B+树应运而生。B+树只要遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，而B树不支持这样的操作（或者说效率太低）。</p>
+</li>
+</ol>
+<h4 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h4><p>MySQL数据库可以建立不同的数据库，主要类型有：</p>
+<ul>
+<li><strong>普通索引</strong>:就是普通的INDEX。索引的列可以重复。</li>
+<li><strong>唯一索引</strong>:UNIQUE INDEX ,索引的列值必须使唯一，可以有空值，如果是组合索引，则列值的组合必须使唯一的。<strong>主键索引</strong>是一种特殊的唯一索引，不允许为空值，一个表只能有一个主键。</li>
+<li><strong>全文索引</strong>:FULLTEXT索引，把CHAR、VARCHAR或TEXT列作为索引，仅可以用于MyISAM表中。</li>
+<li><strong>组合索引（最左前缀）</strong>:对个列组合成为一个索引。这个索引其实只是上面几种的一个特殊情况。</li>
+</ul>
+<h3 id="存储引擎对索引的利用"><a href="#存储引擎对索引的利用" class="headerlink" title="存储引擎对索引的利用"></a>存储引擎对索引的利用</h3><p>关于存储引擎及其使用的数据结构可以看下这个博客：<a href="http://blog.linezing.com/2011/07/%E6%B5%85%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E8%83%8C%E5%90%8E%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%AE%97%E6%B3%95" target="_blank" rel="noopener">浅谈mysql索引背后的数据结构及算法</a>。<br>这篇博客讲的很清楚了，但是这里我还是要总结一下重点，便于自己记忆。</p>
+<ol>
+<li>MyISAM与InnoDB使用的都是B+树作为索引</li>
+<li><p>MyISAM使用B+树的方式如下：</p>
+<ul>
+<li>对于主键索引：<br><img src="/assets/img/others/myisam_primary_key.png" alt="primary key"></li>
+<li>对于辅助索引：<br><img src="/assets/img/others/myisam_secondary_key.png" alt="primary key"><br>可见它主要是MyISAM的叶子节点存储的是数据的地址，索引文件与数据是分离的，当查询时先从索引文件中找到数据的地址，然后再根据地址去取出数据的值。主索引与普通索引的查询方法是一致的。</li>
+</ul>
+</li>
+<li><p>InnoDB使用B+树的方式如下： </p>
+<ul>
+<li>对于主键索引：<br><img src="/assets/img/others/innodb_primary_key.png" alt="primary key"></li>
+<li>对于辅助索引：<br><img src="/assets/img/others/innodb_secondary_key.png" alt="primary key"><br>可以看出与MyISAM不同，InnoDB的数据文件同时也是索引文件，对于主键索引的使用，就是直接从索引文件的叶子节点中找出数据。但是普通索引所有的叶子节点存储的都是主键的值，对于普通索引只能先通过索引文件找出主键的值，然后再根据主键的值从主键索引文件中找出数据。<br>ps:有点疑问：前面说选择B+Tree作为存储引擎数据结构的原因第一条是索引文件比较小，可以放到同一个磁盘上，减少磁盘的读取次数，所以效率比较高，但是这个把索引文件和数据融到了一起，是不是也会有这个问题呢？</li>
+</ul>
+</li>
+</ol>
+<h4 id="存储引擎适用的场景"><a href="#存储引擎适用的场景" class="headerlink" title="存储引擎适用的场景"></a>存储引擎适用的场景</h4><p>只有了解存储引擎的原理才能更好的进行优化，其实优化就是根据其原理把数据库的性能提升到尽可能的高。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/DB/">DB</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/mysql/">mysql</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/12/24/markdown-to-pdf/"><span>markdown转pdf</span></a></h3>
     
   
@@ -640,66 +814,6 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
-          2013-12-05
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
-</blockquote>
-<ul>
-<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
-<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
-<li>成功的HTTP的相应代码有可能是201、205等。</li>
-</ul>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/restful-web-services/">restful web services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
     <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter5/"><span>chapter5:设计只读的面向资源的服务</span></a></h3>
     
   
@@ -735,6 +849,66 @@
 <li>考虑可能出现哪些错误情况</li>
 </ol>
 <p>这些步骤都是显而易见的，不需要花篇幅进行再描述了。关键是要在实践中去运用这些思想。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/restful-web-services/">restful web services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/12/05/restful-web-services-chapter6/"><span>chapter6:设计可读写的面向资源的服务</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/12/05/restful-web-services-chapter6/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-12-04T16:00:00.000Z">
+          2013-12-05
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章主要是讲的如何设计一个可以读写资源的服务。需要写服务的话则需要PUT,POST操作。由于其中涉及到很多具体的例子，本博就不再赘述了，只把看到的重点总结一下。</em></p>
+</blockquote>
+<ul>
+<li>创建一个资源是用POST还是用PUT要根据上一章的原则进行选择。</li>
+<li>HTML5以前FORM的method只支持GET和POST两种方式，没有PUT。为了能使用PUT可以使用发送WADL片段的方法，还可以通过第八章介绍的“重载POST发送的PUT请求”</li>
+<li>成功的HTTP的相应代码有可能是201、205等。</li>
+</ul>
 
       
     </div>
@@ -1015,144 +1189,6 @@
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/restful-web-services/">restful web services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
-          2013-11-26
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
-</blockquote>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter1/"><span>chapter1:Programmable Web及其分类</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/26/restful-web-services-chapter1/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
-          2013-11-26
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本章首先对Programmable Web的定义进行了通俗的介绍，然后有讲了最基础的HTTP协议的相关知识，以及对各种web service架构与HTTP协议的密切关系进行了介绍，让读者对不同的web service架构有了一个初步的认识。</em></p>
-</blockquote>
-<h2 id="Programmable-Web的分类"><a href="#Programmable-Web的分类" class="headerlink" title="Programmable Web的分类"></a>Programmable Web的分类</h2><p>首先要明确是什么事Programmable Web。这里主要是与Human Web进行了对比，下面是对它们的定义：</p>
-<ul>
-<li>Programmable Web: 面向计算机程序使用的Web</li>
-<li>Human Web: 面向人类使用的web</li>
-</ul>
-<p>这么说其实很不好理解，但是介绍它们之间的不同之处是就很好理解了：</p>
-<ul>
-<li>Programmable Web:数据主要是供计算机进行读取分析的，对人类不友好的，比如XML，json等数据格式</li>
-<li>Human Web: 主要是供人类读取的，比如HTML页面等</li>
-</ul>
-<p>说道Programmable Web的分类，其实现在主要是根据实现的技术（URI, SOAP, XML-RPC等），或者背后的架构与设计思想进行分类的。根据技术进行分类其实存在缺陷，在某些场合容易混淆，只有根据其架构进行分类才是王道。  </p>
-<h2 id="HTTP信封里的文档"><a href="#HTTP信封里的文档" class="headerlink" title="HTTP信封里的文档"></a>HTTP信封里的文档</h2><p>HTTP协议作为web的基础，也作为Programmable Web分类的重要标志，需要在这里进行简要的介绍一下（关于HTTP协议的详细介绍请参考《HTTP协议详解》这本书）。</p>
-<ul>
-<li>HTTP方法: 如同编程语言的方法名，表示客户端希望服务器如何处理该信封。</li>
-<li>路径（path):是URI主机后面的部分，表示信封的地址。</li>
-<li>请求报头（request headers):是一组k-v对，起到元数据的作用。</li>
-<li>实体主体（entity-body):是放在信封里的文档。</li>
-</ul>
-<p>HTTP相应可分为三个部分：</p>
-<ul>
-<li>HTTP相应代码</li>
-<li>响应报头</li>
-<li>实体主体</li>
-</ul>
-<h2 id="方法信息"><a href="#方法信息" class="headerlink" title="方法信息"></a>方法信息</h2><p>客户端发起什么样的请求，对应的服务器端采取何种方式操作数据，这就是方法信息。按照REST的Web服务的做法，增删改查的方法信息都放在了HTTP方法里，分别对应的是POST/DELETE/PUT/GET。有些则是把这些信息放到URI信息里进行传递。还有些是放到实体主体和HTTP报头里，比如SOAP服务请求的方法细节都在WSDL文件里。</p>
-<h2 id="作用域信息"><a href="#作用域信息" class="headerlink" title="作用域信息"></a>作用域信息</h2><p>客户端如何告诉服务器对那些数据进行操作，这种信息就是作用域信息。作用域信息的放置也可以是URI或者SOAP服务的实体主体里。</p>
-<h2 id="相互竞争的服务架构"><a href="#相互竞争的服务架构" class="headerlink" title="相互竞争的服务架构"></a>相互竞争的服务架构</h2><p>常见的web服务架构有三种：REST式架构、RPC式架构和RPC-REST式架构。</p>
-<p><strong>REST式面向资源的架构</strong><br>REST结构意味着,方法信息都在HTTP方法里；面向资源的架构（SOA)意味着，作用域信息都在URI里。REST的具体细节将在后面进行详细的介绍。<br><strong>RPC式架构</strong><br>RPC式web服务通常从客户端收到一个充满数据的信封，然后发回一个同样充满数据的信封。RPC式架构意味着：方法信息和作用域信息都在信封里或报头里。HTTP是一种常见的信封格式，SOAP也是一种常见的信封格式，但是SOAP是通过HTTP进行传输的。<br><strong>REST-RPC式架构</strong><br>混合式的架构是指不是彻底的贯彻REST风格的架构，既有一部分是符合REST架构的要求，又有一部分是RPC架构的要求，这些或者是有意的，或者是无意的。  </p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
     </span>
     
 

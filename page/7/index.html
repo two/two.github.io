@@ -65,15 +65,15 @@
 
   
     
-    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
+    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter0/"><span>restful web services chapter0</span></a></h3>
     
   
 
   <div class="article-top-meta">
     <span class="posted-on">
-      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
-          2013-11-25
+      <a href="/2013/11/26/restful-web-services-chapter0/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
+          2013-11-26
         </time>
       </a>
     </span>
@@ -85,7 +85,10 @@
   <div class="article-content">
     <div class="entry">
       
-        
+        <blockquote>
+<p><em>REST说起来可以很简单，也可以很复杂。这本书是介绍REST的经典之作，希望自己能读完并总结出一些知识运用到实际的开发过程中去。</em></p>
+</blockquote>
+
       
     </div>
 
@@ -99,7 +102,90 @@
 
     <span class="post-categories">
       <i class="icon-categories"></i>
-        <a href="/categories/computer-system/">computer system</a>
+        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/26/restful-web-services-chapter1/"><span>chapter1:Programmable Web及其分类</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/26/restful-web-services-chapter1/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-25T16:00:00.000Z">
+          2013-11-26
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>本章首先对Programmable Web的定义进行了通俗的介绍，然后有讲了最基础的HTTP协议的相关知识，以及对各种web service架构与HTTP协议的密切关系进行了介绍，让读者对不同的web service架构有了一个初步的认识。</em></p>
+</blockquote>
+<h2 id="Programmable-Web的分类"><a href="#Programmable-Web的分类" class="headerlink" title="Programmable Web的分类"></a>Programmable Web的分类</h2><p>首先要明确是什么事Programmable Web。这里主要是与Human Web进行了对比，下面是对它们的定义：</p>
+<ul>
+<li>Programmable Web: 面向计算机程序使用的Web</li>
+<li>Human Web: 面向人类使用的web</li>
+</ul>
+<p>这么说其实很不好理解，但是介绍它们之间的不同之处是就很好理解了：</p>
+<ul>
+<li>Programmable Web:数据主要是供计算机进行读取分析的，对人类不友好的，比如XML，json等数据格式</li>
+<li>Human Web: 主要是供人类读取的，比如HTML页面等</li>
+</ul>
+<p>说道Programmable Web的分类，其实现在主要是根据实现的技术（URI, SOAP, XML-RPC等），或者背后的架构与设计思想进行分类的。根据技术进行分类其实存在缺陷，在某些场合容易混淆，只有根据其架构进行分类才是王道。  </p>
+<h2 id="HTTP信封里的文档"><a href="#HTTP信封里的文档" class="headerlink" title="HTTP信封里的文档"></a>HTTP信封里的文档</h2><p>HTTP协议作为web的基础，也作为Programmable Web分类的重要标志，需要在这里进行简要的介绍一下（关于HTTP协议的详细介绍请参考《HTTP协议详解》这本书）。</p>
+<ul>
+<li>HTTP方法: 如同编程语言的方法名，表示客户端希望服务器如何处理该信封。</li>
+<li>路径（path):是URI主机后面的部分，表示信封的地址。</li>
+<li>请求报头（request headers):是一组k-v对，起到元数据的作用。</li>
+<li>实体主体（entity-body):是放在信封里的文档。</li>
+</ul>
+<p>HTTP相应可分为三个部分：</p>
+<ul>
+<li>HTTP相应代码</li>
+<li>响应报头</li>
+<li>实体主体</li>
+</ul>
+<h2 id="方法信息"><a href="#方法信息" class="headerlink" title="方法信息"></a>方法信息</h2><p>客户端发起什么样的请求，对应的服务器端采取何种方式操作数据，这就是方法信息。按照REST的Web服务的做法，增删改查的方法信息都放在了HTTP方法里，分别对应的是POST/DELETE/PUT/GET。有些则是把这些信息放到URI信息里进行传递。还有些是放到实体主体和HTTP报头里，比如SOAP服务请求的方法细节都在WSDL文件里。</p>
+<h2 id="作用域信息"><a href="#作用域信息" class="headerlink" title="作用域信息"></a>作用域信息</h2><p>客户端如何告诉服务器对那些数据进行操作，这种信息就是作用域信息。作用域信息的放置也可以是URI或者SOAP服务的实体主体里。</p>
+<h2 id="相互竞争的服务架构"><a href="#相互竞争的服务架构" class="headerlink" title="相互竞争的服务架构"></a>相互竞争的服务架构</h2><p>常见的web服务架构有三种：REST式架构、RPC式架构和RPC-REST式架构。</p>
+<p><strong>REST式面向资源的架构</strong><br>REST结构意味着,方法信息都在HTTP方法里；面向资源的架构（SOA)意味着，作用域信息都在URI里。REST的具体细节将在后面进行详细的介绍。<br><strong>RPC式架构</strong><br>RPC式web服务通常从客户端收到一个充满数据的信封，然后发回一个同样充满数据的信封。RPC式架构意味着：方法信息和作用域信息都在信封里或报头里。HTTP是一种常见的信封格式，SOAP也是一种常见的信封格式，但是SOAP是通过HTTP进行传输的。<br><strong>REST-RPC式架构</strong><br>混合式的架构是指不是彻底的贯彻REST风格的架构，既有一部分是符合REST架构的要求，又有一部分是RPC架构的要求，这些或者是有意的，或者是无意的。  </p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/RESTful-Web-Services/">RESTful Web Services</a>
     </span>
     
 
@@ -158,6 +244,58 @@
 <li><strong>异步非阻塞</strong>: 异步非阻塞是执行效率最高的模式，一个进程可以同时发出很多任务，比如说T1,T2,T3等,而它们之间并无顺序关系，那个任务先执行完就可以先进行回调，执行其它任务。这样P的利用率就可以达到最大。</li>
 </ul>
 
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/computer-system/">computer system</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/25/select-poll-epoll/"><span>select poll epoll</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/25/select-poll-epoll/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-24T16:00:00.000Z">
+          2013-11-25
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        
       
     </div>
 
@@ -660,131 +798,6 @@
     <span class="post-tags">
       <i class="icon-tags"></i>
         <a href="/tags/UNIX/">UNIX</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/14/pip-and-easy_install/"><span>python打包高级进阶:pip and easy_install</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/14/pip-and-easy_install/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-13T16:00:00.000Z">
-          2013-11-14
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <h2 id="如何选择已经安装的不同版本？"><a href="#如何选择已经安装的不同版本？" class="headerlink" title="如何选择已经安装的不同版本？"></a>如何选择已经安装的不同版本？</h2><p>其实很简单。以myproject为例：<code>easy_install myproject==version</code> 就可以了，默认是先从本地开始找，如果本地找不到就会从远程源上找。</p>
-<h2 id="能不能指定安装路径？"><a href="#能不能指定安装路径？" class="headerlink" title="能不能指定安装路径？"></a>能不能指定安装路径？</h2><p>经过再次了解，发现其实是可以的,<code>easy_install -h</code>命令可以看到有以下两条：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--install-dir (-d)             install package to DIR</span><br><span class="line">--script-dir (-s)              install scripts to DIR</span><br><span class="line">--prefix                       installation prefix </span><br></pre></td></tr></table></figure><br>第一个其实就是可以指定默认搜索路径的。第二个是可以指定二进制脚本的安装路径，如果指定了第一个而没有指定第二个那就会默认都安装到第一个,第三个是实际包的安装路径，但是只是路径前缀，默认会加上lib/python2.6/site-packages<br>还有一个问题，如果按照路径不在PYTHONPATH里，那么就会报错，可以通过先把你要制定的路径加入进去：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/python/packages&quot;</span><br><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/lib/python2.6/site-packages&quot;</span><br><span class="line">export PYTHONPATH</span><br></pre></td></tr></table></figure><br>然后再次安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">easy_install -d /search/sean/python/packages/ -s /search/sean/python/ --prefix /search/sean  myproject==1.9</span><br></pre></td></tr></table></figure><br>可以看到-d需要PYTHONPATH 而-s并不需要，安装完后可以在两个目录中找到安装后的文件<br>更正：之前说安装多版本的时候会有一个去掉版本的文件夹，其实这个是pip的实现方式，而easy_install的实现方式是：每次安装都会把easy-install.pth路径修改了，python就会去找修改过的路径。<br>具体pip的版本选择和安装路径的问题时间限制先不发了，研究后再补充~</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/python/">python</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/python/">python</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/11/13/django-nginx-fastcgi/"><span>django+nginx+fastcgi 配置</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/11/13/django-nginx-fastcgi/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-11-12T16:00:00.000Z">
-          2013-11-13
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>我们知道刚开始学习django的时候使用的是django内置的服务器，当然这个是为了能够快速的搭建django的运行环境，并不能运用到实际的生产环境中。而</em>django book<em> 这本书中只接受了django+apache和django+lighttpd的配置。但是我们实际的生产环境中nginx使用的很广泛。于是django+nginx+fastcgi的配置方法就有比较了解一下了…</em></p>
-</blockquote>
-<h2 id="django配置"><a href="#django配置" class="headerlink" title="django配置"></a>django配置</h2><p>首先<em>django book</em>这本书中介绍了如何在生产过程中配置<code>setting.py</code>这个文件,其中提到变量<code>DJANGO_SETTINGS_MODULE</code>的值其实就是网站的配置文件的路径,我们可以根据环境的不同选择不同的配置文件，例如开发环境、测试环境和线上环境等。这个变量的设置其实就在网站的根目录下<code>wsgi.py</code>这个文件中。其内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">wsgi.py</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">os.environ.setdefault(&quot;DJANGO_SETTINGS_MODULE&quot;, &quot;djsite.settings_dev&quot;)</span><br><span class="line"></span><br><span class="line">#  This application object is used by any WSGI server configured to use this</span><br><span class="line">#  file. This includes Django&apos;s development server, if the WSGI_APPLICATION</span><br><span class="line">#  setting points here.</span><br><span class="line">from django.core.wsgi import get_wsgi_application</span><br><span class="line">application = get_wsgi_application()</span><br></pre></td></tr></table></figure><br>这里设置的默认加载配置文件为：<code>settings_dev.py</code>，这是开发环境的配置文件,用户可以根据需求选择不同的配置文件。</p>
-<h2 id="uwsig配置文件"><a href="#uwsig配置文件" class="headerlink" title="uwsig配置文件"></a>uwsig配置文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$cat uwsig.xml </span><br><span class="line">&lt;uwsgi&gt;  </span><br><span class="line">    &lt;socket&gt;0.0.0.0:3001&lt;/socket&gt;  </span><br><span class="line">    &lt;listen&gt;20&lt;/listen&gt;  </span><br><span class="line">    &lt;master&gt;true&lt;/master&gt;  </span><br><span class="line">    &lt;pidfile&gt;/etc/nginx/uwsgi.pid&lt;/pidfile&gt;  </span><br><span class="line">    &lt;processes&gt;2&lt;/processes&gt;  </span><br><span class="line">    &lt;module&gt;wsgi&lt;/module&gt;</span><br><span class="line">    &lt;pythonpath&gt;/search/sean/python/djsite/djsite&lt;/pythonpath&gt;  </span><br><span class="line">    &lt;profiler&gt;true&lt;/profiler&gt;  </span><br><span class="line">    &lt;memory-report&gt;true&lt;/memory-report&gt;</span><br><span class="line">    &lt;enable-threads&gt;true&lt;/enable-threads&gt;</span><br><span class="line">    &lt;logdate&gt;true&lt;/logdate&gt;</span><br><span class="line">    &lt;limit_as&gt;6048&lt;/limit_as&gt;</span><br><span class="line">&lt;/uwsgi&gt;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/python/">python</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/python/">python</a><a href="/tags/django/">django</a>
     </span>
     
 

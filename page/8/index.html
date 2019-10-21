@@ -65,6 +65,131 @@
 
   
     
+    <h3 class="article-title"><a href="/2013/11/14/pip-and-easy_install/"><span>python打包高级进阶:pip and easy_install</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/14/pip-and-easy_install/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-13T16:00:00.000Z">
+          2013-11-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h2 id="如何选择已经安装的不同版本？"><a href="#如何选择已经安装的不同版本？" class="headerlink" title="如何选择已经安装的不同版本？"></a>如何选择已经安装的不同版本？</h2><p>其实很简单。以myproject为例：<code>easy_install myproject==version</code> 就可以了，默认是先从本地开始找，如果本地找不到就会从远程源上找。</p>
+<h2 id="能不能指定安装路径？"><a href="#能不能指定安装路径？" class="headerlink" title="能不能指定安装路径？"></a>能不能指定安装路径？</h2><p>经过再次了解，发现其实是可以的,<code>easy_install -h</code>命令可以看到有以下两条：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--install-dir (-d)             install package to DIR</span><br><span class="line">--script-dir (-s)              install scripts to DIR</span><br><span class="line">--prefix                       installation prefix </span><br></pre></td></tr></table></figure><br>第一个其实就是可以指定默认搜索路径的。第二个是可以指定二进制脚本的安装路径，如果指定了第一个而没有指定第二个那就会默认都安装到第一个,第三个是实际包的安装路径，但是只是路径前缀，默认会加上lib/python2.6/site-packages<br>还有一个问题，如果按照路径不在PYTHONPATH里，那么就会报错，可以通过先把你要制定的路径加入进去：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/python/packages&quot;</span><br><span class="line">PYTHONPATH=&quot;$&#123;PYTHONPATH&#125;:/search/sean/lib/python2.6/site-packages&quot;</span><br><span class="line">export PYTHONPATH</span><br></pre></td></tr></table></figure><br>然后再次安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">easy_install -d /search/sean/python/packages/ -s /search/sean/python/ --prefix /search/sean  myproject==1.9</span><br></pre></td></tr></table></figure><br>可以看到-d需要PYTHONPATH 而-s并不需要，安装完后可以在两个目录中找到安装后的文件<br>更正：之前说安装多版本的时候会有一个去掉版本的文件夹，其实这个是pip的实现方式，而easy_install的实现方式是：每次安装都会把easy-install.pth路径修改了，python就会去找修改过的路径。<br>具体pip的版本选择和安装路径的问题时间限制先不发了，研究后再补充~</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2013/11/13/django-nginx-fastcgi/"><span>django+nginx+fastcgi 配置</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2013/11/13/django-nginx-fastcgi/" rel="bookmark">
+        <time class="entry-date published" datetime="2013-11-12T16:00:00.000Z">
+          2013-11-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p><em>我们知道刚开始学习django的时候使用的是django内置的服务器，当然这个是为了能够快速的搭建django的运行环境，并不能运用到实际的生产环境中。而</em>django book<em> 这本书中只接受了django+apache和django+lighttpd的配置。但是我们实际的生产环境中nginx使用的很广泛。于是django+nginx+fastcgi的配置方法就有比较了解一下了…</em></p>
+</blockquote>
+<h2 id="django配置"><a href="#django配置" class="headerlink" title="django配置"></a>django配置</h2><p>首先<em>django book</em>这本书中介绍了如何在生产过程中配置<code>setting.py</code>这个文件,其中提到变量<code>DJANGO_SETTINGS_MODULE</code>的值其实就是网站的配置文件的路径,我们可以根据环境的不同选择不同的配置文件，例如开发环境、测试环境和线上环境等。这个变量的设置其实就在网站的根目录下<code>wsgi.py</code>这个文件中。其内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&quot;&quot;&quot;</span><br><span class="line">wsgi.py</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">os.environ.setdefault(&quot;DJANGO_SETTINGS_MODULE&quot;, &quot;djsite.settings_dev&quot;)</span><br><span class="line"></span><br><span class="line">#  This application object is used by any WSGI server configured to use this</span><br><span class="line">#  file. This includes Django&apos;s development server, if the WSGI_APPLICATION</span><br><span class="line">#  setting points here.</span><br><span class="line">from django.core.wsgi import get_wsgi_application</span><br><span class="line">application = get_wsgi_application()</span><br></pre></td></tr></table></figure><br>这里设置的默认加载配置文件为：<code>settings_dev.py</code>，这是开发环境的配置文件,用户可以根据需求选择不同的配置文件。</p>
+<h2 id="uwsig配置文件"><a href="#uwsig配置文件" class="headerlink" title="uwsig配置文件"></a>uwsig配置文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$cat uwsig.xml </span><br><span class="line">&lt;uwsgi&gt;  </span><br><span class="line">    &lt;socket&gt;0.0.0.0:3001&lt;/socket&gt;  </span><br><span class="line">    &lt;listen&gt;20&lt;/listen&gt;  </span><br><span class="line">    &lt;master&gt;true&lt;/master&gt;  </span><br><span class="line">    &lt;pidfile&gt;/etc/nginx/uwsgi.pid&lt;/pidfile&gt;  </span><br><span class="line">    &lt;processes&gt;2&lt;/processes&gt;  </span><br><span class="line">    &lt;module&gt;wsgi&lt;/module&gt;</span><br><span class="line">    &lt;pythonpath&gt;/search/sean/python/djsite/djsite&lt;/pythonpath&gt;  </span><br><span class="line">    &lt;profiler&gt;true&lt;/profiler&gt;  </span><br><span class="line">    &lt;memory-report&gt;true&lt;/memory-report&gt;</span><br><span class="line">    &lt;enable-threads&gt;true&lt;/enable-threads&gt;</span><br><span class="line">    &lt;logdate&gt;true&lt;/logdate&gt;</span><br><span class="line">    &lt;limit_as&gt;6048&lt;/limit_as&gt;</span><br><span class="line">&lt;/uwsgi&gt;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/python/">python</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/python/">python</a><a href="/tags/django/">django</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2013/11/04/python-packing-command-line-script/"><span>python命令行程序打包</span></a></h3>
     
   

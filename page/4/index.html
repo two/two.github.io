@@ -65,6 +65,163 @@
 
   
     
+    <h3 class="article-title"><a href="/2014/11/27/observer-pattern/"><span>设计模式-观察者模式</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/27/observer-pattern/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-26T16:00:00.000Z">
+          2014-11-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>在学习js事件的时候，说js事件其实就是观察者模式，所以打算先把观察者模式了解一下，这样就能更好的理解事件机制了。</p>
+</blockquote>
+<p>由于观察者模式，其实比较好理解，这里就举<a href="http://zh.wikipedia.org/wiki/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">wikipedia的例子</a><br>观察者模式的UML类图如下:</p>
+<img src="http://www.plantuml.com/plantuml/svg/Iyv9B2vMy4ygJYqgIorIgERIpiiloKohrD3agkLA1ai6boPbfIQNWEGIKr9WIe4Aj5DISr9BKf5589gHH626EEVd9HSXANP4jieQfp8d_CgWJaCo38_LKCLEE1HZkb2tj42tnWuUE5oOZiEb0kukg08edml3AMZoy7ZGrSt7fSbHGK_F3ZCyCSt6fio92m00">
+<p>分析一下这个类图。主要分为两种类。一个是观察者类(Observer), 一个是被观察者类(Subject), 被观察者类有三种方法分别是：</p>
+<ul>
+<li><code>addObserver()</code>: 添加观察者到被观察者类中</li>
+<li><code>deleteObserver()</code>: 从被观察者类中删除观察者</li>
+<li><code>notifyObserver()</code>: 通知已经注册过的观察者</li>
+</ul>
+<p>这里<code>ConcreteSubjectA</code>和<code>ConcreteSubjectB</code>是继承<code>Subject</code>的。当有多个被观察者类时可以用这种方式，当只有一个被观察者类时，可以直接用<code>Subject</code>进行实例话，不需要派生类。<br><code>Observer</code>是观察者的抽象类。所有的观察者都继承自这个类。每个观察者类都要实现一个<code>notify()</code>函数。这个函数是当被观察者发生变化需要通知观察者的时候调用的，也就是<code>notifyObserver()</code>调用的。</p>
+<h2 id="代码事例"><a href="#代码事例" class="headerlink" title="代码事例:"></a>代码事例:</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Student"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I'm a student of "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">implements</span> <span class="title">SplObserver</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $tipo = <span class="string">"Teacher"</span>;</span><br><span class="line">    <span class="keyword">private</span> $nome;</span><br><span class="line">    <span class="keyword">private</span> $endereco;</span><br><span class="line">    <span class="keyword">private</span> $telefone;</span><br><span class="line">    <span class="keyword">private</span> $email;</span><br><span class="line">    <span class="keyword">private</span> $_classes = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_tipo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;tipo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_nome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_email</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;email;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_telefone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome = $nome;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">update</span><span class="params">(SplSubject $object)</span></span>&#123;</span><br><span class="line">        $object-&gt;SET_log(<span class="string">"Comes from "</span>.<span class="keyword">$this</span>-&gt;nome.<span class="string">": I teach in "</span>.$object-&gt;GET_materia());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Subject</span> <span class="keyword">implements</span> <span class="title">SplSubject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $nome_materia;</span><br><span class="line">    <span class="keyword">private</span> $_observadores = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">private</span> $_log = <span class="keyword">array</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">GET_materia</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;nome_materia;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">SET_log</span><span class="params">($valor)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = $valor ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">GET_log</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;_log;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($nome)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;nome_materia = $nome;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" Subject $nome was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Adiciona um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">attach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_classes[] = $classes;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was included"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Remove um observador */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">detach</span><span class="params">(SplObserver $classes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $key =&gt; $obj) &#123;</span><br><span class="line">            <span class="keyword">if</span> ($obj == $classes) &#123;</span><br><span class="line">                <span class="keyword">unset</span>(<span class="keyword">$this</span>-&gt;_classes[$key]);</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_log[] = <span class="string">" The "</span>.$classes-&gt;GET_tipo().<span class="string">" "</span>.$classes-&gt;GET_nome().<span class="string">" was removed"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* Notifica os observadores */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">notify</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_classes <span class="keyword">as</span> $classes) &#123;</span><br><span class="line">            $classes-&gt;update(<span class="keyword">$this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the math Subject</span></span><br><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br><span class="line"> </span><br><span class="line">$subject2 = <span class="keyword">new</span> Subject(<span class="string">"English"</span>);</span><br><span class="line">$renato = <span class="keyword">new</span> Teacher(<span class="string">"Renato"</span>);</span><br><span class="line">$fabio = <span class="keyword">new</span> Student(<span class="string">"Fabio"</span>);</span><br><span class="line">$tiago = <span class="keyword">new</span> Student(<span class="string">"tiago"</span>);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Include observers in the english Subject</span></span><br><span class="line">$subject2-&gt;attach($renato);</span><br><span class="line">$subject2-&gt;attach($vinicius);</span><br><span class="line">$subject2-&gt;attach($fabio);</span><br><span class="line">$subject2-&gt;attach($tiago);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Remove the instance "Rafael from subject"</span></span><br><span class="line">$subject-&gt;detach($rafael);</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Notify both subjects</span></span><br><span class="line">$subject-&gt;notify();</span><br><span class="line">$subject2-&gt;notify();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">echo</span> <span class="string">"First Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;hr&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"Second Subject &lt;br /&gt;"</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;pre&gt;"</span>;</span><br><span class="line">print_r($subject2-&gt;GET_log());</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/pre&gt;"</span>;</span><br></pre></td></tr></table></figure>
+<p>输出结果:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//First Subject</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">//Second Subject</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Array (</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">   [0] =&gt;  Subject English was included</span></span><br><span class="line"><span class="string">   [1] =&gt;  The Teacher Renato was included</span></span><br><span class="line"><span class="string">   [2] =&gt;  The Student Vinicius was included</span></span><br><span class="line"><span class="string">   [3] =&gt;  The Student Fabio was included</span></span><br><span class="line"><span class="string">   [4] =&gt;  The Student tiago was included</span></span><br><span class="line"><span class="string">   [5] =&gt; Comes from Renato: I teach in English</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Vinicius: I'</span>m a student of English</span><br><span class="line">   [<span class="number">7</span>] =&gt; Comes from Fabio: I<span class="string">'m a student of English</span></span><br><span class="line"><span class="string">   [8] =&gt; Comes from tiago: I'</span>m a student of English</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>结合代码我们再具体分析。上面的代码中有<code>SplObserver</code>是观察者基类,观察者类<code>Student</code>和<code>Teacher</code>都继承它。被观察者<code>Subject</code>继承自<code>SplSubject</code>基类,实现了三个函数:添加观察者的<code>attach</code>、删除观察者的<code>detach</code>及通知观察者的<code>notify</code>。我们还注意到每个观察者类都有一个<code>update</code>函数，这个函数是被观察者通知观察者时的接口，由<code>notify</code>函数调用并传递被观察者的信息到观察者。这就是一个完整的观察者模式的代码实例。</p>
+<p>我们再看如何使用:<br>开始的时候初始化观察者和被观察者类:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$subject = <span class="keyword">new</span> Subject(<span class="string">"Math"</span>);</span><br><span class="line">$marcus = <span class="keyword">new</span> Teacher(<span class="string">"Marcus Brasizza"</span>);</span><br><span class="line">$rafael = <span class="keyword">new</span> Student(<span class="string">"Rafael"</span>);</span><br><span class="line">$vinicius = <span class="keyword">new</span> Student(<span class="string">"Vinicius"</span>);</span><br></pre></td></tr></table></figure>
+<p>然后把观察者注册到被观察者中:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;attach($rafael);</span><br><span class="line">$subject-&gt;attach($vinicius);</span><br><span class="line">$subject-&gt;attach($marcus);</span><br></pre></td></tr></table></figure>
+<p>接着又把<code>$rafael</code>从观察者类中删除了:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;detach($rafael);</span><br></pre></td></tr></table></figure>
+<p>最后由被观察者通知注册的观察者做出改变:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$subject-&gt;notify();</span><br></pre></td></tr></table></figure>
+<p>所以最后的结果如下:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Array</span> (</span><br><span class="line"></span><br><span class="line">   [<span class="number">0</span>] =&gt;  Subject Math was included</span><br><span class="line">   [<span class="number">1</span>] =&gt;  The Student Rafael was included</span><br><span class="line">   [<span class="number">2</span>] =&gt;  The Student Vinicius was included</span><br><span class="line">   [<span class="number">3</span>] =&gt;  The Teacher Marcus Brasizza was included</span><br><span class="line">   [<span class="number">4</span>] =&gt;  The Student Rafael was removed</span><br><span class="line">   [<span class="number">5</span>] =&gt; Comes from Vinicius: I<span class="string">'m a student of Math</span></span><br><span class="line"><span class="string">   [6] =&gt; Comes from Marcus Brasizza: I teach in Math</span></span><br><span class="line"><span class="string">)</span></span><br></pre></td></tr></table></figure>
+<p>第二个分析方法相同,不在赘述了。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/设计模式/">设计模式</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/11/21/factory-pattern/"><span>设计模式-工厂模式</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/11/21/factory-pattern/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-11-20T16:00:00.000Z">
+          2014-11-21
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>工厂模式如果细分的话可以分为工厂方法，简单工厂模式和抽象工厂模式,本文对其进行一一介绍。</p>
+</blockquote>
+<h2 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h2><p>首先先举一个例子<br>需求：创建一个按钮，在不同的系统上有不同的风格.<br>分析，如果不用模式：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">drawButton</span><span class="params">($type)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">        &#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> WimButton();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        button-&gt;draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，这段代码也很简洁，但是我们只考虑了两种系统，当增加系统时（比如ubuntu ,centos, redhat等) 我们就会不停的添加判断分之：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">    button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">&#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">    button = <span class="keyword">new</span> WinButton();</span><br><span class="line">&#125; <span class="keyword">else</span> ($type == <span class="string">'ubuntu'</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>这个条件语句就会变的不可控。为了使代码看起来更简洁，并且添加分类更容易可以进行如下改造:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">drawButton</span><span class="params">($type)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        button = ButtonFactory::create($type);</span><br><span class="line">        button-&gt;draw();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class ButtonFactory()&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">($type)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($type == <span class="string">'mac'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> MacButton();  </span><br><span class="line">        &#125; <span class="keyword">else</span>($type == <span class="string">'win'</span>) &#123;</span><br><span class="line">            button = <span class="keyword">new</span> WinButton();</span><br><span class="line">        &#125; <span class="keyword">else</span> ($type == <span class="string">'ubuntu'</span>) &#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> button;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新增了一个ButtonFactory类，负责创建button对象使对象的创建和使用进行了分离。其实PHP还可以这么写:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class ButtonFactory()&#123;</span><br><span class="line">    static public function create($type) &#123;</span><br><span class="line">            button = new $type.&quot;Button&quot;();  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用UML类图表示他们之间的关系，就是这样的:</p>
+<img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE02IoWubPQKvEUv9IQNv1TLAbHpQIia5wKcbgHgQ7BLeYW1owKK9PQ3PL2rwQNab-VfsIc4P-P19738-oOcG-NXAXLqImjqQ-oWbd31LQ29km0jLj0hoapFAD6pGtKqLZa0">
+<p>ButtonFactory是工厂类,负责创建所需的产品类。Button时产品类，WinButton等继承Button。 Draw 是调用的类用到了工厂和产品类，与它们是关联的关系。</p>
+<h2 id="工厂方法"><a href="#工厂方法" class="headerlink" title="工厂方法"></a>工厂方法</h2><p>需求：还是上面的需求，随着操作系统类型的增加，我们会发现这个工厂类还是需要修改和维护，这也很容易冗余而产生问题。这时工厂方法应运而生。先看UML图:<br><img src="http://www.plantuml.com/plantuml/svg/AyxEp2j8B4hCLKZEIImkTYmfASfCAYr9zKpEpmlEh4fLCE02IoWubPQKvEUv9IQNv1TLAbHpQISNfIQMf6feSjL2LOHdvX5Mv9kOJ5WHH0L8AgKeiHoR5LZau2PZaNC1Se72jGfS68xKBItGhR53zHuNXYkngi8mIoydDQr4pmxXJ4o3O4hW4WXJK2r1Q4KJ1_j5JmyN7seH0000"></p>
+<p>工厂方法是针对每一种产品提供一个工厂类。通过不同的工厂实例来创建不同的产品实例。这种进一步抽象化的结果，使这种工厂方法模式可以用来允许系统在不修改具体工厂角色的情况下引进新的系统，这一特点无疑使得工厂方法模式具有超过简单工厂模式的优越性。<br>代码事例:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ButtonFactory</span> </span>&#123;</span><br><span class="line">    abstruct <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WinButtonFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> WinButton();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MacButtonFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MacButton();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class Button() &#123;</span><br><span class="line">abstruct <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WinButton</span> <span class="keyword">extends</span> <span class="title">Button</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"draw win button"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MacButton</span> <span class="keyword">extends</span> <span class="title">Button</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">draw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"draw mac button"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">winButton = WinButtonFactory::create();</span><br><span class="line">WinButton-&gt;draw();</span><br><span class="line">macButton = MacButtonFactory::create();</span><br><span class="line">MacButton-&gt;draw();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是工厂方法存在一个问题，那就是我们如果事先不知道会需要哪一种类，需要根据情况来选择。那就又回到了第一种情况：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Draw</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>($type == <span class="string">"win"</span>) &#123;</span><br><span class="line">        $button = WinButtonFactory::create();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ($type == <span class="string">"mac"</span>) &#123;</span><br><span class="line">        $button = MacButtonFactory::create();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    button-&gt;draw();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时候就需要综合简单工厂和工厂方法两种模式，做出一个混合体：再创建一个简单工厂类，用来根据参数调用工厂方法创建对象。</p>
+<h2 id="抽象工厂"><a href="#抽象工厂" class="headerlink" title="抽象工厂"></a>抽象工厂</h2><p>现在需求又复杂化了: 这次不光要创建按钮，还要画边框(border)，画输入框(input)。<br>让我们再来仔细分析一下需求: 要完成一个画图的程序，这个程序要适应不同的操作系统，这个程序又有许多种元素需要画(比如按钮，边框，输入框)。这里需要注意的是，以前按钮只是一个函数，现在需要多个调用。<br>“工厂”是创建产品（对象）的地方，其目的是将产品的创建与产品的使用分离。抽象工厂模式的目的，是将若干抽象产品的接口与不同主题产品的具体实现分离开。这样就能在增加新的具体工厂的时候，不用修改引用抽象工厂的客户端代码。<br><img src="http://www.plantuml.com/plantuml/svg/hP4z2y8m48Rt-nKT5Md_WD11H71mTWunWo19IHD4gl_TvkjwEJfslETutpn9v4kCOtCHqXdxQIOuIAk4KoVldD6x_H61iGzb2RZgmRim_q36ZljJRr5p4tABcXIPg1r7yqaSfTuwnL18CHGFhqACp1b6pbQymuHQJUk7zjjdRq0tnb48UPm0hHWlBWN70OfFJSa7Pfv787_2DYJJTVtoociBD68BTA8S7s1jWNTcYzGKthPq5qzaI-WF"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>简单工厂模式: 把创建对象的方法进行封装，使其使用和创建进行分离.但是每增加一个类型都要修改工厂类.</li>
+<li>工厂方法: 对每个对象创建都建立一个工厂类，当有类型增加时只需要再创建一个工厂类，不需要修改原来的代码。但是当不确定使用的工厂是哪个时，需要结合简单工厂进行选择。</li>
+<li>抽象工厂: 每个类型出了本身是一个类外，其要完成的功能比较复杂，是多个类的组合。这时就要对每个使用到的类都进行抽象，根据使用类的不同进行选择，其实是工厂方法的复杂版本。</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/设计模式/">设计模式</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2014/11/19/uml-class-diagram/"><span>UML类图详解</span></a></h3>
     
   
@@ -768,333 +925,6 @@
     </span>
     
 
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/03/22/linux-shell-command-line-control-key/"><span>linux命令行控制字符汇总</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/03/22/linux-shell-command-line-control-key/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-03-21T16:00:00.000Z">
-          2014-03-22
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>我们经常在linux终端下输入命令行，就像我们使用vi等编辑器一样频繁，vi有很多快捷键提高我们的输入效率，命令行下有没有一些快捷键也能提高我们的输入效率呢？当然有～，下面就介绍一下这些快捷键，掌握了这些就可以让你在命令行下输入命令的效率有质的飞跃了～</p>
-</blockquote>
-<h2 id="linux命令行字符功能汇总"><a href="#linux命令行字符功能汇总" class="headerlink" title="linux命令行字符功能汇总"></a>linux命令行字符功能汇总</h2><table>
-<thead>
-<tr>
-<th>命令</th>
-<th>名称</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ctl-A</td>
-<td>回行首</td>
-<td>使光标回到一行的行首</td>
-</tr>
-<tr>
-<td>ctl-B</td>
-<td>退格(非破坏性的)</td>
-<td>向前移动光标</td>
-</tr>
-<tr>
-<td>ctl-C</td>
-<td>break</td>
-<td>终止当前运行前台程序</td>
-</tr>
-<tr>
-<td>ctl-D</td>
-<td>删除字符/退出</td>
-<td>删除光标所在的字符, 当无字符可删除时相当于logout</td>
-</tr>
-<tr>
-<td>ctl-F</td>
-<td>前行</td>
-<td>光标向前移动</td>
-</tr>
-<tr>
-<td>ctl-G</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>ctl-H</td>
-<td>退格(破坏性的)</td>
-<td>向前移动光标的同时删除字符</td>
-</tr>
-<tr>
-<td>ctl-I</td>
-<td>水平制表</td>
-<td>相当于tab键</td>
-</tr>
-<tr>
-<td>ctl-J</td>
-<td>重起一行</td>
-<td>相当于回车键</td>
-</tr>
-<tr>
-<td>ctl-K</td>
-<td>垂直制表</td>
-<td>删除光标所在处到行尾的所有字符</td>
-</tr>
-<tr>
-<td>ctl-L</td>
-<td>清屏</td>
-<td>相当于clear命令</td>
-</tr>
-<tr>
-<td>ctl-M</td>
-<td>回车</td>
-<td>相当于回车键</td>
-</tr>
-<tr>
-<td>ctl-N</td>
-<td>向下查找命令</td>
-<td>对于输入过的命令，<br> 可以通过这个命令向下查找输入过的命令</td>
-</tr>
-<tr>
-<td>ctl-O</td>
-<td>回车</td>
-<td>相当于回车键</td>
-</tr>
-<tr>
-<td>ctl-P</td>
-<td>向上查找命令</td>
-<td>对于输入过的命令，<br> 可以通过这个命令向上查找输入过的命令</td>
-</tr>
-<tr>
-<td>ctl-Q</td>
-<td>恢复</td>
-<td>在终端中恢复stdin</td>
-</tr>
-<tr>
-<td>ctl-R</td>
-<td>历史命令查找</td>
-<td>输入ctl-R会提示查找历史命令，<br> 然后输入字符，会时时现实匹配到的命令，<br> 按回车就可以执行历史命令</td>
-</tr>
-<tr>
-<td>ctl-S</td>
-<td>挂起</td>
-<td>在终端中冻结stdin, 于ctl+Q正好相反</td>
-</tr>
-<tr>
-<td>ctl-T</td>
-<td>交换</td>
-<td>交换光标所在处的字符与光标前面的一个字符的位置</td>
-</tr>
-<tr>
-<td>ctl-U</td>
-<td>删除字符到行首</td>
-<td>删除光标所在的字符到行首，于ctl+K正好方向相反</td>
-</tr>
-<tr>
-<td>ctl-V</td>
-<td>允许插入控制字符</td>
-<td>如果想要输入控制字符，需要先输入ctr+V然后在输入控制字符</td>
-</tr>
-<tr>
-<td>ctl-W</td>
-<td>删除光标前字符到空格处</td>
-<td>删除光标所在的字符到左边的空格处</td>
-</tr>
-<tr>
-<td>ctl-X</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>ctl-Y</td>
-<td>粘贴</td>
-<td>把刚刚暂存区的字符粘贴到终端</td>
-</tr>
-<tr>
-<td>ctl-Z</td>
-<td>挂起</td>
-<td>暂停前台作业</td>
-</tr>
-</tbody>
-</table>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/SHELL/">SHELL</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/linux/">linux</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/03/22/linux-shell-programe1/"><span>linux shell 编程之语法学习</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/03/22/linux-shell-programe1/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-03-21T16:00:00.000Z">
-          2014-03-22
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>shell语法跟一般类C的语法有些相识，但是却有很多独特的地方，如果不能够好好理解这些语法特性，难免在编写shell脚本的过程中会遇到很多令人难以察觉的，头疼的问题。细节决定成败，这篇博客就根据我自己的学习过程做一下总结吧。</p>
-</blockquote>
-<h2 id="独特的开头"><a href="#独特的开头" class="headerlink" title="独特的开头"></a>独特的开头</h2><p>一般的脚本语言都有一个基本表示自己是何方神圣的开头，比如php语言的<code>&lt;?php</code>, jsp语言的<code>&lt;%jsp</code>。shell也有自己独特的开头。比如<code>#! /bin/bash</code>, 不过跟其他语言表示自己的语言名称不一样，这里的开头表明shell要指明使用那个解释器。因为shell有很多标准，每个标准的解释器对shell的理解是不一样的，所有你写的shell脚本很可能是其他解释器不认识的内容，所以需要指明你自己使用哪个解释器。这里要注意的是如果写了<code>#! /bin/sh</code> 表明使用的是当前系统默认的解释器。</p>
-<blockquote>
-<p>ps小贴士：</p>
-<blockquote>
-</blockquote>
-<ol>
-<li><code>#!</code>一定要写在脚本第一行才能生效， 否则视为注释行, 不起任何作用</li>
-<li>这一行是会被执行的，如果写其他命令如<code>#! /bin/more</code> 则会执行相应的命令</li>
-</ol>
-</blockquote>
-<h2 id="执行shell脚本的方法"><a href="#执行shell脚本的方法" class="headerlink" title="执行shell脚本的方法"></a>执行shell脚本的方法</h2><p>shell执行的方式不同，其与运行的远离也不同，参考<a href="http://learn.akae.cn/media/ch31s02.html" target="_blank" rel="noopener">Shell如何执行命令</a>这篇文章，进行介绍一下：<br>首先有一个脚本<code>script.sh</code>,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ! /bin/sh</span><br><span class="line"></span><br><span class="line">cd ..</span><br><span class="line">ls</span><br></pre></td></tr></table></figure><br>执行这个脚本的方法有两种：</p>
-<ul>
-<li><code>$ ./script.sh</code></li>
-<li><code>$ sh ./script.sh</code></li>
-</ul>
-<p>但其实第一种方法会转化为第二种方法，比如如果用第一种方法执行脚本，实际上会转化为：<code>/bin/sh ./script.sh</code>。接下来就调用shell子进程来执行脚本了，在脚本执行的所有都是针对子进程的，不会对父进程产生影响，这点可以参考博客中举的例子。</p>
-<blockquote>
-<p>ps小贴士：</p>
-<blockquote>
-</blockquote>
-<ol>
-<li>第一种方式执行脚本需要这个脚本具有可执行的权限, 第二种则不需要</li>
-</ol>
-</blockquote>
-<h2 id="变量的表示"><a href="#变量的表示" class="headerlink" title="变量的表示"></a>变量的表示</h2><p>Bash变量像一般的脚本语言一样，不区分变量类型，本质上Bash变量都是字符串。  </p>
-<h3 id="变量替换"><a href="#变量替换" class="headerlink" title="变量替换"></a>变量替换</h3><p>变量的名字就是变量保存值的地方，引用变量的值就叫<em>变量替换</em>。我们用<code>$+变量名称</code>来表示变量替换。下面几种情况变量不带<code>$</code>:</p>
-<ul>
-<li>变量被声明: <code>variable</code></li>
-<li>变量被赋值: <code>variable=12</code></li>
-<li>变量被unset: <code>unset variable</code></li>
-<li>变量被export: <code>export variable=23</code></li>
-</ul>
-<p><em>弱引用（部分引用）：</em>双引号(“”)括起来的变量。这种引用变量替换不会被阻止。<br><em>强引用（全引用）：</em>单引号（’’）括起来的变量。替换被阻止，解释为字符串。</p>
-<p>ps: $variable其实是${variable}的简写形式,但是有些时候简写形式不能够满足变量的更多特性（比如参数替换），这时候就要用全写形式了。</p>
-<h3 id="变量赋值"><a href="#变量赋值" class="headerlink" title="变量赋值:"></a>变量赋值:</h3><p>变量赋值的方式也有多种：</p>
-<ol>
-<li>使用赋值操作:=(注意等号两边不能有空白，否则就是视为条件判断了)赋值.<code>a=12</code></li>
-<li>使用let赋值.<code>let a=2</code></li>
-<li>for循环中赋值(伪赋值).<code>for a in \</code>seq 100``</li>
-</ol>
-<h3 id="特殊的变量类型"><a href="#特殊的变量类型" class="headerlink" title="特殊的变量类型"></a>特殊的变量类型</h3><ul>
-<li>位置参数： 命令行运行脚本可以传递参数，而脚本接受参数可以通过位置参数来获取。<ul>
-<li>$0:代表脚本名称</li>
-<li>$1:表示第一个传递的参数(依次类推, 但是$10开始需要需要用${10}来获取)</li>
-<li>$#:表示参数的个数</li>
-</ul>
-</li>
-</ul>
-<h2 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a>条件判断</h2><h3 id="条件判断格式："><a href="#条件判断格式：" class="headerlink" title="条件判断格式："></a>条件判断格式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">#  1 一般的格式</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">     ...</span><br><span class="line">else</span><br><span class="line">     ... </span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  2 两条语句写到一行是，语句间要用分号隔开</span><br><span class="line">if 条件; then</span><br><span class="line">    ...</span><br><span class="line">else</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  3 多个条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    ...</span><br><span class="line">elif 条件</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  4 嵌套条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    if 条件</span><br><span class="line">    then</span><br><span class="line">        ...</span><br><span class="line">    fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-<h3 id="条件格式："><a href="#条件格式：" class="headerlink" title="条件格式："></a>条件格式：</h3><ol>
-<li><code>[ ... ]</code> : <code>[</code>是一个内建命令，其作用就是后面的表达式退出状态码为0则条件为真。</li>
-<li><code>[[ ... ]]</code>: <code>[[</code>是一个关键字，其作用就是和上面相同，但是其表达式的解释不同。</li>
-<li><code>(( ... ))</code>: 测试条件是一个算术表达式，表达式的结果为非零时条件为真。</li>
-<li><code>一般命令</code>: 可跟一般的shell命令，命令的退出状态码为测试条件。</li>
-</ol>
-<blockquote>
-<p>ps: <code>[]</code> 与<code>[[]]</code>的区别：<br>    <code>[</code>是一个内建命令, 其后面跟的是一般命令的参数和选项，比如<code>[ 1 -lt 2]</code>可以认为1和2是参数，-lt是一个选项。但是 <code>[ 1 &amp;&amp; 2 ]</code>则不正确，因为 &amp;&amp;不是一个有效的参数或者选项。<br>    <code>[[</code>是一个关键字，可以正确解释&amp;&amp;， 是一个更加通用的结构。</p>
-</blockquote>
-<h2 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h2><p>循环的方式主要有以下几种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"># 1 基本结构</span><br><span class="line">for arg in [list]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 2 使用$@(即位置参数)</span><br><span class="line">for arg</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 3 使用命令替换[list]</span><br><span class="line">for arg in `command`</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 4 使用C风格</span><br><span class="line">for ((a=1; a &lt;= LIMIT ; a++))</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 5 while</span><br><span class="line">while [condition] #与条件判断的condition一样</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 6 until 类似于C的do...while</span><br><span class="line">until [condition]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 7 嵌套循环与控制</span><br><span class="line">for a in [list]</span><br><span class="line">do</span><br><span class="line">    for b in [list]</span><br><span class="line">    do</span><br><span class="line">        for c in [list]</span><br><span class="line">        do</span><br><span class="line">            break 2 #带层参数：退出从本层算，往外到第二层的循环</span><br><span class="line">        done</span><br><span class="line">        for d in [list]</span><br><span class="line">        do</span><br><span class="line">           continue #不带层参数：继续本层的循环</span><br><span class="line">        done</span><br><span class="line">        break  #不带层参数：退出本层循环</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure></p>
-<h2 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># case </span><br><span class="line">case &quot;$variable&quot; in</span><br><span class="line">$condition1 ) command...;;</span><br><span class="line">$condition2 ) command...;;</span><br><span class="line">...</span><br><span class="line">$conditionn ) command...;;</span><br><span class="line">*) command ...;; #相当于default</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line"># select 介于for和case之间的一个if语句</span><br><span class="line">select variable [in list] #满足条件则执行下面的命令, 不写后面的则跟for一样，取$@</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="函数定义的两种方式："><a href="#函数定义的两种方式：" class="headerlink" title="函数定义的两种方式："></a>函数定义的两种方式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function function_name &#123;</span><br><span class="line">$1 #位置参数作为传递的参数</span><br><span class="line">$2</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function_name &#123;</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="函数调用"><a href="#函数调用" class="headerlink" title="函数调用"></a>函数调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">function_name $arg1 $arg2</span><br></pre></td></tr></table></figure>
-<p>ps:</p>
-<ol>
-<li>函数调用之前必须先定义</li>
-</ol>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>到这里一个shell的基本架构有了，但是shell学习才刚刚开始，以后陆续有文章就shell的某个点进行深入探讨～</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/SHELL/">SHELL</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/shell/">shell</a>
-    </span>
     
 
     </div>
