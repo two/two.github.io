@@ -65,6 +65,78 @@
 
   
     
+    <h3 class="article-title"><a href="/2014/05/10/stdarg-function/"><span>C语言：可变参数函数</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/10/stdarg-function/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-09T16:00:00.000Z">
+          2014-05-10
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>函数一般的参数都是固定的，但是有些时候我们需要让函数的参数是可变的，为了满足这个需求，C语言提供了库函数stdarg.h来满足要求。</p>
+</blockquote>
+<h2 id="可变参数参数简介"><a href="#可变参数参数简介" class="headerlink" title="可变参数参数简介"></a>可变参数参数简介</h2><h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><p>可变参数函数的使用要求比较严谨，必须按照下面的方法进行使用：</p>
+<ol>
+<li>在函数原型中使用省略号。</li>
+<li>在函数定义中创建一个va_list类型的变量。</li>
+<li>用宏将改变量初始化为一个参数列表。</li>
+<li>用宏访问这个参数列表。</li>
+<li>用宏完成清理工作。</li>
+</ol>
+<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void f1(int n, ...); //合法</span><br><span class="line">int f2(int n, const char *s, ...);  //合法</span><br><span class="line">char f3(char c1, ..., char c2); //无效，省略号必须是最后一个参量</span><br><span class="line">doubel f3(); //无效，没有任何参量</span><br></pre></td></tr></table></figure>
+<h2 id="程序举例"><a href="#程序举例" class="headerlink" title="程序举例"></a>程序举例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># include &lt;stdio.h&gt;</span><br><span class="line"># include &lt;stdarg.h&gt;</span><br><span class="line"></span><br><span class="line">double sum(int , ...);</span><br><span class="line">void printSth(int, const char *, ...);</span><br><span class="line"></span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">    double s, t;</span><br><span class="line"></span><br><span class="line">    s = sum(3, 1.1, 2.5, 13.3);</span><br><span class="line">    t = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    u = sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(3, 1.1, 2.5, 13.3):    %g\n&quot;,s);</span><br><span class="line">    printf(&quot;return value for &quot;</span><br><span class="line">            &quot;sum(6, 1.1, 2.1, 13.1, 4.1, 5.1, 6.1)  %g\n&quot;, t); </span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">double sum(int lim, ...)</span><br><span class="line">&#123;</span><br><span class="line">    va_list ap; //声明用户存放参数的变量</span><br><span class="line">    double tot = 0;</span><br><span class="line">    int i;</span><br><span class="line">    va_start(ap, lim);  //把ap初始化为参数列表</span><br><span class="line">    for(i = 0; i &lt; lim; i++)</span><br><span class="line">        tot += va_arg(ap, double); //访问参数列表中的每一个项目</span><br><span class="line">    va_end(ap); //清理工作</span><br><span class="line">    return tot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><ul>
+<li>具有可变参数的函数<code>sum</code>的第一个参数是表示一共有多少个不确定的参数，在调用的时候传递。这个参数主要是高数<code>var_arg</code>能够取多少次传递的参数。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_start.htm" target="_blank" rel="noopener"><code>va_start()</code></a>第一个参数是va_list类型的，第二个参数是这个函数确定的参数中最有一个参数，var_start()函数的作用就是把最有一个确定参数后面的所有不确定参数做一个参数列表存储到va_list类型的变量中。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_arg.htm" target="_blank" rel="noopener"><code>va_arg</code></a>的目的是从未知参数列表中取出参数，每次调用取一个，按照参数顺序取。第一个参数是存储参数列表的变量，第二个参数标识要去的参数的类型，类型决定了要从内存栈中读取多少位。</li>
+<li>函数<a href="http://www.tutorialspoint.com/c_standard_library/c_macro_va_end.htm" target="_blank" rel="noopener"><code>va_end</code></a>函数主要是做清理工作,主要是释放动态分配的用于存放参数的内存。</li>
+</ul>
+<h2 id="运用"><a href="#运用" class="headerlink" title="运用"></a>运用</h2><p>我在学了《C Primer Plus》这本书之后打算看看redis源码的时候发现redis的源码中，所有的系统log的记录都是通过这中函数来实现的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void redisLog(int level, const char *fmt, ...) &#123;</span><br><span class="line">    va_list ap;                </span><br><span class="line">    char msg[REDIS_MAX_LOGMSG_LEN]; </span><br><span class="line">    </span><br><span class="line">    if ((level&amp;0xff) &lt; server.verbosity) return;</span><br><span class="line">    </span><br><span class="line">    va_start(ap, fmt);         </span><br><span class="line">    vsnprintf(msg, sizeof(msg), fmt, ap);</span><br><span class="line">    va_end(ap);                </span><br><span class="line">    </span><br><span class="line">    redisLogRaw(level,msg);    </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/C/">C</a>
+    </span>
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2014/03/22/linux-shell-command-line-control-key/"><span>linux命令行控制字符汇总</span></a></h3>
     
   
@@ -1113,67 +1185,6 @@ Alice --> Bob: 响应
     <span class="post-categories">
       <i class="icon-categories"></i>
         <a href="/categories/UML/">UML</a>
-    </span>
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/29/my-tools/"><span>我使用的工具列表</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/29/my-tools/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-28T16:00:00.000Z">
-          2013-12-29
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>在码农生涯中我喜欢不断的折腾，在这里我把我自己用的一些工具集中列一下，以便我自己进行总结，也希望能给看到的人一些帮助～</p>
-</blockquote>
-<h1 id="工具列表"><a href="#工具列表" class="headerlink" title="工具列表"></a>工具列表</h1><ul>
-<li>VIM: 编辑器</li>
-<li>Jekyll: 写博客</li>
-<li>plantuml: 生成UML图</li>
-<li>markdown: 文档写作格式  </li>
-</ul>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/tools/">tools</a>
     </span>
     
 
