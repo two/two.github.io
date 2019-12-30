@@ -65,6 +65,72 @@
 
   
     
+    <h3 class="article-title"><a href="/2014/05/13/coreseek-install-doc/"><span>中文搜索引擎coreseek的安装使用</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/05/13/coreseek-install-doc/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-05-12T16:00:00.000Z">
+          2014-05-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>项目中原来使用的是solr,由于solr是java写的，团队中没有java的经验，并且原来维护的人离职了，所以改用<a href="http://sphinxsearch.com/" target="_blank" rel="noopener">sphinx search</a>来做项目的内部检索服务，由于中文的特殊性，我们选择了<a href="http://www.coreseek.cn/" target="_blank" rel="noopener">coreseek</a>这个基于sphinx的中文搜索引擎。但是好像这个好久没人维护了～一直停留在了4.1beta版本～</p>
+</blockquote>
+<h2 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h2><p>源码下载地址<a href="http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz" target="_blank" rel="noopener">oreseek-3.1-beta.tar.gz</a>;<br>解压下载的文件,进入目录<code>cd coreseek-4.1-beta</code>;</p>
+<h2 id="安装中文分词库mmseg"><a href="#安装中文分词库mmseg" class="headerlink" title="安装中文分词库mmseg"></a>安装中文分词库mmseg</h2><ul>
+<li><code>cd mmseg-3.2.14/</code></li>
+<li><code>./bootstrap</code></li>
+<li><code>./configure --prefix=/usr/local/mmseg3</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<p>如果你幸运的话，这时候会提示错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’  </span><br><span class="line">css/SynonymsDict.cpp:94: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’  </span><br></pre></td></tr></table></figure><br>可能是编译器的要求太严格导致的，只有更改源码了：<br>将rc/css/SynonymsDict.cpp文件94行的代码<code>char txtHead[3] = {239,187,191};</code>改为如下的形式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>会发现又出现了错误提示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">mmseg_main.cpp: In function ‘int segment(const char*, css::Segmenter*)’:</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘239’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘187’从‘int’转换为较窄的类型‘char’</span><br><span class="line">mmseg_main.cpp:254: 错误：在 &#123;&#125; 内将‘191’从‘int’转换为较窄的类型‘char’</span><br></pre></td></tr></table></figure><br>同样的办法修改<code>src/mmseg_main.cpp</code>文件的254行<code>char txtHead[3] = {239,187,191};</code>为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">char txtHead[3] = &#123;&#125;; </span><br><span class="line">txtHead[0] = (char)239;</span><br><span class="line">txtHead[1] = (char)187;</span><br><span class="line">txtHead[2] = (char)191;</span><br></pre></td></tr></table></figure><br>再次运行<code>make &amp;&amp; make install</code>，终于成功了～<br>到这里mmseg就算安装成功了</p>
+<h2 id="安装coreseek"><a href="#安装coreseek" class="headerlink" title="安装coreseek"></a>安装coreseek</h2><ul>
+<li><code>cd csft-4.1/</code></li>
+<li><code>sh buildconf.sh</code></li>
+<li><code>./configure --prefix=/usr/local/coreseek  --without-unixodbc   
+--with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/   
+--with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql</code></li>
+<li><code>make &amp;&amp; make install</code></li>
+</ul>
+<h2 id="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）"><a href="#测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh-CN-UTF-8，确保正确显示中文）" class="headerlink" title="测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）"></a>测试mmseg分词，coreseek搜索（需要预先设置好字符集为zh_CN.UTF-8，确保正确显示中文）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd testpack</span><br><span class="line">$ cat var/test/test.xml    #此时应该正确显示中文</span><br><span class="line">$ /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc var/test/test.xml</span><br><span class="line">$ /usr/local/coreseek/bin/indexer -c etc/csft.conf --all</span><br><span class="line">$ /usr/local/coreseek/bin/search -c etc/csft.conf 网络搜索</span><br></pre></td></tr></table></figure>
+<p>上面是官方文档给的，需要说明的是，csft.conf是由sphinx.conf.dist复制而来的，里面的关于mysql的配置，自己按照实际情况修改。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2014/05/10/stdarg-function/"><span>C语言：可变参数函数</span></a></h3>
     
   
@@ -123,6 +189,135 @@
     </span>
     
 
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2014/03/22/linux-shell-programe1/"><span>linux shell 编程之语法学习</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2014/03/22/linux-shell-programe1/" rel="bookmark">
+        <time class="entry-date published" datetime="2014-03-21T16:00:00.000Z">
+          2014-03-22
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>shell语法跟一般类C的语法有些相识，但是却有很多独特的地方，如果不能够好好理解这些语法特性，难免在编写shell脚本的过程中会遇到很多令人难以察觉的，头疼的问题。细节决定成败，这篇博客就根据我自己的学习过程做一下总结吧。</p>
+</blockquote>
+<h2 id="独特的开头"><a href="#独特的开头" class="headerlink" title="独特的开头"></a>独特的开头</h2><p>一般的脚本语言都有一个基本表示自己是何方神圣的开头，比如php语言的<code>&lt;?php</code>, jsp语言的<code>&lt;%jsp</code>。shell也有自己独特的开头。比如<code>#! /bin/bash</code>, 不过跟其他语言表示自己的语言名称不一样，这里的开头表明shell要指明使用那个解释器。因为shell有很多标准，每个标准的解释器对shell的理解是不一样的，所有你写的shell脚本很可能是其他解释器不认识的内容，所以需要指明你自己使用哪个解释器。这里要注意的是如果写了<code>#! /bin/sh</code> 表明使用的是当前系统默认的解释器。</p>
+<blockquote>
+<p>ps小贴士：</p>
+<blockquote>
+</blockquote>
+<ol>
+<li><code>#!</code>一定要写在脚本第一行才能生效， 否则视为注释行, 不起任何作用</li>
+<li>这一行是会被执行的，如果写其他命令如<code>#! /bin/more</code> 则会执行相应的命令</li>
+</ol>
+</blockquote>
+<h2 id="执行shell脚本的方法"><a href="#执行shell脚本的方法" class="headerlink" title="执行shell脚本的方法"></a>执行shell脚本的方法</h2><p>shell执行的方式不同，其与运行的远离也不同，参考<a href="http://learn.akae.cn/media/ch31s02.html" target="_blank" rel="noopener">Shell如何执行命令</a>这篇文章，进行介绍一下：<br>首先有一个脚本<code>script.sh</code>,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ! /bin/sh</span><br><span class="line"></span><br><span class="line">cd ..</span><br><span class="line">ls</span><br></pre></td></tr></table></figure><br>执行这个脚本的方法有两种：</p>
+<ul>
+<li><code>$ ./script.sh</code></li>
+<li><code>$ sh ./script.sh</code></li>
+</ul>
+<p>但其实第一种方法会转化为第二种方法，比如如果用第一种方法执行脚本，实际上会转化为：<code>/bin/sh ./script.sh</code>。接下来就调用shell子进程来执行脚本了，在脚本执行的所有都是针对子进程的，不会对父进程产生影响，这点可以参考博客中举的例子。</p>
+<blockquote>
+<p>ps小贴士：</p>
+<blockquote>
+</blockquote>
+<ol>
+<li>第一种方式执行脚本需要这个脚本具有可执行的权限, 第二种则不需要</li>
+</ol>
+</blockquote>
+<h2 id="变量的表示"><a href="#变量的表示" class="headerlink" title="变量的表示"></a>变量的表示</h2><p>Bash变量像一般的脚本语言一样，不区分变量类型，本质上Bash变量都是字符串。  </p>
+<h3 id="变量替换"><a href="#变量替换" class="headerlink" title="变量替换"></a>变量替换</h3><p>变量的名字就是变量保存值的地方，引用变量的值就叫<em>变量替换</em>。我们用<code>$+变量名称</code>来表示变量替换。下面几种情况变量不带<code>$</code>:</p>
+<ul>
+<li>变量被声明: <code>variable</code></li>
+<li>变量被赋值: <code>variable=12</code></li>
+<li>变量被unset: <code>unset variable</code></li>
+<li>变量被export: <code>export variable=23</code></li>
+</ul>
+<p><em>弱引用（部分引用）：</em>双引号(“”)括起来的变量。这种引用变量替换不会被阻止。<br><em>强引用（全引用）：</em>单引号（’’）括起来的变量。替换被阻止，解释为字符串。</p>
+<p>ps: $variable其实是${variable}的简写形式,但是有些时候简写形式不能够满足变量的更多特性（比如参数替换），这时候就要用全写形式了。</p>
+<h3 id="变量赋值"><a href="#变量赋值" class="headerlink" title="变量赋值:"></a>变量赋值:</h3><p>变量赋值的方式也有多种：</p>
+<ol>
+<li>使用赋值操作:=(注意等号两边不能有空白，否则就是视为条件判断了)赋值.<code>a=12</code></li>
+<li>使用let赋值.<code>let a=2</code></li>
+<li>for循环中赋值(伪赋值).<code>for a in \</code>seq 100``</li>
+</ol>
+<h3 id="特殊的变量类型"><a href="#特殊的变量类型" class="headerlink" title="特殊的变量类型"></a>特殊的变量类型</h3><ul>
+<li>位置参数： 命令行运行脚本可以传递参数，而脚本接受参数可以通过位置参数来获取。<ul>
+<li>$0:代表脚本名称</li>
+<li>$1:表示第一个传递的参数(依次类推, 但是$10开始需要需要用${10}来获取)</li>
+<li>$#:表示参数的个数</li>
+</ul>
+</li>
+</ul>
+<h2 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a>条件判断</h2><h3 id="条件判断格式："><a href="#条件判断格式：" class="headerlink" title="条件判断格式："></a>条件判断格式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">#  1 一般的格式</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">     ...</span><br><span class="line">else</span><br><span class="line">     ... </span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  2 两条语句写到一行是，语句间要用分号隔开</span><br><span class="line">if 条件; then</span><br><span class="line">    ...</span><br><span class="line">else</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  3 多个条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    ...</span><br><span class="line">elif 条件</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  4 嵌套条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    if 条件</span><br><span class="line">    then</span><br><span class="line">        ...</span><br><span class="line">    fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<h3 id="条件格式："><a href="#条件格式：" class="headerlink" title="条件格式："></a>条件格式：</h3><ol>
+<li><code>[ ... ]</code> : <code>[</code>是一个内建命令，其作用就是后面的表达式退出状态码为0则条件为真。</li>
+<li><code>[[ ... ]]</code>: <code>[[</code>是一个关键字，其作用就是和上面相同，但是其表达式的解释不同。</li>
+<li><code>(( ... ))</code>: 测试条件是一个算术表达式，表达式的结果为非零时条件为真。</li>
+<li><code>一般命令</code>: 可跟一般的shell命令，命令的退出状态码为测试条件。</li>
+</ol>
+<blockquote>
+<p>ps: <code>[]</code> 与<code>[[]]</code>的区别：<br>    <code>[</code>是一个内建命令, 其后面跟的是一般命令的参数和选项，比如<code>[ 1 -lt 2]</code>可以认为1和2是参数，-lt是一个选项。但是 <code>[ 1 &amp;&amp; 2 ]</code>则不正确，因为 &amp;&amp;不是一个有效的参数或者选项。<br>    <code>[[</code>是一个关键字，可以正确解释&amp;&amp;， 是一个更加通用的结构。</p>
+</blockquote>
+<h2 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h2><p>循环的方式主要有以下几种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"># 1 基本结构</span><br><span class="line">for arg in [list]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 2 使用$@(即位置参数)</span><br><span class="line">for arg</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 3 使用命令替换[list]</span><br><span class="line">for arg in `command`</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 4 使用C风格</span><br><span class="line">for ((a=1; a &lt;= LIMIT ; a++))</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 5 while</span><br><span class="line">while [condition] #与条件判断的condition一样</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 6 until 类似于C的do...while</span><br><span class="line">until [condition]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 7 嵌套循环与控制</span><br><span class="line">for a in [list]</span><br><span class="line">do</span><br><span class="line">    for b in [list]</span><br><span class="line">    do</span><br><span class="line">        for c in [list]</span><br><span class="line">        do</span><br><span class="line">            break 2 #带层参数：退出从本层算，往外到第二层的循环</span><br><span class="line">        done</span><br><span class="line">        for d in [list]</span><br><span class="line">        do</span><br><span class="line">           continue #不带层参数：继续本层的循环</span><br><span class="line">        done</span><br><span class="line">        break  #不带层参数：退出本层循环</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure></p>
+<h2 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># case </span><br><span class="line">case &quot;$variable&quot; in</span><br><span class="line">$condition1 ) command...;;</span><br><span class="line">$condition2 ) command...;;</span><br><span class="line">...</span><br><span class="line">$conditionn ) command...;;</span><br><span class="line">*) command ...;; #相当于default</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line"># select 介于for和case之间的一个if语句</span><br><span class="line">select variable [in list] #满足条件则执行下面的命令, 不写后面的则跟for一样，取$@</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="函数定义的两种方式："><a href="#函数定义的两种方式：" class="headerlink" title="函数定义的两种方式："></a>函数定义的两种方式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function function_name &#123;</span><br><span class="line">$1 #位置参数作为传递的参数</span><br><span class="line">$2</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function_name &#123;</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="函数调用"><a href="#函数调用" class="headerlink" title="函数调用"></a>函数调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">function_name $arg1 $arg2</span><br></pre></td></tr></table></figure>
+<p>ps:</p>
+<ol>
+<li>函数调用之前必须先定义</li>
+</ol>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>到这里一个shell的基本架构有了，但是shell学习才刚刚开始，以后陆续有文章就shell的某个点进行深入探讨～</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/SHELL/">SHELL</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/shell/">shell</a>
+    </span>
     
 
     </div>
@@ -320,135 +515,6 @@
     <span class="post-tags">
       <i class="icon-tags"></i>
         <a href="/tags/linux/">linux</a>
-    </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2014/03/22/linux-shell-programe1/"><span>linux shell 编程之语法学习</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2014/03/22/linux-shell-programe1/" rel="bookmark">
-        <time class="entry-date published" datetime="2014-03-21T16:00:00.000Z">
-          2014-03-22
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p>shell语法跟一般类C的语法有些相识，但是却有很多独特的地方，如果不能够好好理解这些语法特性，难免在编写shell脚本的过程中会遇到很多令人难以察觉的，头疼的问题。细节决定成败，这篇博客就根据我自己的学习过程做一下总结吧。</p>
-</blockquote>
-<h2 id="独特的开头"><a href="#独特的开头" class="headerlink" title="独特的开头"></a>独特的开头</h2><p>一般的脚本语言都有一个基本表示自己是何方神圣的开头，比如php语言的<code>&lt;?php</code>, jsp语言的<code>&lt;%jsp</code>。shell也有自己独特的开头。比如<code>#! /bin/bash</code>, 不过跟其他语言表示自己的语言名称不一样，这里的开头表明shell要指明使用那个解释器。因为shell有很多标准，每个标准的解释器对shell的理解是不一样的，所有你写的shell脚本很可能是其他解释器不认识的内容，所以需要指明你自己使用哪个解释器。这里要注意的是如果写了<code>#! /bin/sh</code> 表明使用的是当前系统默认的解释器。</p>
-<blockquote>
-<p>ps小贴士：</p>
-<blockquote>
-</blockquote>
-<ol>
-<li><code>#!</code>一定要写在脚本第一行才能生效， 否则视为注释行, 不起任何作用</li>
-<li>这一行是会被执行的，如果写其他命令如<code>#! /bin/more</code> 则会执行相应的命令</li>
-</ol>
-</blockquote>
-<h2 id="执行shell脚本的方法"><a href="#执行shell脚本的方法" class="headerlink" title="执行shell脚本的方法"></a>执行shell脚本的方法</h2><p>shell执行的方式不同，其与运行的远离也不同，参考<a href="http://learn.akae.cn/media/ch31s02.html" target="_blank" rel="noopener">Shell如何执行命令</a>这篇文章，进行介绍一下：<br>首先有一个脚本<code>script.sh</code>,内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ! /bin/sh</span><br><span class="line"></span><br><span class="line">cd ..</span><br><span class="line">ls</span><br></pre></td></tr></table></figure><br>执行这个脚本的方法有两种：</p>
-<ul>
-<li><code>$ ./script.sh</code></li>
-<li><code>$ sh ./script.sh</code></li>
-</ul>
-<p>但其实第一种方法会转化为第二种方法，比如如果用第一种方法执行脚本，实际上会转化为：<code>/bin/sh ./script.sh</code>。接下来就调用shell子进程来执行脚本了，在脚本执行的所有都是针对子进程的，不会对父进程产生影响，这点可以参考博客中举的例子。</p>
-<blockquote>
-<p>ps小贴士：</p>
-<blockquote>
-</blockquote>
-<ol>
-<li>第一种方式执行脚本需要这个脚本具有可执行的权限, 第二种则不需要</li>
-</ol>
-</blockquote>
-<h2 id="变量的表示"><a href="#变量的表示" class="headerlink" title="变量的表示"></a>变量的表示</h2><p>Bash变量像一般的脚本语言一样，不区分变量类型，本质上Bash变量都是字符串。  </p>
-<h3 id="变量替换"><a href="#变量替换" class="headerlink" title="变量替换"></a>变量替换</h3><p>变量的名字就是变量保存值的地方，引用变量的值就叫<em>变量替换</em>。我们用<code>$+变量名称</code>来表示变量替换。下面几种情况变量不带<code>$</code>:</p>
-<ul>
-<li>变量被声明: <code>variable</code></li>
-<li>变量被赋值: <code>variable=12</code></li>
-<li>变量被unset: <code>unset variable</code></li>
-<li>变量被export: <code>export variable=23</code></li>
-</ul>
-<p><em>弱引用（部分引用）：</em>双引号(“”)括起来的变量。这种引用变量替换不会被阻止。<br><em>强引用（全引用）：</em>单引号（’’）括起来的变量。替换被阻止，解释为字符串。</p>
-<p>ps: $variable其实是${variable}的简写形式,但是有些时候简写形式不能够满足变量的更多特性（比如参数替换），这时候就要用全写形式了。</p>
-<h3 id="变量赋值"><a href="#变量赋值" class="headerlink" title="变量赋值:"></a>变量赋值:</h3><p>变量赋值的方式也有多种：</p>
-<ol>
-<li>使用赋值操作:=(注意等号两边不能有空白，否则就是视为条件判断了)赋值.<code>a=12</code></li>
-<li>使用let赋值.<code>let a=2</code></li>
-<li>for循环中赋值(伪赋值).<code>for a in \</code>seq 100``</li>
-</ol>
-<h3 id="特殊的变量类型"><a href="#特殊的变量类型" class="headerlink" title="特殊的变量类型"></a>特殊的变量类型</h3><ul>
-<li>位置参数： 命令行运行脚本可以传递参数，而脚本接受参数可以通过位置参数来获取。<ul>
-<li>$0:代表脚本名称</li>
-<li>$1:表示第一个传递的参数(依次类推, 但是$10开始需要需要用${10}来获取)</li>
-<li>$#:表示参数的个数</li>
-</ul>
-</li>
-</ul>
-<h2 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a>条件判断</h2><h3 id="条件判断格式："><a href="#条件判断格式：" class="headerlink" title="条件判断格式："></a>条件判断格式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">#  1 一般的格式</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">     ...</span><br><span class="line">else</span><br><span class="line">     ... </span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  2 两条语句写到一行是，语句间要用分号隔开</span><br><span class="line">if 条件; then</span><br><span class="line">    ...</span><br><span class="line">else</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  3 多个条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    ...</span><br><span class="line">elif 条件</span><br><span class="line">    ...</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">#  4 嵌套条件判断</span><br><span class="line">if 条件</span><br><span class="line">then</span><br><span class="line">    if 条件</span><br><span class="line">    then</span><br><span class="line">        ...</span><br><span class="line">    fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-<h3 id="条件格式："><a href="#条件格式：" class="headerlink" title="条件格式："></a>条件格式：</h3><ol>
-<li><code>[ ... ]</code> : <code>[</code>是一个内建命令，其作用就是后面的表达式退出状态码为0则条件为真。</li>
-<li><code>[[ ... ]]</code>: <code>[[</code>是一个关键字，其作用就是和上面相同，但是其表达式的解释不同。</li>
-<li><code>(( ... ))</code>: 测试条件是一个算术表达式，表达式的结果为非零时条件为真。</li>
-<li><code>一般命令</code>: 可跟一般的shell命令，命令的退出状态码为测试条件。</li>
-</ol>
-<blockquote>
-<p>ps: <code>[]</code> 与<code>[[]]</code>的区别：<br>    <code>[</code>是一个内建命令, 其后面跟的是一般命令的参数和选项，比如<code>[ 1 -lt 2]</code>可以认为1和2是参数，-lt是一个选项。但是 <code>[ 1 &amp;&amp; 2 ]</code>则不正确，因为 &amp;&amp;不是一个有效的参数或者选项。<br>    <code>[[</code>是一个关键字，可以正确解释&amp;&amp;， 是一个更加通用的结构。</p>
-</blockquote>
-<h2 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h2><p>循环的方式主要有以下几种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"># 1 基本结构</span><br><span class="line">for arg in [list]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 2 使用$@(即位置参数)</span><br><span class="line">for arg</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 3 使用命令替换[list]</span><br><span class="line">for arg in `command`</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 4 使用C风格</span><br><span class="line">for ((a=1; a &lt;= LIMIT ; a++))</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 5 while</span><br><span class="line">while [condition] #与条件判断的condition一样</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 6 until 类似于C的do...while</span><br><span class="line">until [condition]</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"># 7 嵌套循环与控制</span><br><span class="line">for a in [list]</span><br><span class="line">do</span><br><span class="line">    for b in [list]</span><br><span class="line">    do</span><br><span class="line">        for c in [list]</span><br><span class="line">        do</span><br><span class="line">            break 2 #带层参数：退出从本层算，往外到第二层的循环</span><br><span class="line">        done</span><br><span class="line">        for d in [list]</span><br><span class="line">        do</span><br><span class="line">           continue #不带层参数：继续本层的循环</span><br><span class="line">        done</span><br><span class="line">        break  #不带层参数：退出本层循环</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure></p>
-<h2 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># case </span><br><span class="line">case &quot;$variable&quot; in</span><br><span class="line">$condition1 ) command...;;</span><br><span class="line">$condition2 ) command...;;</span><br><span class="line">...</span><br><span class="line">$conditionn ) command...;;</span><br><span class="line">*) command ...;; #相当于default</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line"># select 介于for和case之间的一个if语句</span><br><span class="line">select variable [in list] #满足条件则执行下面的命令, 不写后面的则跟for一样，取$@</span><br><span class="line">do</span><br><span class="line">commands...</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="函数定义的两种方式："><a href="#函数定义的两种方式：" class="headerlink" title="函数定义的两种方式："></a>函数定义的两种方式：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function function_name &#123;</span><br><span class="line">$1 #位置参数作为传递的参数</span><br><span class="line">$2</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function_name &#123;</span><br><span class="line">command...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="函数调用"><a href="#函数调用" class="headerlink" title="函数调用"></a>函数调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">function_name $arg1 $arg2</span><br></pre></td></tr></table></figure>
-<p>ps:</p>
-<ol>
-<li>函数调用之前必须先定义</li>
-</ol>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>到这里一个shell的基本架构有了，但是shell学习才刚刚开始，以后陆续有文章就shell的某个点进行深入探讨～</p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/SHELL/">SHELL</a>
-    </span>
-    
-
-    
-    
-
-    <span class="post-tags">
-      <i class="icon-tags"></i>
-        <a href="/tags/shell/">shell</a>
     </span>
     
 
@@ -991,203 +1057,6 @@ Alice --> Bob: 响应
       <i class="icon-tags"></i>
         <a href="/tags/jekyll/">jekyll</a><a href="/tags/plantuml/">plantuml</a>
     </span>
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2013/12/30/think-in-uml/"><span>Think in UML</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2013/12/30/think-in-uml/" rel="bookmark">
-        <time class="entry-date published" datetime="2013-12-29T16:00:00.000Z">
-          2013-12-30
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <blockquote>
-<p><em>本书主要讲的是UML的设计方法及如何把UML运用到实际的工作当中</em></p>
-</blockquote>
-<h1 id="第一部分：准备篇——需要了解"><a href="#第一部分：准备篇——需要了解" class="headerlink" title="第一部分：准备篇——需要了解"></a>第一部分：准备篇——需要了解</h1><h2 id="1-为什么需要UML"><a href="#1-为什么需要UML" class="headerlink" title="1. 为什么需要UML"></a>1. 为什么需要UML</h2><p>简单来说随着业务越来越复杂面向过程的方法已经不能满足对这种业务的分析需求了，需要使用新的方法，也就是面向对象的分析方法对业务进行分析，但是面向对象也存在一下问题，比如对象是如何抽象出来的，对象世界的不容易理解等，要想更好的解决这些问题，我们就需要：</p>
-<ul>
-<li>一种把现实世界映射到对象世界的方法。</li>
-<li>一种从对象世界描述现实世界的方法。</li>
-<li>一种验证对象世界行为是否正确反映了现实世界的方法。</li>
-</ul>
-<p>而UML背后所代表的面向对象设计方法正式针对这些问题提出的。下面将详细介绍UML是如何解决这些问题的。</p>
-<h3 id="UML带来了什么"><a href="#UML带来了什么" class="headerlink" title="UML带来了什么"></a>UML带来了什么</h3><p>面向对象分析（OOA）方法中，其中最重要的就是UML的前身，后来发展成为UML这种统一建模语言，这种统一建模语言是为了让人们能够无障碍的交流，并且让人和机器都能够读懂，而且UML是可视化的，使用图形更能够形象的说明问题。为了便于建模，UML提供了一些元素来为现实世界建模：  </p>
-<ul>
-<li><strong>actor 参与者</strong>:信息来源的提供者，同时也是第一驱动者。</li>
-<li><strong>use case用例</strong>:表示驱动者的业务目标。</li>
-</ul>
-<p>UML通过被称为概念化的过程（Conceptual）来建立适合计算机理解和实现的模型，这个模型称为分析模型(Analysis Model),分析模型的主要元模型有：</p>
-<ul>
-<li><strong>边界类(boundary)</strong>:是面向对象分析的一个非常重要的观点，是事物内外交互的一个介质。</li>
-<li><strong>实体类(entity)</strong>:原始需求中领域模型中的业务实体映射了现实世界中参与者完成业务目标时所涉及的事物，UML采用实体类来重新表达业务实体。</li>
-<li><strong>控制类(control)</strong>:边界和实体都是静态的，UML采用控制类来表述原始需求中的动态信息，即业务或用例场景中的步骤和活动。</li>
-</ul>
-<p>通过从<strong>现实世界</strong> -&gt; <strong>业务模型</strong> -&gt; <strong>概念模型</strong> -&gt; <strong>设计模型</strong>的过程便可以解决上一节提到的三个问题了。</p>
-<h3 id="统一过程简介"><a href="#统一过程简介" class="headerlink" title="统一过程简介"></a>统一过程简介</h3><p>RUP是统一过程，统一过程是在很多实践中总结出来的软件工程的最佳实践。RUP是一个理论的指导，UML则是具体的语言实现。</p>
-<h2 id="2-建模基础"><a href="#2-建模基础" class="headerlink" title="2. 建模基础"></a>2. 建模基础</h2><h3 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h3><p><strong>建模(Modeling)</strong>:是指通过对客观事物建立一种抽象的方法用以表征事物并获得对事物本身的理解，同时把这种理解概念化，将这些逻辑概念组织起来，构成一种对所观察的对象的内部结构和工作原理的便于理解的表达。<br>建模需要关注的两点是：这么建立？模是什么？<br>做需求的时候，首先目标不是弄清楚业务是如何一步一步完成的，而是要弄清楚有多少个业务的参与者，每个参与者的目标是什么，参与者的目标就是你的抽象角度。实际上，这就是用例。<br>业务建模是什么，这个问题可以参考下面的几个公式来理解：  </p>
-<ul>
-<li>\(问题领域＝ \sum_{1}^{n} 抽象问题 \)</li>
-<li>抽象角度 ＝ 问题领域边界之外的参与者的业务目标 ＝ 业务用例</li>
-<li>\(业务用例＝ \sum_{1}^{n} 特定场景\)</li>
-<li>特定场景 ＝ 静态的事物 ＋ 特定的条件 ＋ 特定的动作  或者<br>特定的事 ＝ 特定的事物 ＋ 特定的规则 ＋ 特定的人的行为</li>
-</ul>
-<h3 id="用例驱动"><a href="#用例驱动" class="headerlink" title="用例驱动"></a>用例驱动</h3><p>用例驱动是统一过程的重要概念，或者说整个软件的生产过程就是用例驱动的。如果我们找到的事物、规则和行为实现了所有必要的用例，那么问题领域就被解决了。统一过程中一个用例就是一个分析单元、设计单元、测试单元甚至部署单元。用例可以驱动的内容包括：</p>
-<ul>
-<li>逻辑视图: 一个系统只有一个，它以图形的方式说明关键的用例实现、子系统、包和类。即建模公式中的那些“人”、“事”、“物”、“规则”是如何分类组织的。</li>
-<li>进程视图: 一个系统只有一个，它以图形方式说明系统中进程的详细组织结构，其中包括类和子系统到进程和线程的映射。即建模公式中的那些“人”、“事”、“物”、“规则”是如何交互的，它们的关系如何。</li>
-<li>部署视图: 一个系统只有一个，它以图形的方式说明了处理活动在系统中各节点的分布，包括进程和线程的物理分布。即建模公式中的那些是如何部署在物理节点（主机、网络环境）上的。</li>
-<li>实施视图: 获取为实施指定的架构决策，即建模公式中那些是如何构系统的“零部件”，以及我们如何组织人力生产和组装这些“零部件”以建成最终系统。</li>
-</ul>
-<h3 id="抽象层次"><a href="#抽象层次" class="headerlink" title="抽象层次"></a>抽象层次</h3><p>抽象层次是面向对象方法中极其重要，但是又非常难以掌握的技巧。抽象层次越高，具体信息越少，越容易理解，反之亦然。抽象的方法有两种：</p>
-<ul>
-<li>自顶向下： 适用于让人们从头开始认识一个事物。</li>
-<li>自底向上： 适用于在实践中改进和提高认识。</li>
-</ul>
-<p>软件开发中应该主体上采用自顶向下的方法，同时应当辅以自底向上的方法，通过总结在较低抽象层次的实践经验来改进较高层次的概念一提升软件质量。</p>
-<h3 id="视图"><a href="#视图" class="headerlink" title="视图"></a>视图</h3><p>视图用于组织UML元素，表达出模型某一方面的含义。如何选择视图才是重点。视图另一个被人忽视重要概念是：视角。就是人们观察事物的角度。一方面，从信息的展示角度来说，恰当的视角可以让观察者更容易抓住信息的本质；另一方面，从观察者角度说，观察者只会关心信息中他感兴趣的那一部分视角。于是用很多个不同的视图去展示软件这些不同的方面——静态的、动态的、结构性的、逻辑性的等——才能够说建立了一个完整的模型。为了说明这些方面,UML定义了用例图、对象图、类图、包图、活动图等不同的视图。所以在实际工作过程中需要考虑的问题就是：</p>
-<ul>
-<li>应该为哪些软件信息绘制哪些视图？</li>
-<li>应给给哪些干系人展示哪些视角？</li>
-</ul>
-<h3 id="对象分析方法"><a href="#对象分析方法" class="headerlink" title="对象分析方法"></a>对象分析方法</h3><p>使用好UML的前提条件就是掌握了面向对象的思想和方法：</p>
-<ul>
-<li>一切都是对象</li>
-<li>对象都是独立的</li>
-<li>对象具有原子性</li>
-<li>对象都是可以抽象的</li>
-<li>对象都有层次性</li>
-<li>对象分析方法总结</li>
-</ul>
-<h1 id="第二部分：基础篇——在学习中思考"><a href="#第二部分：基础篇——在学习中思考" class="headerlink" title="第二部分：基础篇——在学习中思考"></a>第二部分：基础篇——在学习中思考</h1><h2 id="3-UML核心元素"><a href="#3-UML核心元素" class="headerlink" title="3. UML核心元素"></a>3. UML核心元素</h2><ul>
-<li>版型(stereotype):是对UML元素基础定义的一个扩展，在同一元素基础定义的基础上赋予特别的含义，使得这个元素适用于特定的场合。</li>
-<li><p>参与者(actor):是系统之外与系统交互的某人或某事物。系统与参与者之间有一个明确的边界。如何确定系统之外和系统之内呢？主要通过下面两个问题来判断：</p>
-<ul>
-<li>谁对系统有着明确的目标和要求并且主动发出动作？</li>
-<li><p>系统是为谁服务的？ </p>
-<p>参与者又叫主角，这个叫法更形象，因为参与者很容易与其他的混淆，比如后面会提到<strong>业务主角</strong>（是参与者的一个版型）、<strong>业务工人</strong>(被动参与业务的参与者)、<strong>涉众</strong>（要建设的这个系统有利益相关的一切人和事）、<strong>用户</strong>（系统的使用者，是参与者的代表）、<strong>角色</strong>（参与者的职责，是一个抽象的概念，从众多的参与者中抽象出相同的那一部分。）等。</p>
-</li>
-</ul>
-</li>
-<li>用例(use case):关于用例的一些知识点总结如下：<ul>
-<li>用例是系统所执行的一系列操作。</li>
-<li>用例是一个相对独立的过程。</li>
-<li>用例的执行结果对参与者来说是可观测的和有意义的。</li>
-<li>这件事必须有一个参与者发起。</li>
-<li>用例必须是以动宾短语形式出现的。如：喝水、取钱等。</li>
-<li>一个用例就是一个需求单元、分析单元、设计单元、开发单元、测试单元，甚至部署单元。</li>
-<li>用例粒度的控制：一般在业务建模阶段，以一个用例能够说明一件完整的事情为宜；在概念建模阶段，用例粒度应以能够描述一个完整的事件流为宜，即完成一项完整业务的一个步骤；在系统建模阶段，用例视角是针对计算机的，因此粒度应以能够描述操作者与计算机的一次交互为宜。</li>
-<li>如何获得一个用例：主要应当确保：一个明确的目标才是一个用例的来源；一个真实的目标应当完备地表达主角的期望；一个有效的目标应当在系统边界内，由主角发动，并具有明确的后果。</li>
-<li>区分用例与功能之间的误区：功能是脱离使用者的愿望而存在的；功能是孤立的；用例是一系列完成一个特定目标的“功能”的组合。确定用例要从用例的角度查找，而不是从功能的角度。</li>
-<li>目标和步骤之间的误区：步骤是为了完成目标而做的，但是有时候步骤和目标却不是绝对的，主要是在不同的分析阶段如业务用例，概念用例，由于边界发生了变化，这些也都是可以转变的。</li>
-<li>用例粒度的误区：这个误区就是用例粒度把握的不好，用例的层次不够清晰，导致依据用例进行设计的系统架构不能够满足需求，或者对需求的变动有很差的应变能力。</li>
-<li>业务用例：专门用于需求阶段的建模，在为业务领域建模时应当使用这种版型。</li>
-<li>概念用例：用于概念建模。作为概念模型的核心元素，概念用例用来获取业务用例中的核心业务逻辑。</li>
-<li>系统用例：就是一般意义上的用例，是用来定义系统范围，获取功能性需求的。</li>
-</ul>
-</li>
-<li>边界: 是参与者和用例之间的一个界限。边界的定义要考多需求的把握。<ul>
-<li>边界决定视界。</li>
-<li>边界决定抽象层次。</li>
-<li>边界需要灵活使用。</li>
-</ul>
-</li>
-<li>业务实体:是类(class)的一种版型，特别用于在业务建模阶段建立领域模型。官方定义是：业务实体代表业务角色执行业务用例是所处理或使用的“事物”。</li>
-<li>包:将某些信息分类，形成逻辑单元。包的目标是高內聚、低耦合。包的版型有：领域包、子系统、组织结构、层等。</li>
-<li>分析类：用于获取系统中主要的“职责簇”。两个主要的性质：<br>  － 分析类代表系统中主要的法“职责簇”，这意味着分析类是从功能性需求向计算机实现转化过程中的“第一个关口”<br>  － 分析累可以产生系统的设计类和子系统，这意味着计算机实现是可以通过某种途径“产生”出来的 ，而不是拍脑袋拍出来的。<br>  分析类有三个版型：边界类、控制类和实体类。</li>
-</ul>
-<h2 id="4-UML核心视图"><a href="#4-UML核心视图" class="headerlink" title="4. UML核心视图"></a>4. UML核心视图</h2><h3 id="静态视图"><a href="#静态视图" class="headerlink" title="静态视图"></a>静态视图</h3><p>  只描述事物的静态结构，而不描述其动态行为。</p>
-<h4 id="用例图"><a href="#用例图" class="headerlink" title="用例图"></a>用例图</h4><p>采用参与者和用例作为基本元素,用不同的视角展现系统的功能性需求。用例图是系统蓝图和开发的依据。主要包括：</p>
-<ul>
-<li><p>业务用例视图: 从不同的角度来对业务用例视图进行不同的划分，来保证业务目标是否齐全，业务主角和用例是否齐全等。<br>业务主角视角：  </p>
-<img src="http://www.plantuml.com/plantuml/svg/IogDVzem_-MCrYUxTYdebXResYbe9C74dixUzsJdCask91oAkkOzdz06aNcnlb4J0000">
-<p>业务模块视角：  </p>
-<img src="http://www.plantuml.com/plantuml/svg/IogDVzem_-MCrYUxTYdebXResYbe9C74dixUzsJdCaqkeC3pTGkVJsXxEd46aYAe64GH0000">
-</li>
-<li><p>业务用例实现视图：上面展现了业务的功能性需求，这个视图则是描述这些需求的实现途径的。也就是说一个用例有多少个实现途径，需要描述一下。</p>
-<img src="http://www.plantuml.com/plantuml/svg/IoejYd--T-AJ7LrF6-Q_dD7wTFQ-9pkNAUZQAMWabSOZYsbo9G7LGjWlbxKHL0u0">
-</li>
-<li><p>概念用例视图：用于展现从业务用例中经过分析分解出来的关键概念用例，并表示概念用例和业务用例之间的关系。一般这些关系有扩展、包含和精化。</p>
-</li>
-</ul>
-<img src="http://www.plantuml.com/plantuml/svg/AyalK2Z9LqZABod9prL8oInAJIx9pC_ZIagEVzem_-MCrYUxTYdOs2Wav-SbfnQKADZPGQMUjkzwEdlVavtBiCZkdVHY_mnSiiyMDpoRlnHY-8lrZPWAdknQydpNPgY2BJlH5PH27GOrNxUqGDTEGGFDKPeALa1zcNd9EQKfgVXr8JcMU5redY2eiIWpFQC4gXVDVn2zgHKbgNafTdO0">
-<ul>
-<li><p>系统用例视图：展现系统范围，将对业务用例进行分析后得到的系统用例展现出来，一般来说系统用例视图是以业务为单位展现的，即将视图名称命名为业务用例名称。下面是一个借阅图书系统用例视图：  </p>
-<img src="http://www.plantuml.com/plantuml/svg/AyalK2Z9LqZABod9prL8oInAJIx9pC_ZAguiZdywUz-JdSkUDin_EQFroQvT2hgb1Rfs2XhFvYzziNuHH58JdyAdUoUzs3-368LTyvvFQ8C8F-liVhvxBJ7AmQRZLLwKcPvH0jBnPDUIvxislzYoy_cK5JZKvgIcbUZMs2aabSR3HG40">
-<img src="http://www.plantuml.com/plantuml/svg/AwuiZdywUz-JdSkUhrluV4BRquap57IBCjCpIdJj53IUBMvuDdyfH5wJgnYlskSpTxzOj-5fm_oNCrf1ZBrJSUZ8IKqhqQsnKqWgZOUB0W00">
-</li>
-<li><p>系统用例实现视图<br>与业务用例实现视图类似，如果一个系统用例有多种实现方式，也应当为其绘制实现视图。</p>
-</li>
-</ul>
-<h4 id="类图"><a href="#类图" class="headerlink" title="类图"></a>类图</h4><p>是现实世界问题领域的抽象对象的结构化、概念化、逻辑化描述。</p>
-<ul>
-<li>概念层类图：概念层的观点认为，在这个层次的类图描述的是现实世界中问题领域的概念理解，即类图中表达的类与现实世界的问题领域有着明显的对应关系，类之间的关系也与问题领域中实际事物的关系有着明显的对应关系。说的通俗一点就是概念层类图与现实世界中的事物一一对应，类与类之间的关系也与现实世界中的事物之间的关系一一对应。</li>
-<li>说明层类图：说明层的观点认为，在这个层次的类图考察的是类的接口而不是实现，类图中表达的类和类之间的关系应当是对问题领域在接口层次抽象的描述。</li>
-<li>实现层类图：实现层观点认为，类是实现代码的描述，类图中的类直接映射到可执行代码。这个阶段必须明确用哪种语言，什么设计模式，什么通信标准，遵循什么规范等。</li>
-</ul>
-<h4 id="包图"><a href="#包图" class="headerlink" title="包图"></a>包图</h4><p>一般用来展示高层次的观点，把繁多的元素通过包这个容器从大到小、从粗到细地建立关系。</p>
-<h3 id="动态视图"><a href="#动态视图" class="headerlink" title="动态视图"></a>动态视图</h3><p>动态视图是描述视图动态行为的。</p>
-<h4 id="活动图"><a href="#活动图" class="headerlink" title="活动图"></a>活动图</h4><ul>
-<li><p>用例活动图：活动图用来描述用例场景，也就是通常所说的业务流程，活动图有几个关键的元素：</p>
-<ul>
-<li>起始点：标记业务流程的开始，一个业务流程有且仅有一个起始点。</li>
-<li>活动：活动是业务流程中的一个执行单元。</li>
-<li>判断：判断根据某个条件进行决策，执行不同的流程分支。</li>
-<li>同步：分为同步启示和同步汇合。同步起始表示从它开始多个分流并行执行；同步汇合表示多个支流同时到达后再执行后续活动。</li>
-<li>结束点：表示业务流程的终止。</li>
-<li>基本流：表示最主要、最频繁使用的、默认的业务流程分支。</li>
-<li>支流</li>
-<li>异常流</li>
-<li>组合活动</li>
-</ul>
-</li>
-<li><p>对象活动图</p>
-</li>
-<li>泳道图</li>
-<li>业务场景建模</li>
-<li>用例场景建模<h4 id="状态图"><a href="#状态图" class="headerlink" title="状态图"></a>状态图</h4><h4 id="时序图"><a href="#时序图" class="headerlink" title="时序图"></a>时序图</h4><h4 id="协作图"><a href="#协作图" class="headerlink" title="协作图"></a>协作图</h4></li>
-</ul>
-<h2 id="5-UML核心模型"><a href="#5-UML核心模型" class="headerlink" title="5. UML核心模型"></a>5. UML核心模型</h2><h2 id="6-统一过程核心工作简介"><a href="#6-统一过程核心工作简介" class="headerlink" title="6. 统一过程核心工作简介"></a>6. 统一过程核心工作简介</h2><h2 id="7-迭代式软件生命周期"><a href="#7-迭代式软件生命周期" class="headerlink" title="7. 迭代式软件生命周期"></a>7. 迭代式软件生命周期</h2><h1 id="第三部分：进阶篇——在实践中思考"><a href="#第三部分：进阶篇——在实践中思考" class="headerlink" title="第三部分：进阶篇——在实践中思考"></a>第三部分：进阶篇——在实践中思考</h1><h1 id="第四部分：高级篇——在提炼中思考"><a href="#第四部分：高级篇——在提炼中思考" class="headerlink" title="第四部分：高级篇——在提炼中思考"></a>第四部分：高级篇——在提炼中思考</h1>
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-      
-
-    <span class="post-categories">
-      <i class="icon-categories"></i>
-        <a href="/categories/UML/">UML</a>
-    </span>
-    
-
     
 
     </div>

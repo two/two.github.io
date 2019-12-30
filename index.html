@@ -65,6 +65,252 @@
 
   
     
+    <h3 class="article-title"><a href="/2019/12/10/go-modules/"><span>go modules</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2019/12/10/go-modules/" rel="bookmark">
+        <time class="entry-date published" datetime="2019-12-10T06:39:02.000Z">
+          2019-12-10
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h1 id="依赖的发展历史"><a href="#依赖的发展历史" class="headerlink" title="依赖的发展历史"></a>依赖的发展历史</h1><p><img src="/assets/img/go/modules/roadmap.jpeg" alt></p>
+<p>相关的依赖管理方案 :<a href="https://github.com/golang/go/wiki/PackageManagementTools" target="_blank" rel="noopener">PackageManagementTools</a></p>
+<h2 id="GOPATH"><a href="#GOPATH" class="headerlink" title="GOPATH"></a>GOPATH</h2><p>Go 语言在设计之初就设计了 GOPATH 这个东西，这个表示的是 Go 语言的工作环境，相关介绍可以从<br><a href="https://go.googlesource.com/go/+/refs/tags/go1/doc/code.html" target="_blank" rel="noopener">GOPATH and workspaces</a> 查看。<br>关于 GO 最早的依赖管理相关的介绍可以从这个文档中看到:</p>
+<blockquote>
+<p>One of Go’s design goals is to make writing software easier. To that end, the go command doesn’t use Makefiles or other configuration files to guide program construction. Instead, it uses the source code to find dependencies and determine build conditions. This means your source code and build scripts are always in sync; they are one and the same.</p>
+</blockquote>
+<p>大致意思是: Go 的设计目标是使写代码变得更加容易。 所以 Go 命令不使用 Makefiles 或者其他配置文件来指导程序的构建。Go 使用源代码来查找依赖关系并确定构建的条件。(后来发现这样不行，所以才有了这篇文章)</p>
+<p>关于 GOPATH 的其他相关知识可以查看 <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable" target="_blank" rel="noopener">GOPATH environment variable</a></p>
+<p>从Go1.8开始 GOPATH 就不需要自己设定，而是给了一个<a href="https://golang.org/doc/go1.8#gopath" target="_blank" rel="noopener">默认值</a>: It defaults to $HOME/go on Unix and %USERPROFILE%/go on Windows。</p>
+<p>GOPATH 的问题: Go程序通常由来自许多不同来源的程序包组成。 这些来源中的每一个都可以从GOPATH或标准库中获取。 但是，只有他们的项目受其自己的源代码管理。 依赖的包不受他们的管理和控制，如果依赖包发生更改或消失时就会影响项目的编译。 通常为了避免这些问题，有以下几种做法:</p>
+<ol>
+<li>将依赖包复制到项目目录中，并重写引用它的导入。</li>
+<li>将相关程序包复制到项目代码库中，并修改GOPATH变量以包括项目特定的子目录。</li>
+<li>将依赖包版本写到一个文件中，然后将现有的GOPATH软件包更新为该版本。</li>
+</ol>
+<p>但是这些做的后果同样会产生对应的问题:</p>
+<ol>
+<li>需要修改导入路径，还会存在包名冲突的问题, 分不清自己的和依赖的包。</li>
+<li>存在多个 GOPATH, 而且是嵌套的，很容易出现查找不准等问题。</li>
+<li>在正常的GOPATH中修改程序包要求每个项目都具有唯一的GOPATH。 否则不同项目就会产生相互干扰。</li>
+</ol>
+<h2 id="开源管理软件的繁荣发展"><a href="#开源管理软件的繁荣发展" class="headerlink" title="开源管理软件的繁荣发展"></a>开源管理软件的繁荣发展</h2><p>由于 GOPATH 的众所周知的问题，社区出了很多开源的管理方案</p>
+<table>
+<thead>
+<tr>
+<th>软件</th>
+<th>发布日期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/tools/godep" target="_blank" rel="noopener">godep</a></td>
+<td>2013.05</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Masterminds/glide" target="_blank" rel="noopener">glide</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/jingweno/nut" target="_blank" rel="noopener">nut</a></td>
+<td>2015.01</td>
+</tr>
+</tbody>
+</table>
+<p>开源的依赖管理工具就不一一介绍了，主要功能有面几个:</p>
+<ol>
+<li>记录所有依赖的包的地址及版本号</li>
+<li>把所有的依赖下载到一个特定的目录中(例如 godep 的 workspance, nut 的 vendor)</li>
+<li>把这个特定的目录加到 $GOPATH 中，并且放到最前面</li>
+</ol>
+<p>通过上面的方式，就可以解决依赖的特定版本的功能，及不同项目之间的环境和依赖不相互干扰，可以放心的开发。</p>
+<p>这个开源软件的问题是每个软件的使用方式不同，不同的第三方包依赖方式也不同，导致依赖的使用很混乱。</p>
+<h2 id="增加-vendor"><a href="#增加-vendor" class="headerlink" title="增加 vendor"></a>增加 vendor</h2><p>为了解决混乱的依赖问题 Go 官方在 2016年6月发布的 Go 1.5 版本中加入了一个新的特性 <em>vendor</em> 关于 vendor 的设计可以参考: <a href="https://go.googlesource.com/proposal/+/master/design/25719-go15vendor.md" target="_blank" rel="noopener">Go 1.5 Vendor Experiment</a>。<br>在项目根目录下新增了一个 vendor 目录，当项目编译时会首先从 vendor 目录下查找相关依赖，找不到的情况下再去 GOPATH 下查找。这个特性出了之后很多开源的依赖管理工具也进行了跟进，这样开源依赖管理软件就不用自己设置特定的目录来存放依赖，也不用设置GOPATH 就可以完成依赖的查找。</p>
+<p>vendor 的加入是为了解决 GOPATH 的不足， 开发者可以把依赖放到 vendor 中而不影响其它项目，也可以防止依赖的变更和丢失。对于第二个作用也会产生一个副作用：代码库依赖太庞大，照成存储上的浪费。</p>
+<p>vendor 还有一个问题是版本不明确，无法通过 vendor 很好的进行版本管理。</p>
+<p>鉴于以上各种问题和开源依赖的混乱，官方决定自己做一个依赖管理工具: dep</p>
+<h2 id="官方实验项目-dep"><a href="#官方实验项目-dep" class="headerlink" title="官方实验项目: dep"></a>官方实验项目: dep</h2><p>前面说开源工具比较混乱，是因为大家使用不同的依赖管理工具，有一个问题就是你的间接依赖的版本如何确定？ 因为某些间接依赖的版本根据依赖管理工具的使用来标明的，如果使用不同的依赖管理工具就无法获取你的间接依赖版本，或者需要兼容你得依赖管理工具，这样做太难了。最好的方式当然是统一依赖管理工具，这样能够很好的进行依赖的分析。</p>
+<p>2016 年 GopherCon 大会后， 一个计划改善 Go 依赖管理的<a href="https://docs.google.com/document/d/18tNd8r5DV0yluCR7tPvkMTsWD_lYcRO7NhpNSDymRr8/edit" target="_blank" rel="noopener">民间组织</a>成立了。这个组织的目的就是为了开发一个能够完善的解决包依赖管理问题的方案。这个方案就是: <a href="https://github.com/golang/dep" target="_blank" rel="noopener">dep</a> 。这个小组甚至邀请了一些开源的依赖管理工具的作者: </p>
+<ul>
+<li>Daniel Theophanes (govendor)</li>
+<li>Dave Cheney (gb)</li>
+<li>Matt Farina (Glide)</li>
+<li>Steve Francia (Hugo, Cobra)</li>
+</ul>
+<p>作为顾问。</p>
+<p>dep 工具和开源的依赖管理工具思路是一样的:</p>
+<ol>
+<li>依赖 GOPATH 判断包的依赖地址和版本</li>
+<li>依赖 vendor 下载依赖到项目下，保证编译版本一致</li>
+</ol>
+<p>为了让你能够从其它依赖管理工具迁移到 dep, dep 还会分析已经项目中已经存在的常见的依赖管理文件，并在初始化的时候与里面的依赖版本保持一致。</p>
+<h2 id="gopkg-in"><a href="#gopkg-in" class="headerlink" title="gopkg.in"></a>gopkg.in</h2><p>跟使用依赖管理工具的思路不同，gopkg.in 的思路是让你的包版本化，例如： <code>gopkg.in/yaml.v1</code>。在包后面加上版本的信息，这样能够明确要引用的包的版本，当然这个版本信息你要写到自己的 import 语句当中，如果你引用的包版本发生了变化，你也要修改你自己的 import 语句。 这个前面的思路不同，前面的思路是引用者确定版本信息，而这个思路是包的提供者要明确版本信息。</p>
+<h2 id="go-modules"><a href="#go-modules" class="headerlink" title="go modules"></a>go modules</h2><blockquote>
+<p>This proposal keeps the best parts of go get, adds reproducible builds, adopts semantic versioning, eliminates vendoring, deprecates GOPATH in favor of a project-based workflow, and provides for a smooth migration from dep and its predecessors. </p>
+</blockquote>
+<p><a href="https://www.hyrumslaw.com/" target="_blank" rel="noopener">Hyrum’s law</a>:</p>
+<blockquote>
+<p>With a sufficient number of users of an API, it does not matter what you promise in the contract. All observable behaviors of your system will be depended on by somebody.<br>当接口的使用者数量达到一定数量后，你指定的规则就不重要了，所有的表现都取决于他的使用者。</p>
+</blockquote>
+<blockquote>
+<p>While Hyrum’s law is empirically true, semantic versioning is still a useful way to frame expectations about the relationships between releases. Updating from 1.2.3 to 1.2.4 should not break your code, while updating from 1.2.3 to 2.0.0 may. If your code stops working after an update to 1.2.4, the author is likely to welcome a bug report and issue a fix in 1.2.5. If your code stops working (or even compiling) after an update to 2.0.0, that change has a much greater chance of being intentional and a correspondingly lesser chance of being fixed to your code’s liking in 2.0.1.<br>语义版本控制仍然是一种构架对发布之间关系的期望的有用方法。 小版本的更新不会破坏你的代码（向后兼容）, 如果出现了错误你应该报告给作者，让他进行修改；大版本的更新可能会让你的代码无法编译，因为大版本可能不是向后兼容的，但是这种改变可能正式作者期望的。</p>
+</blockquote>
+<blockquote>
+<p>More fundamentally, vendoring is an incomplete solution to the package versioning problem. It only provides reproducible builds. It does nothing to help understand package versions and decide which version of a package to use. Package managers like glide and dep add the concept of versioning onto Go builds implicitly, without direct toolchain support, by setting up the vendor directory a certain way. As a result, the many tools in the Go ecosystem cannot be made properly aware of versions. It’s clear that Go needs direct toolchain support for package versions.<br>从根本上讲，供应商是软件包版本控制问题的不完整解决方案。它仅提供可复制的版本。它无助于了解软件包的版本以及决定使用哪个版本的软件包。软件包管理器（例如glide和dep）通过以某种方式设置供应商目录，将版本控制的概念隐式地添加到Go构建中，而无需直接的工具链支持。结果，无法正确地了解Go生态系统中的许多工具的版本。显然，Go需要针对软件包版本的直接工具链支持。</p>
+</blockquote>
+<p>对上面的论述优点以为，为什么『无法正确地了解 Go 生态系统中许多工具的版本』</p>
+<h3 id="Go-依赖管理的三个原则"><a href="#Go-依赖管理的三个原则" class="headerlink" title="Go 依赖管理的三个原则"></a>Go 依赖管理的三个原则</h3><p>这是Go中版本控制的三项原则，这是Go模块设计偏离Dep，Cargo，Bundler等设计的原因。</p>
+<h4 id="1-兼容性"><a href="#1-兼容性" class="headerlink" title="1 兼容性"></a>1 兼容性</h4><p>程序中名称的含义不应随时间改变。 对于兼容性主要有一些异议:</p>
+<ol>
+<li>美学: 对于 Go 来说良好的软件工程性比一些主观上的美学更加重要。 除了视觉美学，我们会习惯它们，并且会重视它们带来的精确性和简单性。<br>1.1 Go 语言去掉 export 关键字而使用首字母大小写代替是否可导出，从编程习惯是需要适应，但是也能够一眼看出哪些调用是可导出的。<br>1.2 导入路径看上去有点儿长，但是能够更加精细的表示导入的模块，从而避免了不必要的重复。</li>
+<li>需要修改导入路径<br>我们使导入路径在语义上保持精确。另一个好处是，当您从软件包的v2升级到v3时，您可以逐步，分阶段地（一次可能一个软件包）逐步更新程序</li>
+<li>构建中的多个主要版本<br>其它依赖管理工具不允许同一个代码库的不同版本同时被依赖, 这样能够降低开发者的复杂性，但是对用户来说则可能会更加复杂，而且时间情况中无法避免同一个项目的代码在他的所有依赖文件中出现不同的版本。</li>
+</ol>
+<h4 id="2-可重复性"><a href="#2-可重复性" class="headerlink" title="2 可重复性"></a>2 可重复性</h4><p>当您构建特定版本的程序包时，构建应以可重复的方式决定要使用的依赖项版本，该依赖关系不会随着时间的推移而改变。 对这个原则的主要异议在于，很多人认为使用最新的版本是一项基本的诉求，很多人希望能够使用最新的版本到达更新一些 bug 的修复和性能的提升等。但是同时大家都会认为构建的可重复性是更加重要的，因为这能够保证程序的稳定性，这是最基本的要求。一些依赖工具例如 Dep 会优先使用最新版本，但是为了保持稳定性还有一个 lock 文件保证某些依赖的版本不变。Dep 的 lock 文件问题在于只会对当前代码库生效，如果这个代码库是其他库的一部分，那么就无法保证这种稳定性。所以 Go Modules 通过最小版本依赖原则来优先保证构建的稳定性。</p>
+<h4 id="3-合作"><a href="#3-合作" class="headerlink" title="3 合作"></a>3 合作</h4><p>为了维护Go软件包生态系统，我们必须共同努力, 致力于保证兼容性。工具无法解决缺乏合作的问题。<br>无论是基于 <a href="https://research.swtch.com/version-sat" target="_blank" rel="noopener">SAT</a> 算法的 Dep 还是基于最小版本原则的 Go Modules 都无法保证兼容性。但是最小版本选择比 SAT 更加具有稳定性( 证明可以看这里: <a href="https://research.swtch.com/vgo-principles#sat-example" target="_blank" rel="noopener">Go Modules 与 SAT 解决方案对比</a>)</p>
+<h3 id="语义化版本"><a href="#语义化版本" class="headerlink" title="语义化版本"></a>语义化版本</h3><p><img src="https://research.swtch.com/impver@2x.png" alt></p>
+<p>三位版本号:</p>
+<ol>
+<li>第一位版本号(major version): 一些不兼容的修改</li>
+<li>第二位版本号(minor version): 一些新特性的增加</li>
+<li>第三位版本号(patch version): 一些 bug 的修复</li>
+</ol>
+<blockquote>
+<p>A year ago, I believed that putting versions in import paths like this was ugly, undesirable, and probably avoidable. But over the past year, I’ve come to understand just how much clarity and simplicity they bring to the system. In this post I hope to give you a sense of why I changed my mind. @Russ Cox</p>
+</blockquote>
+<blockquote>
+<p>Packages intended for public use should try to maintain backwards compatibility as they evolve. The Go 1 compatibility guidelines are a good reference here: don’t remove exported names, encourage tagged composite literals, and so on. If different functionality is required, add a new name instead of changing an old one. If a complete break is required, create a new package with a new import path. @Russ Cox</p>
+</blockquote>
+<h3 id="最小版本原则"><a href="#最小版本原则" class="headerlink" title="最小版本原则"></a>最小版本原则</h3><p>应该是最小满足版本的原则。</p>
+<ol>
+<li>满足: 如果依赖中存在版本的指名，则选择所有依赖中指名得版本的最大版本。</li>
+<li>最小: 如果当前没有指名依赖版本，则以满足为条件选择，而不是选择当前代码库得最新版本。</li>
+</ol>
+<p>初始依赖关系:<br><img src="https://research.swtch.com/version-select-1@2x.png" alt></p>
+<ol>
+<li>构建需求清单</li>
+</ol>
+<p><img src="https://research.swtch.com/version-select-list@2x.png" alt="算法演进"><br><img src="https://research.swtch.com/version-select-2@2x.png" alt="最终选择"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$go</span> list -m all</span><br><span class="line">github.com/two/a</span><br><span class="line">github.com/two/b v1.2.0</span><br><span class="line">github.com/two/c v1.2.0</span><br><span class="line">github.com/two/d v1.4.0</span><br><span class="line">github.com/two/e v1.2.0</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>升级所有模块</li>
+</ol>
+<p>go module 暂未发现此功能<br><img src="https://research.swtch.com/version-select-3@2x.png" alt="升级所有模块"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$go</span> get -u</span><br><span class="line"><span class="variable">$go</span> list -m all</span><br><span class="line">github.com/two/a</span><br><span class="line">github.com/two/b v1.2.0</span><br><span class="line">github.com/two/c v1.3.0</span><br><span class="line">github.com/two/d v1.4.0</span><br><span class="line">github.com/two/e v1.3.0</span><br><span class="line">github.com/two/f v1.1.0</span><br><span class="line">github.com/two/g v1.2.0</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>计算最小需求列表</li>
+</ol>
+<p>升级所有模块有的 go.mod 文件长这样:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">module github.com/two/a</span><br><span class="line"></span><br><span class="line">go 1.13</span><br><span class="line"></span><br><span class="line">require (</span><br><span class="line">        github.com/two/b v1.2.0</span><br><span class="line">        github.com/two/c v1.3.0</span><br><span class="line">        github.com/two/d v1.4.0 // indirect</span><br><span class="line">        github.com/two/e v1.3.0 // indirect</span><br><span class="line">        github.com/two/g v1.2.0 // indirect</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这里只是列出了必须的模块的依赖, 例如 <code>github.com/two/f</code> 模块可以通过 <code>github.com/two/c</code>模块的依赖表示，就没有必要写进去。<br>但是 <code>github.com/two/f</code> 引用的是 <code>github.com/two/g</code> 的 <code>v1.1.0</code>, 这里由于需要的是 <code>v1.2.0</code>, 所以回单独列出来。</p>
+<ol start="4">
+<li><p>升级单个模块<br><img src="https://research.swtch.com/version-select-4@2x.png" alt><br>保证已经存在的依赖不能降级</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$go</span> list -m all</span><br><span class="line">github.com/two/a</span><br><span class="line">github.com/two/b v1.2.0</span><br><span class="line">github.com/two/c v1.3.0</span><br><span class="line">github.com/two/d v1.4.0</span><br><span class="line">github.com/two/e v1.2.0</span><br><span class="line">github.com/two/f v1.1.0</span><br><span class="line">github.com/two/g v1.1.0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>降级</p>
+</li>
+</ol>
+<p><img src="https://research.swtch.com/version-select-5@2x.png" alt="降级"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/two/d@v1.2.0</span><br><span class="line">go list -m all</span><br><span class="line">github.com/two/a</span><br><span class="line">github.com/two/b v1.1.0</span><br><span class="line">github.com/two/c v1.1.0</span><br><span class="line">github.com/two/d v1.2.0</span><br><span class="line">github.com/two/e v1.2.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">module github.com/two/a</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.13</span></span><br><span class="line"></span><br><span class="line">require (</span><br><span class="line">        github.com/two/b v1<span class="number">.1</span><span class="number">.0</span></span><br><span class="line">        github.com/two/c v1<span class="number">.1</span><span class="number">.0</span></span><br><span class="line">        github.com/two/d v1<span class="number">.2</span><span class="number">.0</span> <span class="comment">// indirect</span></span><br><span class="line">        github.com/two/e v1<span class="number">.2</span><span class="number">.0</span> <span class="comment">// indirect</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<ol start="6">
+<li>排除模块</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">module github.com/two/a</span><br><span class="line"></span><br><span class="line">go 1.13</span><br><span class="line"></span><br><span class="line">require github.com/two/b v1.2.0</span><br><span class="line"></span><br><span class="line">exclude github.com/two/d v1.3.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">github.com/two/a</span><br><span class="line">github.com/two/b v1.2.0</span><br><span class="line">github.com/two/d v1.4.0</span><br><span class="line">github.com/two/e v1.2.0</span><br></pre></td></tr></table></figure>
+<p><a href="https://github.com/golang/go/issues/24098" target="_blank" rel="noopener">循环依赖</a></p>
+<h3 id="引入-go-module-概念"><a href="#引入-go-module-概念" class="headerlink" title="引入 go module 概念"></a>引入 go module 概念</h3><ol>
+<li>module 是公共引用前缀，是版本控制的单位。</li>
+<li>引入代理的概念, 不依赖各种版本控制工具下载，防止碎片化，都改为使用 HTTP 协议, 代码库都是以 zip  的形式存在。</li>
+<li>不再需要 vendor</li>
+<li>提供原生得工具链支持 go mod</li>
+<li>不再需要 GOPATH</li>
+</ol>
+<h3 id="再现性，可验证性和经过验证的构建方式"><a href="#再现性，可验证性和经过验证的构建方式" class="headerlink" title="再现性，可验证性和经过验证的构建方式"></a>再现性，可验证性和经过验证的构建方式</h3><ol>
+<li>通过最低版本原则保证每次构建下载的都是同一版本的代码</li>
+<li>通过 hash 值保证每个版本代码都有一个唯一的标识</li>
+<li>通过 hash 对比保证每个依赖的版本与 hash 对应，防止篡改</li>
+</ol>
+<h3 id="Go-Modules-的定义"><a href="#Go-Modules-的定义" class="headerlink" title="Go Modules 的定义"></a>Go Modules 的定义</h3><ol>
+<li>提倡使用明确的发行版本而不是某个提交的 ID，可以清楚地表明预期。</li>
+<li>通过 GOPROXY 解决版本控制的碎片化</li>
+<li>通过独立的版本控制在单个代码库中开发多个模块<br> 有两种方式:<ol>
+<li>使用单独的分支表示不同的版本<br><img src="https://research.swtch.com/gitmod-1@2x.png" alt></li>
+<li>通过子目录表示不同的版本<br><img src="https://research.swtch.com/gitmod-2@2x.png" alt><br>vgo 两种都支持，但是第二种能够更加平滑</li>
+</ol>
+</li>
+<li>通过 GOPROXY 缓存依赖，保证可用性(可重复下载)和安全性(安全检测)</li>
+<li>将来引入共享代理，可以默认使用共享代理(类似其它语言的集中式管理)</li>
+<li>去掉 vendor 目录，提高依赖的可重复性和可用性。<br>vendor 目录有两个作用。首先，他们通过其内容指定要在期间使用的依赖项的确切版本。其次，即使原始副本消失了，它们也可以确保这些依赖项的可用性。<br>但是 vendor 也有一个弊端就是代码的副本太多了，每个代码库都要提交依赖，占用了大量的存储库的信息。vgo 已经解决了 vendor 所带来的两个好处，所以它就没有存在的必要性了。<br>在编译时 vgo 会忽略 vendor 目录的存在，如果你还想强制使用 vendor 可以使用: <code>go build -mod=vendor</code></li>
+</ol>
+<h1 id="使用问题及方案"><a href="#使用问题及方案" class="headerlink" title="使用问题及方案"></a>使用问题及方案</h1><h2 id="如何判断是否使用"><a href="#如何判断是否使用" class="headerlink" title="如何判断是否使用"></a>如何判断是否使用</h2><h2 id="如何设置-GOPROXY"><a href="#如何设置-GOPROXY" class="headerlink" title="如何设置 GOPROXY"></a>如何设置 GOPROXY</h2><h2 id="如何-Debug"><a href="#如何-Debug" class="headerlink" title="如何 Debug"></a>如何 Debug</h2><ol>
+<li>replace 到本地</li>
+<li>使用 vendor 编译</li>
+</ol>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
+<li><a href="https://research.swtch.com/vgo-import" target="_blank" rel="noopener">Semantic Import Versioning</a></li>
+<li><a href="https://blog.golang.org/versioning-proposal" target="_blank" rel="noopener">A Proposal for Package Versioning in Go</a></li>
+<li><a href="https://blog.golang.org/using-go-modules" target="_blank" rel="noopener">Using Go Modules</a></li>
+<li><a href="https://blog.golang.org/migrating-to-go-modules" target="_blank" rel="noopener">Migrating to Go Modules</a></li>
+<li><a href="https://blog.golang.org/publishing-go-modules" target="_blank" rel="noopener">Publishing Go Modules</a></li>
+<li><a href="https://blog.golang.org/v2-go-modules" target="_blank" rel="noopener">Go Modules: v2 and Beyond </a></li>
+<li><a href="https://semver.org/" target="_blank" rel="noopener">Semantic Versioning 2.0.0</a></li>
+<li><a href="https://research.swtch.com/deps" target="_blank" rel="noopener">Our Software Dependency Problem</a></li>
+<li><a href="https://go.googlesource.com/proposal/+/master/design/25719-go15vendor.md" target="_blank" rel="noopener">Go 1.5 Vendor Experiment</a></li>
+<li><a href="https://divan.dev/posts/gopath/" target="_blank" rel="noopener">I still love you , GOPATH</a></li>
+<li><a href="https://go.googlesource.com/go/+refs" target="_blank" rel="noopener">Go source code</a></li>
+<li><a href="https://medium.com/@freeformz/go-1-5-s-vendor-experiment-fd3e830f52c3" target="_blank" rel="noopener">Go 1.5’s vendor/ experiment</a></li>
+<li><a href="https://blog.gopheracademy.com/advent-2015/vendor-folder/" target="_blank" rel="noopener">Understanding and using the vendor folder</a></li>
+<li><a href="https://github.com/golang/go/wiki/vgo" target="_blank" rel="noopener">vgo</a></li>
+<li><a href="https://groups.google.com/forum/#!msg/go-package-management/a55P0_FU_jA/Y9t_mBroBwAJ" target="_blank" rel="noopener">Dependency Management session at GopherCon</a></li>
+<li><a href="https://docs.google.com/document/d/18tNd8r5DV0yluCR7tPvkMTsWD_lYcRO7NhpNSDymRr8/edit" target="_blank" rel="noopener">Go Packaging Proposal Process</a></li>
+<li><a href="https://github.com/golang/go/issues/24301" target="_blank" rel="noopener">add package version support to Go toolchain</a></li>
+<li><a href="https://docs.google.com/document/d/1xMJ0c-YxvcgNglzjbALzncs5_Acr0MST29oMf9TkgQI/edit" target="_blank" rel="noopener">Vendoring discussion at GopherCon</a></li>
+<li><a href="https://www.hyrumslaw.com/" target="_blank" rel="noopener">Hyrum’s law</a>:</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/Go/">Go</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2019/11/25/go-context/"><span>go context</span></a></h3>
     
   
@@ -1047,191 +1293,6 @@
 <li>高级阶段: 介绍了如何写出可测试的函数，面对复杂的调用和多变得需求如何利用面相接口编程和依赖注入改进我们的程序的写法</li>
 </ul>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.eecs.yorku.ca/course_archive/2003-04/W/3311/sectionM/case_studies/money/KentBeck_TDD_byexample.pdf" target="_blank" rel="noopener">Test-Driven Development By Example</a><br><a href="https://github.com/gopherchina/conference/blob/master/2019/1.4%20Testing%3B%20how%2C%20what%2C%20why%20-%20Dave%20.pdf" target="_blank" rel="noopener">Testing; how, what, why - Dave</a><br><a href="https://www.youtube.com/watch?v=EZ05e7EMOLM" target="_blank" rel="noopener">TDD, Where Did It All Go Wrong - Lan Cooper</a><br><a href="http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd" target="_blank" rel="noopener">The Three Laws of TDD.</a><br><a href="https://www.jianshu.com/p/62f16cd4fef3" target="_blank" rel="noopener">深度解读 - TDD（测试驱动开发）</a><br><a href="https://mp.weixin.qq.com/s/FnKkZD4DdPVX7PPH3dY8-w" target="_blank" rel="noopener">如何写出优雅的 Golang 代码</a><br><a href="https://zh.wikipedia.org/wiki/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95" target="_blank" rel="noopener">单元测试wiki</a><br><a href="https://golang.org/doc/code.html#Testing" target="_blank" rel="noopener">How to Write Go Code - Testing</a><br><a href="https://teamgaslight.com/blog/testing-behavior-vs-testing-implementation" target="_blank" rel="noopener">Testing Behavior vs. Testing Implementation</a><br><a href="http://codebetter.com/iancooper/2011/10/06/avoid-testing-implementation-details-test-behaviours/" target="_blank" rel="noopener">Avoid Testing Implementation Details, Test Behaviours</a><br><a href="https://baike.baidu.com/item/%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%E6%B5%8B%E8%AF%95" target="_blank" rel="noopener">边界条件测试</a><br><a href="https://item.jd.com/10064006.html" target="_blank" rel="noopener">代码整洁之道</a><br><a href="https://martinfowler.com/articles/mocksArentStubs.html" target="_blank" rel="noopener">Mocks Aren’t Stubs</a><br><a href="https://martinfowler.com/bliki/TestDouble.html" target="_blank" rel="noopener">TestDouble</a></p>
-
-      
-    </div>
-
-  </div>
-
-  <div class="article-footer">
-    <div class="article-meta pull-left">
-
-    
-
-    
-
-    </div>
-
-    
-  </div>
-</article>
-
-
-
-  <article>
-
-  
-    
-    <h3 class="article-title"><a href="/2019/06/06/Dependency-inversion-principle-in-Go/"><span>Dependency inversion principle in Go</span></a></h3>
-    
-  
-
-  <div class="article-top-meta">
-    <span class="posted-on">
-      <a href="/2019/06/06/Dependency-inversion-principle-in-Go/" rel="bookmark">
-        <time class="entry-date published" datetime="2019-06-06T06:54:25.000Z">
-          2019-06-06
-        </time>
-      </a>
-    </span>
-  </div>
-
-
-  
-
-  <div class="article-content">
-    <div class="entry">
-      
-        <h1 id="依赖反转原则在Go中使用"><a href="#依赖反转原则在Go中使用" class="headerlink" title="依赖反转原则在Go中使用"></a>依赖反转原则在Go中使用</h1><h2 id="依赖反转原则"><a href="#依赖反转原则" class="headerlink" title="依赖反转原则"></a>依赖反转原则</h2><p><a href="https://en.wikipedia.org/wiki/SOLID" target="_blank" rel="noopener">面向对象设计的设计原则</a>有五个，分别是:</p>
-<table>
-<thead>
-<tr>
-<th>首字母</th>
-<th>指代</th>
-<th>概念</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>S</td>
-<td>单一功能原则</td>
-<td>认为对象应该仅具有一种单一功能的概念。</td>
-</tr>
-<tr>
-<td>O</td>
-<td>开闭原则</td>
-<td>认为“软件体应该是对于扩展开放的，但是对于修改封闭的”的概念。</td>
-</tr>
-<tr>
-<td>L</td>
-<td>里氏替换原则</td>
-<td>认为“程序中的对象应该是可以在不改变程序正确性的前提下被它的子类所替换的”的概念。  参考契约式设计。</td>
-</tr>
-<tr>
-<td>I</td>
-<td>接口隔离原则</td>
-<td>认为“多个特定客户端接口要好于一个宽泛用途的接口” 的概念。</td>
-</tr>
-<tr>
-<td>D</td>
-<td>依赖反转原则</td>
-<td>认为一个方法应该遵从“依赖于抽象而不是一个实例” 的概念。 依赖注入是该原则的一种实现方式。</td>
-</tr>
-</tbody>
-</table>
-<p>这五个原则简称: <code>SOLID</code>。<br>在面向对象编程领域中，依赖反转原则（Dependency inversion principle，DIP）是指一种特定的解耦（传统的依赖关系创建在高层次上，而具体的策略设置则应用在低层次的模块上）形式，使得高层次的模块不依赖于低层次的模块的实现细节，依赖关系被颠倒（反转），从而使得低层次模块依赖于高层次模块的需求抽象。<br>该原则规定：</p>
-<ul>
-<li>高层次的模块不应该依赖于低层次的模块，两者都应该依赖于抽象接口。</li>
-<li>抽象接口不应该依赖于具体实现。而具体实现则应该依赖于抽象接口。</li>
-</ul>
-<p>该原则颠倒了一部分人对于面向对象设计的认识方式。如高层次和低层次对象都应该依赖于相同的抽象接口。</p>
-<p>在传统的应用架构中，低层次的组件设计用于被高层次的组件使用，这一点提供了逐步的构建一个复杂系统的可能。在这种结构下，高层次的组件直接依赖于低层次的组件去实现一些任务。这种对于低层次组件的依赖限制了高层次组件被重用的可行性。</p>
-<p>依赖反转原则的目的是把高层次组件从对低层次组件的依赖中解耦出来，这样使得重用不同层级的组件实现变得可能。把高层组件和低层组件划分到不同的包/库（在这些包/库中拥有定义了高层组件所必须的行为和服务的接口，并且存在高层组件的包）中的方式促进了这种解耦。由于低层组件是对高层组件接口的具体实现，因此低层组件包的编译是依赖于高层组件的，这颠倒了传统的依赖关系。众多的设计模式，比如插件，服务定位器或者依赖反转，则被用来在运行时把指定的低层组件实现提供给高层组件。</p>
-<p>应用依赖反转原则同样被认为是应用了<a href="https://zh.wikipedia.org/wiki/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F" target="_blank" rel="noopener">适配器模式</a>，例如：高层的类定义了它自己的适配器接口（高层类所依赖的抽象接口）。被适配的对象同样依赖于适配器接口的抽象（这是当然的，因为它实现了这个接口），同时它的实现则可以使用它自身所在低层模块的代码。通过这种方式，高层组件则不依赖于低层组件，因为它（高层组件）仅间接的通过调用适配器接口多态方法使用了低层组件，而这些多态方法则是由被适配对象以及它的低层模块所实现的。</p>
-<blockquote>
-<p><strong>前面一大堆其实都是从wiki上copy过来的，自己的理解有以下几点:</strong></p>
-<ul>
-<li>上层指<strong>调用者</strong>, 下层指<strong>被调用者</strong></li>
-<li>原来的编程方式是上层调用下层的时候依赖下层具体的实现方式</li>
-<li>依赖反转（或叫:依赖倒置)是指下层的实现依赖上层调用的需求</li>
-<li>最终的解决方式是: 把上层的需求抽象成接口，上层依赖接口的抽象进行调用，下层依赖接口的抽象进行实现(下面要介绍的<strong>面相接口编程</strong>)</li>
-</ul>
-</blockquote>
-<h3 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h3><p><a href="https://zh.wikipedia.org/wiki/%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5" target="_blank" rel="noopener">依赖注入</a>是种实现控制反转用于解决依赖性设计模式。一个依赖关系指的是可被利用的一种对象（即服务提供端） 。依赖注入是将所依赖的传递给将使用的从属对象（即客户端）。该服务是将会变成客户端的状态的一部分。 传递服务给客户端，而非允许客户端来建立或寻找服务，是本设计模式的基本要求。</p>
-<blockquote>
-<p><strong>上面这段也是wiki上的, 自己理解:</strong></p>
-<ul>
-<li>依赖注入就是: 把下层依赖注入(或叫传递)到上层调用</li>
-<li>要把提供服务的一方(也就是前面说的: 下层)作为实例传递给客户端(即:上层)</li>
-<li>不要客户端在内部自己实现服务端的实例化。</li>
-<li>这种方式的好处是: 可以通过传递不同的实例化对象来实现多态。</li>
-</ul>
-</blockquote>
-<h3 id="面相接口编程"><a href="#面相接口编程" class="headerlink" title="面相接口编程"></a>面相接口编程</h3><p><a href="https://zh.wikipedia.org/wiki/%E5%9F%BA%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%BC%96%E7%A8%8B" target="_blank" rel="noopener">面相接口编程</a>是前面实现依赖反转原则的具体方式。<br>基于接口的编程将应用程序定义为组件的集合，其中组件间的应用程序接口（API）调用可能只通过抽象化接口完成，而没有具体的类。类的实例化一般通过使用如<a href="https://zh.wikipedia.org/wiki/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95#%E5%B7%A5%E5%8E%82" target="_blank" rel="noopener">工厂模式</a>等技术的其他接口完成。</p>
-<blockquote>
-<p><strong>这里也说一点自己的理解:</strong><br>上面说到要通过依赖注入方式传递实例，这个实例如何生成呢？如果每次都生成一个，如果这个实例是有状态的，那么每个拿到的可能都是不一样的，这样就<strong>无法共享</strong>。所以一般都是通过工厂模式产生一个实例，其他调用方要共享的话都通过这个工厂拿到<strong>同一个实例</strong>。</p>
-</blockquote>
-<p>另一种定义描述: 在系统分析和架构中，分清层次和依赖关系，每个层次不是直接向其上层提供服务（即不是直接实例化在上层中），而是通过定义一组接口，仅向上层暴露其接口功能，上层对于下层仅仅是接口依赖，而不依赖具体类</p>
-<h4 id="面向接口编程和面向对象编程是什么关系"><a href="#面向接口编程和面向对象编程是什么关系" class="headerlink" title="面向接口编程和面向对象编程是什么关系:"></a>面向接口编程和面向对象编程是什么关系:</h4><p>首先，面向接口编程和面向对象编程并不是平级的，它并不是比面向对象编程更先进的一种独立的编程思想，而是附属于面向对象思想体系，属于其一部分。或者说，它是面向对象编程体系中的思想精髓之一。</p>
-<h4 id="接口的本质"><a href="#接口的本质" class="headerlink" title="接口的本质"></a>接口的本质</h4><h5 id="接口是一组规则的集合，它规定了实现本接口的类或接口必须拥有的一组规则。体现了自然界“如果你是……则必须能……”的理念"><a href="#接口是一组规则的集合，它规定了实现本接口的类或接口必须拥有的一组规则。体现了自然界“如果你是……则必须能……”的理念" class="headerlink" title="接口是一组规则的集合，它规定了实现本接口的类或接口必须拥有的一组规则。体现了自然界“如果你是……则必须能……”的理念"></a>接口是一组规则的集合，它规定了实现本接口的类或接口必须拥有的一组规则。体现了自然界“如果你是……则必须能……”的理念</h5><p>例如，在自然界中，人都能吃饭，即“如果你是人，则必须能吃饭”。那么模拟到计算机程序中，就应该有一个Person接口，并有一个方法叫Eat()，然后我们规定，每一个表示“人”的类，必须实现Person接口，这就模拟了自然界“如果你是人，则必须能吃饭”这条规则。</p>
-<p>从这里，我想各位也能看到些许面向对象思想的东西。面向对象思想的核心之一，就是模拟真实世界，把真实世界中的事物抽象成类，整个程序靠各个类的实例互相通信、互相协作完成系统功能，这非常符合真实世界的运行状况，也是面向对象思想的精髓。</p>
-<h5 id="接口是在一定粒度视图上同类事物的抽象表示。注意这里我强调了在一定粒度视图上，因为“同类事物”这个概念是相对的，它因为粒度视图不同而不同"><a href="#接口是在一定粒度视图上同类事物的抽象表示。注意这里我强调了在一定粒度视图上，因为“同类事物”这个概念是相对的，它因为粒度视图不同而不同" class="headerlink" title="接口是在一定粒度视图上同类事物的抽象表示。注意这里我强调了在一定粒度视图上，因为“同类事物”这个概念是相对的，它因为粒度视图不同而不同"></a>接口是在一定粒度视图上同类事物的抽象表示。注意这里我强调了在一定粒度视图上，因为“同类事物”这个概念是相对的，它因为粒度视图不同而不同</h5><p>例如，在我的眼里，我是一个人，和一头猪有本质区别，我可以接受我和我同学是同类这个说法，但绝不能接受我和一头猪是同类。但是，如果在一个动物学家眼里，我和猪应该是同类，因为我们都是动物，他可以认为“人”和“猪”都实现了Animal这个接口，而他在研究动物行为时，不会把我和猪分开对待，而会从“动物”这个较大的粒度上研究，但他会认为我和一棵树有本质区别。</p>
-<h4 id="面相接口编程的优点"><a href="#面相接口编程的优点" class="headerlink" title="面相接口编程的优点"></a>面相接口编程的优点</h4><ul>
-<li>首先对系统灵活性大有好处。当下层需要改变时，只要接口及接口功能不变，则上层不用做任何修改。甚至可以在不改动上层代码时将下层整个替换掉。</li>
-<li>使用接口的另一个好处就是不同部件或层次的开发人员可以并行开工。</li>
-</ul>
-<blockquote>
-<p><strong>关于面相接口编程的归纳:</strong></p>
-<ul>
-<li>面相接口是面向对象编程的重要部分</li>
-<li>接口本质上是一组规则的集合，是一定粒度上有相同特指的对象的的抽象</li>
-<li>面相接口编程可以提高编程的灵活性, 可以并行开发。</li>
-</ul>
-</blockquote>
-<h2 id="Go-中的应用"><a href="#Go-中的应用" class="headerlink" title="Go 中的应用"></a>Go 中的应用</h2><h3 id="Go-中的接口"><a href="#Go-中的接口" class="headerlink" title="Go 中的接口"></a>Go 中的接口</h3><p>Go语言中，接口(interface)有其特殊的地方, 其他的语言一般要实现一个接口都需要显示的说明<br>例如<code>PHP</code>(这里没有贬低PHP的意思，大多数语言也是这种实现方式例如<code>C++</code>, <code>Python</code>, <code>Rust</code>等):<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Declare the interface 'iTemplate'</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">iTemplate</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setVariable</span><span class="params">($name, $var)</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getHtml</span><span class="params">($template)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Implement the interface</span></span><br><span class="line"><span class="comment">// This will work</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Template</span> <span class="keyword">implements</span> <span class="title">iTemplate</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $vars = <span class="keyword">array</span>();</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setVariable</span><span class="params">($name, $var)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;vars[$name] = $var;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getHtml</span><span class="params">($template)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="keyword">$this</span>-&gt;vars <span class="keyword">as</span> $name =&gt; $value) &#123;</span><br><span class="line">            $template = str_replace(<span class="string">'&#123;'</span> . $name . <span class="string">'&#125;'</span>, $value, $template);</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> $template;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>用到关键字 <code>implements</code>。<br>todo: 对比优缺点</p>
-<p>而<code>Go</code>语言中，<code>interface</code>是<code>duck typing</code>(鸭子类型: If it looks like a duck, and it quacks like a duck, then it is a duck), 也就是如果一个对象实现了某个接口的方法，那么这个对象就是这个接口类型了，不需要显示说明是否实现了某个接口。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Speaker types can say things.</span></span><br><span class="line"><span class="keyword">type</span> Speaker <span class="keyword">interface</span> &#123;</span><br><span class="line">  Say(<span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Person is a strut with filed name</span></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Say funciton is defined by Speaker and implement by Person</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span> <span class="title">Say</span><span class="params">(message <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  log.Println(p.name+<span class="string">":"</span>, message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面<code>Person</code>实现了函数<code>Say</code>, 所以<code>Person</code>就是<code>Speaker</code>类型了。</p>
-<h3 id="Go-中面相接口编程"><a href="#Go-中面相接口编程" class="headerlink" title="Go 中面相接口编程"></a>Go 中面相接口编程</h3><p>这种编程方式不仅是在 Go 语言中是被推荐的，在几乎所有的编程语言中，我们都会推荐这种编程的方式，它为我们的程序提供了非常强的灵活性，想要构建一个稳定、健壮的 Go 语言项目，不使用接口是完全无法做到的。</p>
-<p>如果一个略有规模的项目中没有出现任何 type … interface 的定义，那么作者可以推测出这在很大的概率上是一个工程质量堪忧并且没有多少单元测试覆盖的项目，我们确实需要认真考虑一下如何使用接口对项目进行重构。</p>
-<p>事实上官方库也都是按照这个思想来实现的，比如<code>net/http</code>包(对这个包的分析参考 <a href="/2017/07/01/how-golang-webserver-work/">golang 的 webserver 是如何工作的</a>)。当我们要启动一个http server时一般代码如下:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.ListenAndServe(<span class="string">":8090"</span>, <span class="literal">nil</span>)</span><br></pre></td></tr></table></figure></p>
-<p>这个函数的定义<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ListenAndServe</span><span class="params">(addr <span class="keyword">string</span>, handler Handler)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    server := &amp;Server&#123;Addr: addr, Handler: handler&#125;</span><br><span class="line">    <span class="keyword">return</span> server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>第二个参数是<code>Handler</code>类型, 这个函数的类型定义如下:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Handler <span class="keyword">interface</span> &#123;</span><br><span class="line">    ServeHTTP(ResponseWriter, *Request)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>定义的正是一个接口。这个接口只有一个函数<code>ServeHTTP</code>， 而最终对请求处理调用的也正是这个函数:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(sh serverHandler)</span> <span class="title">ServeHTTP</span><span class="params">(rw ResponseWriter, req *Request)</span></span> &#123;</span><br><span class="line">    handler := sh.srv.Handler</span><br><span class="line">    <span class="keyword">if</span> handler == <span class="literal">nil</span> &#123;</span><br><span class="line">        handler = DefaultServeMux</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> req.RequestURI == <span class="string">"*"</span> &amp;&amp; req.Method == <span class="string">"OPTIONS"</span> &#123;</span><br><span class="line">        handler = globalOptionsHandler&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    handler.ServeHTTP(rw, req)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>由于第二个函数我们一般都会传<code>nil</code>, 所以会执行上面的逻辑</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">handler = DefaultServeMux</span><br></pre></td></tr></table></figure>
-<p>而<code>DefaultServeMux</code>就是官方的默认实现。而我们也可以通过传递这个参数来实现自己的处理, 很多Web框架就是怎么做的，比如<code>gin</code>:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(engine *Engine)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, req *http.Request)</span></span> &#123;</span><br><span class="line">    c := engine.pool.Get().(*Context)</span><br><span class="line">    c.writermem.reset(w)</span><br><span class="line">    c.Request = req</span><br><span class="line">    c.reset()</span><br><span class="line"></span><br><span class="line">    engine.handleHTTPRequest(c)</span><br><span class="line"></span><br><span class="line">    engine.pool.Put(c)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>gin</code>自己实现了连接的处理方式，并且把这个实现作为参数传给<code>net/http</code>, 具体代码如下:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(engine *Engine)</span> <span class="title">Run</span><span class="params">(addr ...<span class="keyword">string</span>)</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; debugPrintError(err) &#125;()</span><br><span class="line"></span><br><span class="line">    address := resolveAddress(addr)</span><br><span class="line">    debugPrint(<span class="string">"Listening and serving HTTP on %s\n"</span>, address)</span><br><span class="line">    err = http.ListenAndServe(address, engine)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个实现正是前面说讲的: <strong>依赖接口编程</strong>，然后通过<strong>依赖注入</strong>把实例传入</p>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>我们有一个<code>user</code>包，里面是处理用户相关的信息, 还有一个<code>bank</code>包，<code>bank</code>会调用<code>user</code>的方法来获取一些用户信息, 刚开始他们的代码实现分别如下:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> user</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"database/sql"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> db *sql.DB</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserName return the name of user with uid</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    sql := <span class="string">"select name from user where uid = ?"</span></span><br><span class="line">    rows, err := db.Query(sql, uid)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> rows.Close()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> name <span class="keyword">string</span></span><br><span class="line">    <span class="keyword">for</span> rows.Next() &#123;</span><br><span class="line">        <span class="keyword">if</span> err := rows.Scan(&amp;name); err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> name, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> bank</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"user"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserInfo if uid exist return the name of user</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserInfo</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    name, err := user.UserName(uid)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"something was wrong"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> name == <span class="string">""</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"not found this user"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"user name is "</span> + name</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在如果我们要给<code>bank</code>的<code>UserInfo</code>添加单元测试应该怎么做呢? 这里有以下几点问题:</p>
-<ul>
-<li>我们要测试的是<code>bank</code>的<code>UserInfo</code>函数，而不是为了测试这个函数都调用的函数，所以我们其实不太关心<code>user.UserName</code>里面的逻辑</li>
-<li>我们要测试<code>UserInfo</code>就必须要从<code>UserName</code>获取一些信息，但是<code>UserName</code>的信息需要调用<code>db</code>才能获取，这里涉及到一些网络访问，会给我们的测试带来很多麻烦</li>
-<li>我们需要把<code>UserName</code>给Mock掉<br>关于如何把<code>UserName</code> Mock掉, 其实我们可以借助一些<code>mock</code>的框架(比如<code>bou.ke/monkey</code>)来进行处理， 但是这种方法回避了设计上的一些问题，过度依赖会导致我们的代码质量堪忧，还有一些场景要求我们必须替换这个方法的实现，比如我们不想使用<code>user.UserName</code>的查询方式了，我们换了一种实现，这样我们就无法复用原来的代码了。<br>下面我们介绍如何利用上面介绍的知识来解决这个问题:</li>
-</ul>
-<h4 id="面向接口编程"><a href="#面向接口编程" class="headerlink" title="面向接口编程"></a>面向接口编程</h4><p>我们看一下第二版的代码<br><code>user</code>包:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">        <span class="string">"database/sql"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> db *sql.DB</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">interface</span> &#123;</span><br><span class="line">        UserName(<span class="keyword">int</span>) (<span class="keyword">string</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> DefaultUser <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">()</span> <span class="title">User</span></span> &#123;</span><br><span class="line">        <span class="keyword">return</span> DefaultUser&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserName return the name of user with uid</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(DefaultUser)</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">        sql := <span class="string">"select name from user where uid = ?"</span></span><br><span class="line">        rows, err := db.Query(sql, uid)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">defer</span> rows.Close()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> name <span class="keyword">string</span></span><br><span class="line">        <span class="keyword">for</span> rows.Next() &#123;</span><br><span class="line">                <span class="keyword">if</span> err := rows.Scan(&amp;name); err != <span class="literal">nil</span> &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> name, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>bank</code>代码:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> bank</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"user"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> u = user.New()</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserInfo if uid exist return the name of user</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserInfo</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    name, err := u.UserName(uid)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"something was wrong"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> name == <span class="string">""</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"not found this user"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"user name is "</span> + name</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面我们都做了那些修改呢?</p>
-<ul>
-<li>面向接口编程<br>我们定义了一个接口类型<code>User</code>:<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">interface</span> &#123;</span><br><span class="line">        UserName(<span class="keyword">int</span>) (<span class="keyword">string</span>, error)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>然后<code>user</code>包用<code>DefaultUser</code>来实现了这个方法，所以<code>DefaultUser</code>就是这个类型的包了<br><code>bank</code>中定义了一个变量<code>var u = user.New()</code>, 由于<code>user.New()</code>的类型也是<code>User</code>，所以<code>u</code>的类型就是<code>User</code>, 然后在<code>UserInfo</code>函数中调用<code>User</code>类型的<code>UserName</code>方法<br>也就是说<code>user</code>和<code>bank</code>都是面向<code>User</code>来进行编程的</p>
-<ul>
-<li>依赖注入<br>我们第一个版本是直接调用<code>user.UserName</code>函数, 但是我们无法自己去修改这个函数的实现，所以我们通过<code>var u = user.New()</code>来获取<code>user</code>给我传递的一个对象，这样我们就可以通过<code>u</code>来调用<code>UserName</code>函数了，这时<code>user.New</code>就实现了依赖注入，这样做我们就可以通过覆盖<code>u</code>这个实例，来完成自己的实现了，下面</li>
-</ul>
-<h4 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h4><p>面对版本二, 我们怎么实现<code>bank.UserInfo</code>的单元测试呢？<br><code>bank_test.go</code>来看一下:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> bank</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"errors"</span></span><br><span class="line">    <span class="string">"testing"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mockUser <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u mockUser)</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> uid == <span class="number">1</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>, errors.New(<span class="string">"something was wrong"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> uid == <span class="number">2</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>, <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> uid == <span class="number">3</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"John"</span>, <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">""</span>, errors.New(<span class="string">"something was wrong"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUserInfo</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    u = mockUser&#123;&#125;</span><br><span class="line">    cases := []<span class="keyword">struct</span> &#123;</span><br><span class="line">        name <span class="keyword">string</span></span><br><span class="line">        uid  <span class="keyword">int</span></span><br><span class="line">        res  <span class="keyword">string</span></span><br><span class="line">    &#125;&#123;</span><br><span class="line">        &#123;<span class="string">"test1"</span>, <span class="number">1</span>, <span class="string">"something was wrong"</span>&#125;,</span><br><span class="line">        &#123;<span class="string">"test2"</span>, <span class="number">2</span>, <span class="string">"not found this user"</span>&#125;,</span><br><span class="line">        &#123;<span class="string">"test3"</span>, <span class="number">3</span>, <span class="string">"user name is John"</span>&#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> _, v := <span class="keyword">range</span> cases &#123;</span><br><span class="line">        t.Run(v.name, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">            info := UserInfo(v.uid)</span><br><span class="line">            <span class="keyword">if</span> info != v.res &#123;</span><br><span class="line">                t.Errorf(<span class="string">"got %s; want %s"</span>, info, v.res)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">go test -v</span><br><span class="line">=== RUN   TestUserInfo</span><br><span class="line">=== RUN   TestUserInfo/test1</span><br><span class="line">=== RUN   TestUserInfo/test2</span><br><span class="line">=== RUN   TestUserInfo/test3</span><br><span class="line">--- PASS: TestUserInfo (0.00s)</span><br><span class="line">    --- PASS: TestUserInfo/test1 (0.00s)</span><br><span class="line">    --- PASS: TestUserInfo/test2 (0.00s)</span><br><span class="line">    --- PASS: TestUserInfo/test3 (0.00s)</span><br><span class="line">PASS</span><br><span class="line">ok      bank    0.013s</span><br></pre></td></tr></table></figure>
-<p>首先我们定义了一个<code>mockUser</code>, 然后实现了<code>UserName</code>函数，所以这时<code>mockUser</code>已经是<code>User</code>类型了，然后我们在测试函数里通过<code>u = mockUser</code>替换掉了运来的<code>var u = user.New()</code>, 这时候在执行<code>UserInfo</code>调用的其实就是<code>mockUser.UserName</code>函数了，完美的完成了我们的单元测试。</p>
-<h4 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h4><p>前面我们虽然用依赖注入的方式完成了调用，但是还有一个问题, 当我们依赖注入的时候用的是<code>var u = user.New()</code>的方式来获取的，但是在错综复杂的调用过程中，我们难免会多次调用<code>user.New()</code>函数，而且我们还要共享同一个<code>User</code>， 这时候就要求我们使用工厂模式保证不管多少次调用，返回的都是同一个<code>User</code>, 在上面的代码中其实很好改:<br>我们把<code>user</code>中的<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">()</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> DefaultUser&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>改为下面的实现:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> defaultUser = DefaultUser&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">()</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> defaultUser</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样我们每次返回的都是<code>user</code>内部的<code>defaultUser</code>这个实例，而这个实例只初始化了一次, 所有通过这个方法获取的实例都是同一个实例</p>
-<h4 id="简化调用"><a href="#简化调用" class="headerlink" title="简化调用"></a>简化调用</h4><p>有时候我们会觉得每次调用都通过依赖注入的传递一个对象，会使得调用变的复杂起来，比如本来我们调用的时候只需要<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user.UserName()</span><br></pre></td></tr></table></figure></p>
-<p>而现在可能我们的调用变成了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var u = user.New()</span><br><span class="line">u.UserName()</span><br></pre></td></tr></table></figure></p>
-<p>那么我们如何使用更符合<code>go</code>的方式，直接使用包调用而不是每次都传递一个对象呢？我们可以改为下面的方式:<br><code>user</code>的实现:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> user</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"database/sql"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> db *sql.DB</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">interface</span> &#123;</span><br><span class="line">    UserName(<span class="keyword">int</span>) (<span class="keyword">string</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> DefaultUser <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultUser = DefaultUser&#123;&#125;</span><br><span class="line"><span class="keyword">var</span> definedUser User</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">()</span> <span class="title">User</span></span> &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultUser</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SetUser</span><span class="params">(u User)</span></span> &#123;</span><br><span class="line">        definedUser = u</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserName return the name of user with uid</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(DefaultUser)</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">        sql := <span class="string">"select name from user where uid = ?"</span></span><br><span class="line">        rows, err := db.Query(sql, uid)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">defer</span> rows.Close()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> name <span class="keyword">string</span></span><br><span class="line">        <span class="keyword">for</span> rows.Next() &#123;</span><br><span class="line">                <span class="keyword">if</span> err := rows.Scan(&amp;name); err != <span class="literal">nil</span> &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> name, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> definedUser == <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> defaultUser.UserName(uid)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> definedUser.UserName(uid)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里我们新增加了一个变量<code>definedUser</code>来表示用户自定义的实例，然后通过<code>SetUser</code>来对其进行复制，我们同时增加了一个包级别的<code>UserName</code>函数，里面的实现会判断如果有<code>definedUser</code>那么我们就是用这个自定义的实现，如果没有我们就调用默认的实现</p>
-<p><code>bank</code>的实现:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> bank</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">        <span class="string">"user"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserInfo if uid exist return the name of user</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserInfo</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">        name, err := user.UserName(uid)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"something was wrong"</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> name == <span class="string">""</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"not found this user"</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"user name is "</span> + name</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>bank</code>的实现跟第一个版本一样，如果我们不需要修改默认实现，对于调用来说非常方便，我们不用关系其内部的具体实现。</p>
-<p><code>bank_test</code>的实现:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> bank</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"errors"</span></span><br><span class="line">    <span class="string">"testing"</span></span><br><span class="line">    <span class="string">"user"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mockUser <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u mockUser)</span> <span class="title">UserName</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> uid == <span class="number">1</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">""</span>, errors.New(<span class="string">"something was wrong"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> uid == <span class="number">2</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">""</span>, <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> uid == <span class="number">3</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"John"</span>, <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>, errors.New(<span class="string">"something was wrong"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUserInfo</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">        user.SetUser(mockUser&#123;&#125;)</span><br><span class="line">        cases := []<span class="keyword">struct</span> &#123;</span><br><span class="line">                name <span class="keyword">string</span></span><br><span class="line">                uid  <span class="keyword">int</span></span><br><span class="line">                res  <span class="keyword">string</span></span><br><span class="line">        &#125;&#123;</span><br><span class="line">                &#123;<span class="string">"test1"</span>, <span class="number">1</span>, <span class="string">"something was wrong"</span>&#125;,</span><br><span class="line">                &#123;<span class="string">"test2"</span>, <span class="number">2</span>, <span class="string">"not found this user"</span>&#125;,</span><br><span class="line">                &#123;<span class="string">"test3"</span>, <span class="number">3</span>, <span class="string">"user name is John"</span>&#125;,</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> _, v := <span class="keyword">range</span> cases &#123;</span><br><span class="line">                t.Run(v.name, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">                        info := UserInfo(v.uid)</span><br><span class="line">                        <span class="keyword">if</span> info != v.res &#123;</span><br><span class="line">                                t.Errorf(<span class="string">"got %s; want %s"</span>, info, v.res)</span><br><span class="line">                        &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>bank_test</code>由于要对<code>UserName</code>进行Mock, 用自己的实现来替换原来的实现，我们只需要在测试的时候调用<code>SetUser</code>函数，就完成了替换。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://en.wikipedia.org/wiki/SOLID" target="_blank" rel="noopener">面向对象设计的设计原则</a><br><a href="https://zh.wikipedia.org/wiki/%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5" target="_blank" rel="noopener">依赖注入</a><br><a href="https://zh.wikipedia.org/wiki/%E5%9F%BA%E4%BA%8E%E6%8E%A5%E5%8F%A3%E7%BC%96%E7%A8%8B" target="_blank" rel="noopener">面相接口编程</a><br><a href="https://www.cnblogs.com/leoo2sk/archive/2008/04/10/1146447.html" target="_blank" rel="noopener">面向接口编程详解（一）——思想基础</a><br><a href="https://mp.weixin.qq.com/s/FnKkZD4DdPVX7PPH3dY8-w" target="_blank" rel="noopener">如何写出优雅的 Golang 代码</a><br><a href="https://gocn.vip/article/1764" target="_blank" rel="noopener">使用Golang的interface接口设计原则</a><br><a href="https://medium.com/@matryer/golang-advent-calendar-day-one-duck-typing-a513aaed544d" target="_blank" rel="noopener">Duck typing in Go</a></p>
 
       
     </div>
